@@ -13,21 +13,19 @@ url:                 https://gilbert9172.github.io
 baseurl:             ""
 
 # A very short description of your page
-tagline:             가장 게으르기위해 가장 부지런한 개발자
+tagline:             ""
 
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
-description:         >
-  게으르기 때문에 게발자.
-  글쓰는 걸 좋아하고, 디자인과 개발을 좋아한다.
+description:         ""
 
 # This should be the same author as first entry in `_data/authors.yml`
 author:
-  name:              aiden min
-  email:             zoqozqz@gmail.com
+  name:              Gilbert Jung
+  email:             gilbert9172@naver.com
 
 # Fallback image and color
-image:               /assets/img/nap.jpg
+image:               /assets/img/gil.jpg
 color:               '#4f86aa'
 
 # The font used for headings. Expects a string that is a valid CSS font-family value.
@@ -45,13 +43,13 @@ google_fonts:        Lato
 
 # Set your Google Analytics id to receive `pageview` events.
 # To remove Google Anaylics from your page, remove the line below.
-google_analytics:    UA-92346434-1
+# google_analytics:    UA-92346434-1
 
 # Setting a disqus shortname will enable the comment section on pages with `comments: true` in the front matter
-disqus_shortname:    isme2n
+disqus_shortname:    gilbert9172
 
 # This text will appear in the footer of every page. Markdown enabled.
-copyright:           '&copy; 2017. by isme2n'
+copyright:           '&copy; 2021. by gilbert9172'
 
 # Format of the permalinks
 permalink:           pretty
