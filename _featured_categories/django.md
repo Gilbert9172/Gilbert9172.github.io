@@ -3,8 +3,8 @@ layout: list
 title: Django
 slug: django
 menu: True
-submenu: True
+submenu: false
 order: 7
 description: >
-  오늘 공부한 Djagno정리
+  Django 공부내용 정리.
 ---

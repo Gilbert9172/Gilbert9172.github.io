@@ -43,3 +43,4 @@ node_modules
 .sass-cache
 .jekyll-metadata
 *.gem
+.git_backup
