@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Operating System
-categories: CS
+categories: cs
 tags: os
 ---
 
