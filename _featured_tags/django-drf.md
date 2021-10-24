@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: React
-slug: react
-category: video
+title: DRF
+slug: drf
+category: django
 menu: false
 order: 1
 ---
