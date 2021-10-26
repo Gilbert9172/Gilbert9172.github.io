@@ -6,6 +6,7 @@ tags: postgresql
 ---
 
 ### 💡 ***PostgrsSQL***
+
 PostgreSQL은 객체-관계형 데이터베이스 시스템(ORDBMS)으로, 
 
 많은 기능을 제공하는 오픈소스 DBMS다.
