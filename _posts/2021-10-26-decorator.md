@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MVT
+title: Decorator
 categories: python
 ---
 
