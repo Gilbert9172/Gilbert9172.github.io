@@ -143,9 +143,12 @@ class PostView(ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 ```
-- [GenericAPIView](https://github.com/Gilbert9172/django-rest-framework/blob/00cd4ef864a8bf6d6c90819a983017070f9f08a5/rest_framework/generics.py)
 
-위 링크에 가면 <span style="color:#BA55D3">**`get_queryset()`**</span>, **`get_object()`**, **`get_serializer()`** 함수의 소스코드를 볼 수 있다.
+get_object(), get_serializer(), get_queryset() 이 세 함수는 
+
+아래 링크에서 소스 코드를 통해 이해하기.
+
+📜 [GenericAPIView 깃허브 소스코드](https://github.com/Gilbert9172/django-rest-framework/blob/00cd4ef864a8bf6d6c90819a983017070f9f08a5/rest_framework/generics.py)
 
 <br>
 
