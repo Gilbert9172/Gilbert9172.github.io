@@ -2,7 +2,6 @@
 layout: post
 title: PostgreSQL
 categories: db
-tags: postgresql
 ---
 
 ### 💡 ***PostgrsSQL***
