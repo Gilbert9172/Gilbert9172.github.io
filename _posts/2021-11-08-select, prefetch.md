@@ -24,7 +24,9 @@ select_related와 prefetch_related는 하나의 QuerySet을 가져올 때,
 
 #### 1. select_related
 
-select_related는 SQL의 JOIN을 사용하는 특성상 외래키, one-to-one 필드에서만 사용 가능하다.
+select_related는 SQL의 JOIN을 사용하는 특성상 외래키, one-to-one 필드에서만 
+
+사용 가능하다.
 
 select_related는 하나의 Query만으로 related_objects들을 다 가져온다.
 
