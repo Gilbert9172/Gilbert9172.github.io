@@ -1,7 +1,7 @@
 ---
 layout: tag-blog
 title: Django
-slug: djagon
+slug: django
 category: django
 menu: false
 order: 1
