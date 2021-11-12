@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: Data
-slug: data
-category: devlog
+title: CNN
+slug: cnn
+category: deeplearning
 menu: false
 order: 2
 ---
