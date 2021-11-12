@@ -2,7 +2,7 @@
 layout: tag-blog
 title: CNN
 slug: cnn
-category: deeplearning
+category: deep learning
 menu: false
 order: 2
 ---
