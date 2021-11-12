@@ -1,7 +1,7 @@
 ---
 layout: list
 title: Deep Learning
-slug: deep learning
+slug: deeplearning
 menu: True
 submenu: True
 order: 7
