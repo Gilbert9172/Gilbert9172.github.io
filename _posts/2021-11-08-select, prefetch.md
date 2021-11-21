@@ -2,6 +2,7 @@
 layout: post
 title: select_related & prefetch_related
 categories: django
+tags: django
 ---
 
 ### 💡 ***select_related & prefetch_related***
