@@ -150,3 +150,4 @@ class TestListView(LoginRequiredMixin,ListView):
     template_name = 'instagram/post_list.html'
     pagenate_by = 10
 ```
+---
