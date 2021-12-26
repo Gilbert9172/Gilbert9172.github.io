@@ -1,9 +1,8 @@
 ---
 layout: tag-blog
-title: Git
-slug: git
+title: Network
+slug: network
 category: devlog
 menu: false
 order: 2
-header-img: "/img/git-logo.png"
 ---
