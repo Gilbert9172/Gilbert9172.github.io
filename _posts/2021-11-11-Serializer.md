@@ -7,6 +7,12 @@ tags: drf
 
 ### 💡 ***생성자***
 
+Serialize의 역할은 요청받은 데이터를 직렬화 해주고, form과 유사하게 
+
+입력받은 값의 유효성 검증하고, 검증에 통과한 값들을 사전 형태로 가져오고,
+
+가져온 값들을 DB에 저장하는 역할까지 해준다. 
+
 Serializer는 Djagno Form과 컨셉 및 사용법이 매우 유사하다. 
 
 하지만 생성자(`__init__`)에 차이가 있다.
@@ -36,6 +42,7 @@ Serializer의 data 인자가 주어지면, 아래와 같은 기능을 사용할 
 １. **`.initial_data`** 필드에 접근할 수 있다.
 
 ２. **`.validate_data`** 를 통해 유효성 검증에 통과한 값들이 **`.save()`** 시에 저장
+> form은 cleaned_data
 
 ３. **`.errors`** → 유효성 검증 수행 후에 오류 내역 
 
@@ -61,20 +68,29 @@ Serializer의 data 인자가 주어지면, 아래와 같은 기능을 사용할 
 <br>
 
 예를 들어 사용자의 IP를 지정해야 할 경우 보통 아래와 같이 구현했다.
+
+> 왜냐면 사용자가 직접 IP를 입력하는 경우를 없애기 위해서.
+
 ```python
 # views.py
 class PostCreate(request):
     if reqeust.method == 'POST':
         form = PostForm()
         if form.is_valid():
+            
+            # DB 저장 보류
             post = form.save(commit=False)
+            
+            # 업데이트 해야할 부분 추가. 
             post.author = request.user
             post.ip = request.META['REMOTE_ADDR']
+
+            # 최종 저장.
             post.save()
             return redirect('instagram:test')
 ```
 
-반면에 Serializer에서는 save에 내가 업데이트하고 싶은 값 들을 kwargs로 넘겨준다. 
+반면에 Serializer에서는 save 매소드에 내가 업데이트하고 싶은 값 들을 kwargs로 넘겨준다. 
 
 ```python
 serializer.is_valid(raise_exception=True)
@@ -142,7 +158,8 @@ class ExampleSerializer(serializers.Serializer):
     class Meta:
     validators = [
         UniqueTogetherValidator(
-            queryset=ToDoItem.objects.all(), fields=['list', 'position']
+            queryset=ToDoItem.objects.all(), 
+            fields=['list', 'position']
         ) 
     ]
 ```
@@ -169,19 +186,20 @@ class ExampleSerializer(serializers.Serializer):
                 # 1. 전체 queryset에서 
                 queryset=BlogPostItem.objects.all(),
 
+                # 2. published라는 field에서 연도만 확인하고,
+                date_field='published'
+
                 # 3. 해당 년도에 slug가 유일한지 체크!
                 field='slug',
 
-                # 2. published라는 field에서 연도만 확인하고,
-                date_field='published'
             )
         ]
 ```
 ▪ queryset → 필수
 
-▪ fields → 필수
-
 ▪ date_field → 필수
+
+▪ fields → 필수
 
 ▪ message
 
@@ -219,16 +237,20 @@ DRF에서는 <span style="color:#B8860B">**rest_framework.exceptions.ValidatorEr
 
 ```python
 def validate_title(self,value):
-    # 생략
+    if 'django' not in value:
+        raise ValidationError("에러 발생")
+    return value
 ```
 
 #### 2. Object Level 검사
 
-두 개 이상의 필드에 대한 유효성 검사 및 변환
+<span style="color:#B8860B">**두 개 이상**</span>의 필드에 대한 유효성 검사 및 변환
 
 ```python
 def validate(self,value):
     # 생략
+
+#-- form에서는 clean()
 ```
 ---
 
@@ -252,12 +274,12 @@ class CreateModelMixin:
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        self.perform_create(serializer) # 밑에 구현
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save() #=> 실행 시, 모델 객체 생성 
 
     def get_success_headers(self, data):
         try:
