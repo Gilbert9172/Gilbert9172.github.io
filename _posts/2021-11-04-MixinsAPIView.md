@@ -7,13 +7,13 @@ tags: drf
 
 ### 💡 ***DRF에서 지원하는 Mixins***
 
-Python의 상속 문법을 활용한 것이다.
+> 반복해서 쓰는 로직을 패턴화 시켜둔것. 
 
-Mixin이라는 네이밍을 갖고 있는 class는 실제 mixin 클래스를 직접 사용하는 것은 아니다.
+Python의 상속 문법을 활용한 것이다. Mixin이라는 네이밍을 갖고 있는 class는 
 
-다른 클래스에 의해서 상속이 이루어질때 사용하는 것이다.
+클래스라기 보단, 반복해서 쓰는 로직을 패턴화 시켜둔 것이라고 이해했다. 
 
-그리고 필요하다면 다양한 믹스인을 만들수도 있다.
+그리고 필요하다면 다양한 믹스인을 만들수도 있다. 아래는 기본적인 Mixin들이다.
 
 １. CreateModelMixin
 
@@ -50,13 +50,13 @@ class PostListAPIView(mixins.ListModelMixin, mixins.CreateModelMixin,
 
 위 코드에서 상속 받는 순서는 MRO를 기반으로 호출되기 때문에 중요하다.
 
-따라서 `GenricAPIView`가 가장 마지막에 오게 된다.
+따라서 **`GenricAPIView`** 가 가장 마지막에 오게 된다.
 
 하지만 위와 같이 매번 직접 연결을 하는 것은 번거롭다.
 
 그래서 위와 같은 부분을 패턴화 해 두었는데,
 
-APIView → mixin → Generics → ViewSet 과 같인 점점 추상화를 했다.
+APIView → mixin → Generics → ViewSet 순으로 기능들을 압축시켜 놨다고 한다.
 
 ---
 
