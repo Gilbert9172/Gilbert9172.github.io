@@ -69,11 +69,26 @@ data = JSONParser().parse(stream)
 
 **⒉ 다음으로 원형의 데이터를 검증된 데이터(dict type)로 넣는다.**
 
+요청 받는 값에 대한 직렬화를 진행할 땐, **`data=`** 으로 값을 넘겨줘야한다.
+
 ```python
 serializer = CommentSerializer(data=data)
 serializer.is_valid()
 serializer.validated_data
 ```
+
+**`data=`** 으로 값을 넘겨준 후에 사용할 수 있는 메서드이다.
+
+- is_valid() 
+
+- initial_data 
+
+- validated_data : `is_valid()` 메서드 사용 수 사용가능 ; 모든 값 반환
+
+- errors - `is_valid()` 메서드 사용 수 사용가능
+
+- data - `is_valid()` 메서드 사용 수 사용가능
+
 ---
 
 <br>

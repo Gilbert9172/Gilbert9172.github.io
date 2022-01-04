@@ -11,6 +11,8 @@ tags : drf
 
 ### 💡 ***ModelSerializer***
 
+<img src="/assets/img/django/serializer:model.png">
+
 종종 Django 모델 정의에 밀접하게 매핑되는 serializer 클래스가 필요하다. 
 
 ModelSerializer 클래스는 모델 필드에 해당하는 필드가 있는 Serializer 클래스를 
