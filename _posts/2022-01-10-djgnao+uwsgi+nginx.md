@@ -203,3 +203,9 @@ http {
 경로는 var/www/app/static/이 된다.
 
 ---
+
+<br>
+
+### 📚 ***Reference***
+
+- [참고 블로그](https://knot.tistory.com/97)
