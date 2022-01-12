@@ -2,7 +2,7 @@
 layout : post
 title : Dango + uWSGI + Nginx
 categories : django
-tags : django
+tags : server
 ---
 
 ### 💡 ***uWSGI***
