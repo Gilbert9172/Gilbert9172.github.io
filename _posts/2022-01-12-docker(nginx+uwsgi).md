@@ -240,13 +240,15 @@ services:
 
 #### **ports**
 
+<img src="/assets/img/django/docker_network.png">
+
 여기서 80:80이라고 설정해 준 것은 **`port forwarding`** 이라고 한다고 한다.
 
-도커 컨테이너는 80번 포트로 listening을 한다.
+도커 컨테이너는 80번 포트로 listening을 한다. (nginx 서버의 포트를 80번으로 설정했기 때문.)
 
-요청이 들어오면 요청은 '도커의 80번'포트로 들어가고, 
+client의 요청은 '도커의 80번'포트로 들어가고, nginx에서 설정해준 socket 경로를 따라 
 
-이제 nginx의 80번 포트로 요청을 보내준다. 그리고 uWSGI와 소켓통신을 한다.
+uWSGI에 요청을 전달한다.
 
 <br>
 
@@ -255,6 +257,14 @@ services:
 내 하드드라이브의 경로와 컨테이너 내부의 경로를 매핑해주는것.
 
 해당 설정을 할 경우, vscode에서 코드 편집을 하면, 컨테이너 내부의 코드도 변동된다.
+
+<br>
+
+- **내용추가(22.01.13)**
+
+dockerfile을 생성해 줄때, requirements.txt만1 COPY해주고 나머지는 docker-compose.yml에서
+
+volumes에서 경로를 맵핑해주면 된다. (굳이 이미지 빌드시에 모든 파일을 COPY할 필요 없다.) 
 
 ---
 
