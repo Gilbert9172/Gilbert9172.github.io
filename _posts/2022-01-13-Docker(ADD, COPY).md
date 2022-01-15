@@ -1,8 +1,7 @@
 ---
 layout : post
 title : Docker 명령어 ADD, COPY
-categories : django
-tags : docker
+categories : docker
 ---
 
 ### 💡 ***ADD & COPY***

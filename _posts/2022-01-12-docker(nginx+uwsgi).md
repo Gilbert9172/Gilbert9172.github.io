@@ -1,8 +1,7 @@
 ---
 layout : post
 title : docker with [ Nginx + uWSGI + django ]
-categories : django
-tags: server
+categories : docker
 --- 
 
 ### 💡 ***project의 dockerfile***
