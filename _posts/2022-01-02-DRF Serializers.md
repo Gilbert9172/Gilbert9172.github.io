@@ -99,6 +99,8 @@ serializer.validated_data
 
 **`.create()`** 및 **`.update()`** 메서드 중 하나 또는 둘 다를 구현해야 한다.
 
+> ModelSerializer 에서는 따로 구현을 하지 않아도 된다.
+
 만일 모델 instance가 Django 모델과 대응한다면, 이 것을 DB에 저장하고 싶을 것이다.
 
 이럴 경우에 마지막에 **`.save()`** 메서드를 추가해야한다.
