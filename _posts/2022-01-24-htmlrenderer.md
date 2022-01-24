@@ -135,3 +135,59 @@ form으로 렌더링한 점이다.
 </body>
 </html>
 ```
+---
+
+<br>
+
+### 📝 ***게시물 올리기***
+
+> views 
+
+django를 할 때도, post를 할 때 **`if request.method == 'post'`** 로 시작했었다.
+
+여기서도 마찬자기로 빈 serializer 객체를 가져오고 거기에서 post를 했어야했다.
+
+```python
+class PostingPostView(GenericAPIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    serializer_class = PostViewSerializer
+    template_name = 'posts/posting.html'
+
+    def get(self,request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        return Response({"serializer":serializer})
+
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        serializer.save(user_id=ruquest.user)
+        return redirect('post-list')
+```
+
+<br>
+
+> html
+```html
+{% load static %}
+{% load rest_framework %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}"
+    <title>게시물 작성</title>
+</head>
+<body>
+    <form action="{% url 'posting' %}" method="post" enctype="multipart/form-data" novalidate> 
+        {% csrf_token %}
+        {% render_form serializer %}
+        <input type="submit" value="포스트 올리기">
+    </form>
+</body>
+</html>
+```
+---
