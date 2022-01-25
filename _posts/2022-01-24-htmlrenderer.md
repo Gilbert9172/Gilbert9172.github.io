@@ -191,3 +191,63 @@ class PostingPostView(GenericAPIView):
 </html>
 ```
 ---
+
+### 📝 ***게시물 삭제***
+
+> views
+
+```python
+class PostDeleteView(GenericAPIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    serializer_class = PostViewSerializer
+    template_name = 'posts/post_delete.html'
+
+    def get(self,request,pk):
+        post = get_object_or_404(Post, pk=pk)
+        return Response({"post":post})
+    
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post.delete()
+        return redirect('posts:post-list')
+```
+
+<br>
+
+> html
+
+```html
+{% load static %}
+{% load rest_framework %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}">
+    <link rel="shortcut icon" href="#"> 
+    <title>게시물 삭제</title>
+</head>
+<body>
+    <section>
+        <article>
+            <form action="{% url 'posts:post-delete' pk=post.pk %}" method="post" enctype="multipart/form-data" novalidate> 
+                {% csrf_token %}
+                제목: {{post.title}}<br>
+                작성자: {{post.user}}<br>
+                이미지: <img src="/media/{{post.image}}"><br>
+                설명: {{post.description}}<br>
+                <hr>
+                <input type="submit" value="포스트 삭제">
+                <hr>
+                <a href="{% url 'posts:post-list' %}" class="btn">리스트로</a>
+            </form>
+            
+        </article>
+    </section>  
+</body>
+</html>
+```
+---
