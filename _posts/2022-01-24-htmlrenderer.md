@@ -48,8 +48,7 @@ class PostList(APIView):
         context = {
             "post" : post
         }
-        return Response(context,template_name = 'posts/post_list.html'
-)
+        return Response(context,template_name = 'posts/post_list.html')
 ```
 
 ---
