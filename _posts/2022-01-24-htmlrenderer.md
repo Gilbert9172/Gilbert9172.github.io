@@ -56,39 +56,6 @@ class PostList(APIView):
 
 <br>
 
-> html
-```html
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posting List</title> 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}"
-</head>
-<body>
-    <section>
-        {% if post %}
-        {% for i in post %}
-            <div class=“container”>
-                제목: {{i.title}}<br>
-                작성자: {{i.user}}<br>
-                이미지: {{i.image}}<br>
-                설명: {{i.description}}
-            </div>
-            {% endfor %}
-        {% endif %}
-    </section>  
-</body>
-</html>
-```
----
-
-<br>
-
 ### 📝 ***게시물 수정***
 
 > view
@@ -105,37 +72,6 @@ class PostEditView(GenericView):
         
         return redirect('post-list')
 ```
-
-<br>
-
-> html
-
-여기서 신기했던 부분은 serializer를 **`render_form`** 템플릿 태그를 사용하여, 
-
-form으로 렌더링한 점이다. 
-
-```html
-{% load static %}
-{% load rest_framework %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title> 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}"
-</head>
-<body>
-    <form action="{% url 'posting' pk=post.pk %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% render_form serializer %}
-    <input type="submit" value="수정완료">
-</body>
-</html>
-```
----
 
 <br>
 
@@ -164,33 +100,10 @@ class PostingPostView(GenericAPIView):
         serializer.save(user_id=ruquest.user)
         return redirect('post-list')
 ```
+---
 
 <br>
 
-> html
-```html
-{% load static %}
-{% load rest_framework %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}"
-    <title>게시물 작성</title>
-</head>
-<body>
-    <form action="{% url 'posting' %}" method="post" enctype="multipart/form-data" novalidate> 
-        {% csrf_token %}
-        {% render_form serializer %}
-        <input type="submit" value="포스트 올리기">
-    </form>
-</body>
-</html>
-```
----
 
 ### 📝 ***게시물 삭제***
 
@@ -210,44 +123,5 @@ class PostDeleteView(GenericAPIView):
         post = get_object_or_404(Post, pk=pk)
         post.delete()
         return redirect('posts:post-list')
-```
-
-<br>
-
-> html
-
-```html
-{% load static %}
-{% load rest_framework %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/posts.css' %}">
-    <link rel="shortcut icon" href="#"> 
-    <title>게시물 삭제</title>
-</head>
-<body>
-    <section>
-        <article>
-            <form action="{% url 'posts:post-delete' pk=post.pk %}" method="post" enctype="multipart/form-data" novalidate> 
-                {% csrf_token %}
-                제목: {{post.title}}<br>
-                작성자: {{post.user}}<br>
-                이미지: <img src="/media/{{post.image}}"><br>
-                설명: {{post.description}}<br>
-                <hr>
-                <input type="submit" value="포스트 삭제">
-                <hr>
-                <a href="{% url 'posts:post-list' %}" class="btn">리스트로</a>
-            </form>
-            
-        </article>
-    </section>  
-</body>
-</html>
 ```
 ---
