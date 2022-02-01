@@ -2,7 +2,7 @@
 layout: list
 title: Java
 slug: java
-menu: true
+menu: True
 submenu: False
 order: 8
 description: >
