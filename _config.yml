@@ -95,7 +95,8 @@ collections:
 #  Advanced configuration
 # -----------------------------------------------------------------------------
 
-gems:
+#gems:
+plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-paginate
