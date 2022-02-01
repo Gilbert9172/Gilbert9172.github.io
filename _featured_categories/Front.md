@@ -2,7 +2,7 @@
 layout: list
 title: Front
 slug: front
-menu: True
+menu: False
 submenu: False
 order: 7
 description: >
