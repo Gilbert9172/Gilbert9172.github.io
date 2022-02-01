@@ -1,7 +1,8 @@
 ---
 layout: post
 title: Decorator
-categories: python
+categories: lang
+tags : python
 ---
 
 ### 💡 ***Decorator***
