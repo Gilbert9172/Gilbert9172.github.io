@@ -1,7 +1,7 @@
 ---
 layout: tag-blog
 title: Python
-slug: pyhton
+slug: python
 category: lang
 menu: false
 order: 1
