@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Filter, Interceptor
+title: Filter
 categories: springboot
 ---
 
@@ -78,6 +78,51 @@ public interface Filter {
 
 추가적으로 `doFilter()`를 작성할 때 마지막에 꼭!!! chain.doFilter(request, response);를 
 
-작성해야 한다. 만약 작성하지 않을 경우 더 이상 클라이언트의 요청을 뒤로 넘어가지 않고 끝나버린다.
+작성해야 한다. 
 
+만약 작성하지 않을 경우 더 이상 클라이언트의 요청을 뒤로 넘어가지 않고 끝나버린다.
+
+---
+
+<br>
+
+### 5. Filter 적용
+
+⒈ 필터 interface를 구현한다.
+
+```java
+public class MyFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                                    throws IOException, ServletException {
+
+            HttpServletRequest request = (HttpServletRequest) request;
+            HttpServletResponse response = (HttpServletResponse) response;
+            
+            // 중요!!!
+            chain.doFilter(request,resoponse);
+    }
+}
+```
+
+<br>
+
+⒉ 생성한 필터(MyFilter)를 Bean에 등록한다.
+
+```java
+@Configuration
+public class WebConfig {
+
+    @Bean
+    public FilterRegistrationBean<Filter> myFilter() {
+        
+        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(new MyFilter());
+        filterRegistrationBean.setOrder(1);
+        filterRegistrationBean.addUrlPatterns("/*");
+        return filterRegistrationBean;
+    }
+}
+```
 ---
