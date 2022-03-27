@@ -67,3 +67,124 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     }
 }
 ```
+
+**`supportsParameter()`**
+
+<span style="background-color:black;color:yellow">@Login</span> 어노테이션이 있으면서, Model 타입이면 ArgumentResolver가 실행된다.
+
+<br>
+
+**`resolveArgument()`**
+
+컨트롤러 호출 직전에 호출되어서 필요한 파라미터 정보를 생성해준다.
+
+위의 코드에서는 로그인 회원정보인 member 객체를 찾아서 반환해준다.
+
+> session=Member(id=1, loginId=test, name=테스터, password=1234)
+
+이후 스프링MVC는 컨트롤러의 메서드를 호출하면서 여기에서 반환된 member 객체를
+
+파라미터에 전달해준다.
+
+> model={member=Member(id=1, loginId=test, name=테스터, password=1234)}
+
+<br>
+
+### 3. 작성한 ArgumentResolver 등록
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+          resolvers.add(new LoginMemberArgumentResolver());
+      }
+}
+```
+---
+
+<br>
+
+### 고찰
+
+JWT Token 인증의 경우 이런 방법으로 하면 되는건가??
+
+⒈ token 유효 여부 확인 
+
+⒉ token의 claims 정보에서 고유 값(ex. Email)으로 DB 조회
+
+⒊ 반환 된 raw값을 컨틀롤러 객체에 넣어줌.
+
+<br>
+
+**ArgumentResolver**
+```java
+@RequiredArgsConstructor
+public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private final UserMapper userMapper;
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+
+        
+        boolean hasLoginAnnotation = parameter.hasParameterAnnotation(Login.class);
+        boolean hasModelType = User.class.isAssignableFrom(parameter.getParameterType()); 
+
+        return hasLoginAnnotation && hasModelType;
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        
+        // Token 정보 확인 
+        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        String header = request.getHeader("Authorization");
+        String token = JwtUtils.getTokenFromHeader(header);
+
+
+        if (JwtUtils.isValideToken(token)) {
+
+            // Email 정보 가져오기
+            String email = JwtUtils.getUserEmailFromToken(token);
+
+            // 가져온 email정보로 해당 User객체 반환
+            User checkUser = findUserByEmail(String email);
+            return checkUser;
+
+        } else if (!JwtUtils.isValideToken(token)) {
+
+            /** Access Token이 유효하지 않을 경우
+            * 만료된 토큰에서 Email 가져온다.
+            * DB에서 Email로 해당 객체의 Refresh Token을 가져온다.
+            * 다시 새로운 AccessToken을 만들어 준다.
+            */
+            String email = JwtUtils.getUserEmailFromToken(token);
+            User checkUser = findUserByEmail(String email);
+            String reToken = checkUser.getRetoken();
+
+            if (JwtUtils.isValideReToken(reToken)) {
+
+                // Refresh Token을 기반으로 새로운 Access Token을 생성
+                User user = new User();
+                user.setAuthCode(JwtUtils.getClaimsCodeFromToken(reToken));
+                user.setEmail(JwtUtils.getUserEmailFromToken(reToken));
+                user.setUserSeq(Long.parseLong(JwtUtils.getClaimsSeqFromToken(reToken)));
+
+                response.setHeader(AuthConstants.AUTH_HEADER, AuthConstants.TOKEN_TYPE + " " + JwtUtils.generateJwtToken(user));
+                response.setHeader(AuthConstants.RE_AUTH_HEADER, AuthConstants.TOKEN_TYPE + " " + reToken);
+                
+                HttpSession session = request.getSession();
+                session.setAttribute(user.getEmail()+"_token", reToken);
+        
+                return checkUser;
+                
+            } else {
+                response.addHeader("Content-Type", "application/json");
+                response.getWriter().print("Fail");
+                return false;
+            }
+        }
+    }
+}
+```
