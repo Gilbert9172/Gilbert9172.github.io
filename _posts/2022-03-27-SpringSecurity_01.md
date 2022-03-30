@@ -33,39 +33,70 @@ Spring Security는 Servlet이 제공해주는 Filter를 기반으로 동작한�
 
 <br>
 
-⒈ Http 요청이 들어오면 AuthenticationFilter가 해당 요청을 가로챈다.
+**<span style="color:gray">[ AuthenticationFilter ]</span>**
 
-⒉ 인증용 객체인 UsernamePasswordAuthenticationToken객체를 생성한다.
-
-⒊ 인증을 담당할 (Interface)AuthenticationManager에게 2번에서 만든 
-
-UsernamePasswordAuthenticationToken객체를 전달해준다.
-
-⒋ AbstractAuthenticationProcessingFilter가 사용되는데 이것은 다음과 같은 역할을 한다.
-
-사용자가 form에 입력한 아이디, 비밀번호를 처리하는 역할을 하는데, 
-
-사용자 비밀번호를 다른 필터로 전달하기 위해서 Authentication 객체를 생성한다.
-
-이때 비밀번호 외의 정보(사용자 이름 등)도 설정을 해준다.
-
-⒌ 생성된 Authenrication 객체를 AuthenticationProvider에 전달해주면, 실제 인증이 일어난다.
-
-인증에 실패하게 되면 AuthenticationException을 호출한다.
-
-⒍ 인증이 성공하게 된 경우 DB에서 사용자의 정보를 찾고 UserDetails객체에 담아 반환한다.
+Http 요청이 들어오면 AuthenticationFilter가 해당 요청을 가로챈다.
 
 <br>
+
+**<span style="color:gray">[ UsernamePasswordAuthenticationToken ]</span>**
+
+클라이언트 요청으로 넘어온 아이디와 비밀번호를 사용하여,  
+
+인증용 객체인 UsernamePasswordAuthenticationToken객체를 생성한다.
+
+<br>
+
+**<span style="color:gray">[ AuthenticationManager ]</span>**
+
+인증을 담당할 AuthenticationManager에게 2번에서 만든 Token 객체를 전달해주고, 
+
+AuthenticationProvider목록에서 적적한 Provider를 찾은 후 토큰을
+
+AuthenticationProvider에게 전달해준다.
+
+<br>
+
+**<span style="color:gray">[ AuthenticationProvider & userDetailService ]</span>**
+
+AuthenticationManager로 부터 받은 Token 객체를 가지고 Authentication 객체를 생성해 준다. 
+
+그리고 생성해준 Authentication 객체에서 아이디와 비밀번호를 꺼내서 실제 사용자 인증을 
+
+진행한다. 사용자 인증을 진행하기 위해서 userDetailService에 정의되어 있는 
+
+`loadUserByUsername()` 메소드를 사용하고, 이때 DB에 접근해서 사용자 정보를 가져온다.
+
+인증이 성공적이면 <span style="background-color:#4682B4; color:white">*UsernamePasswordAuthenticationToken 객체*</span>를 생성해준다.
+
+필요하다면 사용자의 다른 정보도 추가해 줄 수 있다.
+
+```java
+// DB에 접근해서 사용자 정보 가져오기
+CustomUserDetail userDetails = 
+                (CustomUserDetail) userDetailService.loadUserByUsername(email);
+
+// 인증 완료 후 생성하는 UsernamePasswordAuthenticationToken객체
+new UsernamePasswordAuthenticationToken(userDetails, userPw, userMembership);
+```
+
+<br>
+
+**<span style="color:gray">[ Security Context Holder ]</span>**
 
 성공적으로 인증이 완료되면, Spring Security 인메모리 저장소인 SecurityContextHolder에 
 
 Session을 저장하고, sessionId와 함께 응답을 보낸다.
 
-<br>
+사용자 정보를 꺼내야 할 경우에는 Secutity Session에서 <span style="background-color:#4682B4; color:white">*Authentication객체*</span>를 꺼내고, 
 
-사용자 정보를 꺼내야 할 때는 Secutity Session에서 Authentication객체를 꺼내고, 
+꺼낸 Authentication 객체에서 <span style="background-color:#4682B4; color:white">*UserDetails 객체*</span>를 꺼내야한다.
 
-꺼낸 Authentication 객체에서 UserDetails 객체를 꺼내야한다.
+---
+
+## <span style="color:gray">Spring Security Filter Chain</span>
+
+<img src="/assets/img/spring/secrity_filter.png">
 
 ---
 
@@ -159,16 +190,22 @@ public class PrincipalDetails implements UserDetails {
 ```java
 @Service
 @RequiredArgsConstructor
-public class PrincipalDetailsService implements UserDetailsService {
+public class UserDetailServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+	private final UserDetailsMapper userDetailsMapper;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        
-        //...
-
-    }
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		
+		Optional<User> user = userDetailsMapper.findUserByEmail(email);
+		if (user.isEmpty()) {
+			User notFoundUser = User.builder()
+					.email(email)
+					.build();
+			return new CustomUserDetail(notFoundUser);
+		}
+		return user.map(CustomUserDetail::new).orElseThrow(UserNotFoundException::new);
+	}
 }
 ```
 
