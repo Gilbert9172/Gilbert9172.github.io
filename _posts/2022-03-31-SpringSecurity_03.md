@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Spring Security 3
-categories: springboot
+categories: spring
 tags: springSecurity
 ---
 

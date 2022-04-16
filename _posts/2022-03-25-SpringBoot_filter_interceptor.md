@@ -1,7 +1,8 @@
 ---
 layout: post
 title: Filter
-categories: springboot
+categories: spring
+tags: springBoot
 ---
 
 # 🔎  Filter, Interceptor

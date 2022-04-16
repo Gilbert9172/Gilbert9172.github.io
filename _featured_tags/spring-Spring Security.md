@@ -2,7 +2,7 @@
 layout: tag-blog
 title: Spring Security
 slug: springSecurity
-category: springboot
+category: spring
 menu: false
 order: 1
 ---

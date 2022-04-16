@@ -1,10 +1,10 @@
 ---
 layout: list
-title: Springboot
-slug: springboot
+title: Spring
+slug: spring
 menu: True
 submenu: True
 order: 7
 description: >
-  SpringBoot 공부내용 정리.
+  Spring 관련 공부내용 정리.
 ---

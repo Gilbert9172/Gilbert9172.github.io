@@ -1,7 +1,8 @@
 ---
 layout: post
 title: DAO, DTO, VO
-categories: springboot
+categories: spring
+tags: springBoot
 ---
 
 ## <span style="color:gray">DAO (Data Access Object)</span>

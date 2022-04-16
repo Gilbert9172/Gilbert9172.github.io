@@ -1,7 +1,8 @@
 ---
 layout: post
 title: Interceptor
-categories: springboot
+categories: spring
+tags: springBoot
 ---
 
 # 🔎  Interceptor

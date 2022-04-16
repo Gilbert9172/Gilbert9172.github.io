@@ -1,7 +1,8 @@
 ---
 layout: post
 title: ArgumentResolver
-categories: springboot
+categories: spring
+tags: springBoot
 ---
 
 # 🔎  ArgumentResolver
