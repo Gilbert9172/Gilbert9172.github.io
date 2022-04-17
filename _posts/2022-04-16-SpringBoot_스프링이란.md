@@ -72,3 +72,19 @@ tags: springBoot
 ✓ 스프링은 <span style="background-color:#87CEFA">좋은 객체 지향</span> 애플리케이션을 개발할 수 있게 도와주는 프레임워크 
 
 ---
+
+<br>
+
+## <span style="color:gray">[ DI ]</span>
+
+✓ 의존관계, 의존성 주입
+
+✓ DI 컨테이너 제공
+
+<br>
+
+스프링의 DI(Dependency Injection) 덕분에 OCP, DIP를 가능하게 지원해준다.
+
+이렇게 되면 클라이언트 코드의 변경 없이 기능을 확장할 수 있다.
+
+즉, 쉽게 부품을 교체하듯이 개발할 수 있다.
