@@ -23,11 +23,11 @@ tags: springBoot
 
 > HTTP 요청 → WAS → 필터 → (Dispatcher)서블릿 → 스프링 인터셉터 → 컨트롤러
 
-스프링 인터셉터는 디스패처 서블릿과 컨트롤러 사이에서 컨트롤러 호출 직전에 호출
+스프링 인터셉터는 Dispatcher Servlet과 컨트롤러 사이에서 컨트롤러 호출 직전에 호출된다.
 
-스프링 인터셉터는 스프링 MVC가 제공하는 기능이기 때문에 결국 디스패처 서블릿 이후에 등장 
+스프링 인터셉터는 스프링 MVC가 제공하는 기능이기 때문에 결국 Dispatcher Servlet 이후에 
 
-스프링 인터셉터에도 URL 패턴을 적용할 수 있는데, 서블릿 URL 패턴과는 다르고, 
+등장한다. 스프링 인터셉터에도 URL 패턴을 적용할 수 있는데, 서블릿 URL 패턴과는 다르게, 
 
 매우 정밀하게 설정할 수 있다.
 
@@ -48,6 +48,26 @@ tags: springBoot
 > HTTP 요청 -> WAS -> 필터 -> 서블릿 -> 인터셉터1 -> 인터셉터2 -> 컨트롤러
 
 스프링 인터셉터는 체인으로 구성되는데, 중간에 인터셉터를 자유롭게 추가할 수 있다. 
+
+<br>
+
+<h4> ✓ 2022.04.19 추가 ✓ </h4>
+
+오늘은 프로젝트 과정에서 Dispather Servlet에서 발생하는 PageNotFound를 인터셉터를 
+
+사용해서 해결하였다. 
+
+가장 먼저 RestControllerAdvice를 적용 했지만 해결되지 않았다. 
+
+왜인지 확인해보니 애초에 Page Not Found는 컨트롤러를 부르기전에 handler를 처리해줄 
+
+HandlerAdapter가 없기 때문에 nohandlerfoundexception로 인해서 생기는 오류였기 때문!!! 
+
+따라서 Servlet과 Controller 사이에서 호출되는 Interceptor를 사용해야겟다 싶었다.
+
+```java
+
+```
 
 <br>
 
