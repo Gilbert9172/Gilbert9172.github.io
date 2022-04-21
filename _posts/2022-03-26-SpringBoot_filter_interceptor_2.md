@@ -66,8 +66,19 @@ HandlerAdapter가 없기 때문에 nohandlerfoundexception로 인해서 생기�
 따라서 Servlet과 Controller 사이에서 호출되는 Interceptor를 사용해야겟다 싶었다.
 
 ```java
-
+public class PageNotFoundInterceptor implements HandlerInterceptor {
+    
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (response.getStatus() == 404) {
+            response.getWriter().print("Page Not Found");
+            return false;
+            }
+        return true;
+    }
+}
 ```
+
 
 <br>
 
