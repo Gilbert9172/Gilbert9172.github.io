@@ -5,11 +5,9 @@ categories: spring
 tags: mybatis
 ---
 
-## <span style="color:gray">JOIN</span>
+## <span style="color:gray">나만 몰랐던 테이블 3개 이상일 때 JOIN</span>
 
-오늘은 두개 이상의 테이블을 JOIN해서 데이터 결과 값을 가져오는 쿼리를 작성했다.
-
-처음에 내가 짠 쿼리문은 아래와 같다. 
+오늘은 세 개 이상의 테이블을 JOIN해서 데이터 결과 값을 가져오는 쿼리를 작성했다.
 
 <br>
 
