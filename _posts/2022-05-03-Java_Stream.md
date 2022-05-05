@@ -78,6 +78,8 @@ Stream<String> limitedStream     = stream.limit(5);
 int total = stream.count();
 ```
 
+---
+
 <br>
 
 ### <span style="color:gray">[ Stream 특징 ]</span>
@@ -112,3 +114,19 @@ stream.parallel().mapToint(s -> s.length())
 → ***<span style="background-color:yellow">오토박싱 & 언박싱의 비효율이 제거됨.</span>***
 
 → 숫자와 관련된 유용한 메서드를 Stream<T>보다 더 많이 제공
+
+---
+
+<br>
+
+### <span style="color:gray">[ Stream 만들기 - Collection ]</span>
+
+Collection 인터페이스의 **`stream()`** 으로 컬렉션을 스트림으로 변환
+
+```java
+
+List<Integer> list = Arrays.asList(1,2,3,4,5);
+
+// list를 스트림으로 변환
+Stream<Integer> intStream = list.stream();
+```
