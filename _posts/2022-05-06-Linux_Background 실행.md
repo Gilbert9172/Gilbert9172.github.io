@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 백그라운드에서 스프링부트 서버 돌리기
-categories: Linux
+categories: linux
 ---
 
 ## <span style="color:gray">nohup</span>
