@@ -85,3 +85,9 @@ nohup ./mvnw spring-boot:run -D"spring-boot.run.profiles"=prod 1 > arthive.out 2
 ```
 
 ---
+
+<br>
+
+📚 [참고 블로그](https://joonyon.tistory.com/98)
+
+---
