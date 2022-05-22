@@ -10,7 +10,8 @@ tags: aop
 우선 dependency를 추가해주어야 한다.
 
 - maven
-```XML
+
+```xml
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-aop</artifactId>
@@ -21,6 +22,7 @@ tags: aop
 <br>
 
 - gradle
+
 ```xml
 implementation 'org.springframework.boot:spring-boot-starter-aop'
 ```
