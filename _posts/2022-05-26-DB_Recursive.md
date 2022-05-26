@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 프록시, 프록시 패턴, 데코레이터 패턴
+title: Recursive
 categories: sql
 ---
 
