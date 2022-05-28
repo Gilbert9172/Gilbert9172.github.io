@@ -1,6 +1,6 @@
 ---
 layout: post
-title: <choose>, <when>, <otherwise>
+title: choose, when, otherwise
 categories: spring
 tags: mybatis
 ---

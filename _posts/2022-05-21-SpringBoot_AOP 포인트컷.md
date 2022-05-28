@@ -90,11 +90,9 @@ within 지시자는 특정 타입 내의 조인 포인트에 대한 매칭을 �
 
 ## <span style="color:gray">[ args ]</span>
 
-인자가 주어진 타입의 인스턴스를 조인 포인트로 매칭한다. 기본 문법은 
+인자가 주어진 타입의 인스턴스를 조인 포인트로 매칭한다. 기본 문법은 execution의 
 
-execution의 args부분과 같다. 
-
-execution과 args의 차이점은 다음과 같다.
+args부분과 같다. execution과 args의 차이점은 다음과 같다.
 
 execution은 파라미터 타입이 정확하게 매칭되어야 한다. args는 부모 타입을 허용한다. 
 
@@ -118,7 +116,7 @@ args는 실제 넘어온 파라미터 객체 인스턴스를 보고 판단한다
 
 |지시자|설명|
 |------|----|
-|@target|실핼 객체의 클래스에 주어진 타입의 애노테이션이 있는 조인 포인트|
+|@target|실행 객체의 클래스에 주어진 타입의 애노테이션이 있는 조인 포인트|
 |@within|주어진 애노테이션이 있는 타입 내 조인 포인트|
 
 두 지시자 모두 타입에 있는 애노테이션으로 AOP 적용 여부를 판단한다.
@@ -171,4 +169,90 @@ args는 실제 넘어온 파라미터 객체 인스턴스를 보고 판단한다
 
 > this, target, args,@target, @within, @annotation, @args
 
-... 추가 정리 필요
+
+#### args 사용한 매개변수 조작.
+
+메소드 전후로 DataSeq를 암호화 및 복호화 과정을 aop를 통해 적용
+
+```java
+@Slf4j
+@Aspect
+@Component
+public class FileVoAdvisor {
+
+    @Pointcut("execution(* com.webiznet.arthive.app.service..*.*(..))")
+    public void cut() {}
+
+    @Before("cut() && args(fileVo)")
+    public void beforePointCut(JoinPoint joinPoint, FileVo fileVo) {
+        log.info("Before JoinPoint ={}", joinPoint.getSignature());
+        log.info("Before 시작={}",fileVo.getDataSeq());
+
+        String dataSeq = new String(Base64.getDecoder().decode(fileVo.getDataSeq()));
+        fileVo.setDataSeq(dataSeq);
+        log.info("Before 결과={}",fileVo.getDataSeq());
+    }
+
+    @AfterReturning(value = "cut() && args(fileVo)")
+    public void afterPointCut(JoinPoint joinPoint, FileVo fileVo) {
+        log.info("After JoinPoint={}", joinPoint.getSignature());
+        log.info("AfterReturning 시작={}",fileVo.getDataSeq());
+
+        String base64DataSeq = Base64.getEncoder().encodeToString(fileVo.getDataSeq().getBytes(StandardCharsets.UTF_8));
+        fileVo.setDataSeq(base64DataSeq);
+        log.info("AfterReturning 결과={}",fileVo.getDataSeq());
+    }
+}
+```
+
+---
+
+<br>
+
+## <span style="color:gray">[ this & target ]</span>
+
+`this`,`target`은 적용 타입 하나를 정확하게 지정해야 한다.
+
+두 개 모두 부모타입은 허용한다.그러나 이 둘은 포인트컷을 매칭하는 대상(객체)에서 
+
+차이점을 가지고 있다.
+
+스프링에서는 AOP를 적용하면 실제 target 객체 대신에 프록시 객체가 스프링 빈으로 등록된다. 
+
+`this`는 스프링 빈으로 등록되어 있는 프록시 객체를 대상으로 포인트컷을 매칭한다.
+
+반면에 `target`은 실제 target 객체를 대상으로 포인트컷을 매칭한다.
+
+<br>
+
+JDK 동적 프록시의 경우 this, target은 구체 클래스를 지정할 때 차이가 생긴다.
+
+<img src="/assets/img/spring/aop/aop4.png">
+
+<br>
+
+### **`this(com.test.MemberServiceImpl)`**
+
+MemberServiceImpl은 인터페이스가 있기 때문에 MemberService 인터페이스를 기반으로
+
+proxy객체가 생성된다. 이때 생성된 proxy객체는 MemberServiceImpl를 전혀 알지 못한다.
+
+> MemberServiceImpl또한 MemberService의 구현클래스지만 어떤 메소드가 추가됐는지 모른다.
+
+따라서 ***<span style="background-color:yellow">AOP적용 대상이 아니다.</span>***
+
+<br>
+
+### **`target(com.test.MemberServiceImpl)`**
+
+this와 다르게 target 객체를 보고 판단한다. target 객체가 MemberServiceImpl 타입이므로 
+
+***<span style="background-color:yellow">AOP 적용 대상이다.</span>***
+
+<br>
+
+CGLIB 프록시의 경우 구체 클래스를 기반으로 프록시 객체가 생성되기 때문에
+
+모두 AOP가 적용된다. 
+
+---
