@@ -141,3 +141,17 @@ public interface BeanPostProcessor {
 프록시가 호출되었을 때 부가 기능인 어드바이스를 적용할지 말지 포인트컷을 보고 판단한다.
 
 ---
+
+<br>
+
+## <span style="color:gray">[ 하나의 프록시, 여러 Advisor 적용 ]</span>
+
+예를 들어서 어떤 스프링 빈이 advisor1 , advisor2 가 제공하는 포인트컷의 조건을 모두 만족하면 
+
+프록시 자동 생성기는 프록시를 몇 개 생성할까? ***<span style="background-color:yellow">프록시 자동 생성기는 프록시를 하나만 생성한다.</span>***
+
+왜냐하면 프록시 팩토리가 생성하는 프록시는 내부에 여러 advisor 들을 포함할 수 있기 때문이다. 
+
+따라서 프록시를 여러 개 생성해서 비용을 낭비할 이유가 없다.
+
+<img src="/assets/img/spring/aop/AutoProxyCreator2.png">
