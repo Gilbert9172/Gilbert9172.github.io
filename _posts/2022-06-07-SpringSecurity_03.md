@@ -134,3 +134,27 @@ return (
         new AntPathMatcher().match("/test2", request.getServletPath());
         )
 ```
+
+<br>
+
+아래는 `match()` 메서드이다. 해당 메서드는 내부적으로 `doMatch()` 메서드를 호출한다.
+
+#### ***`match()`***
+
+```java
+@Override
+public boolean match(String pattern, String path) {
+    return doMatch(pattern, path, true, null);
+}
+```
+
+<br>
+
+#### ***`doMatch()`***
+
+```java
+protected boolean doMatch(String pattern, @Nullable String path, boolean fullMatch,
+			@Nullable Map<String, String> uriTemplateVariables) {...}
+```
+
+---
