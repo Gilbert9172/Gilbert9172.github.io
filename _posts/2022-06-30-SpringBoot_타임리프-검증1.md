@@ -98,7 +98,7 @@ bindingResult.addError(new FieldError("object", "fieldName", "기본 메세지")
 
 **두 번째 생성자**
 
-<img src="/assets/img/spring/fieldError/fieldError1.png">
+<img src="/assets/img/spring/fieldError/FieldError1.png">
 
 |파라미터|설명|
 |--------|----|
