@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: Spring Security
-slug: springSecurity
+title: Spring Batch
+slug: springBatch
 category: spring
 menu: false
-order: 3
+order: 4
 ---
