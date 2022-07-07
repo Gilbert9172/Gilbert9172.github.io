@@ -59,17 +59,17 @@ public Job footballJob() {
 
 #### <span style="color:gray">JobInstance</span>
 
-배치가 실제 실행되면, 각가의 실행을 **`Instance`** 라고 한다. 하루가 끝날때 수행되는 "EndOfDay"라는 
+배치가 실제 실행되면, 각각의 실행을 **`Instance`** 라고 한다. 하루가 끝날때 수행되는 "EndOfDay"라는 
 
 이름의 Job이 있다고 해보자. 물론 Job(EndOfDay)이 하나만 있지만, 매일 매일 수행되므로 각각 별도의 
 
-작업으로 생각해야한다. 이 Job(EndOfDay)의 경우 하루에 하나의 논리적인 ***<span style="background-color:#66CDAA">JobInstance</span>*** 가 있는 셈이다.
+작업으로 생각해야한다. Job(EndOfDay)의 경우 하루에 하나의 논리적인 ***<span style="background-color:#66CDAA">JobInstance</span>*** 가 있는 셈이다.
 
-그런덴 만약에 1월1일 실행(run)이 첫 번째 시도에 실패하고, 다음 날 다시 실행되더라도 1월1일의 실행이다.
+그런데 만약에 1월1일 실행이 첫 번째 시도에 실패하고, 다음 날 다시 실행되더라도 1월1일의 실행이다.
 
-따라서 각 JobInstance는 여러번 실행될 수 있고, 특정 Job에 해당하는 하나의 JobInstance만 가질 수 있다.
+따라서 각 JobInstance는 여러번 실행될 수 있고, 특정 Job에 해당하는 하나의 JobInstance만 가질 수 
 
-그리고 JobParameters 식별은 실행되는 중에만 할 수 있다.
+있다. 그리고 JobParameters 식별은 실행되는 중에만 할 수 있다.
 
 <br>
 
@@ -120,11 +120,13 @@ JobExecution은 Job을 실행하려는 시도를 의미한다. 실행은 실패 
 
 주어진 실행에 해당하는 JobInstance는 실행이 성공적으로 완료되지 않는 한 완료된 것으로 간주되지
 
-않는다. 위에서 예로 들었던 Job(EndOfDay)를 계속 예로 들어서, 1월1일 JobInstance는 실패했다고 하자.
+않는다. 위에서 예로 들었던 Job(EndOfDay)를 계속 예로 들어서, 1월1일 JobInstance는 실패했다고 
 
-만약 첫 번째 실행과 동일한 Identifing JobParameters로 다시 실행하면 새로운 JobExecution이 생성된다.
+하자. 만약 첫 번째 실행과 동일한 Identifing JobParameters로 다시 실행하면 새로운 JobExecution이 
 
-그러나 여전히 JobInstance는 오직 한 개다. ***<span style="background-color:yellow">다시 실행했다고 JobInstance가 두개가 되진 않는다.</span>***
+생성된다. 그러나 여전히 JobInstance는 오직 한 개다. 
+
+***<span style="background-color:yellow">다시 실행했다고 JobInstance가 두개가 되진 않는다.</span>***
 
 <br>
 
@@ -132,9 +134,9 @@ Job은 Job이 무엇이고 어떻게 실행되는지 정의하고, JobInstance�
 
 전달하기 위해 Execution을 그룹화 하는 것이다. 그러나 JobExecution은 실행 중에 실제로 발생한
 
-일에 대한 "기본 저장 메커니즘(primary storage mechanism)"이며 아래의 표에 표시된 것 처럼 제어하고 
+일에 대한 "기본 저장 메커니즘(primary storage mechanism)"이며 아래의 표에 표시된 것 처럼 
 
-유지해야 하는 더 많은 속성들을 포함하고 있다. 
+제어하고 유지해야 하는 더 많은 속성들을 포함하고 있다. 
 
 > 표는 docs에서 확인
 
@@ -252,13 +254,13 @@ Step의 실행은 StepExecution 클래의 객체로 표시된다. 각 실행에�
 
 배치가 수행될 때, 수행되는 메타 데이터를 관리하고 시작시간, 종료 시간, Job의 상태 등
 
-배치수행관련 데이터 저장들을 저장한다. JobRepository는 위에서 언급한 모든 Streotype에 
+배치수행관련 데이터를 저장 저장한다. JobRepository는 위에서 언급한 모든 Streotype에 
 
 대한 지속성 메커니즘이다. JobLauncher, Job 및 Step 구현을 위한 CRUD 작업을 제공한다.
 
 Job이 처음 실행되면 repository에서 JobExecution을 가져오고, 실행 과정에서 
 
-StepExecution 및 JobExecution 구현을 repository로 전달하여 유지한다.
+StepExecution 및 JobExecution의 구현을 repository로 전달하여 유지한다.
 
 <br>
 
@@ -330,9 +332,11 @@ ItemProcessor는 ItemReader에게서 Object를 넘겨받아 원하는 방식으�
 
 Input과 Output을 지정해주어야 한다. Input은 ItemReader에게서 넘겨받는 타입이고 Output은 
 
-ItemWriter에게 넘겨줄 타입이다. 한마디로 `ItemReader<T>`의 T와 `ItemProcessor<I,O>`의 I는 같은 
+ItemWriter에게 넘겨줄 타입이다. 
 
-타입이어야 하고`ItemProcessor<I,O>`의 O와 `ItemWriter<T>`의 T가 같은 타입이어야 한다.
+한마디로 `ItemReader<T>`의 T와 `ItemProcessor<I,O>`의 I는 같은 타입이어야 하고
+
+`ItemProcessor<I,O>`의 O와 `ItemWriter<T>`의 T가 같은 타입이어야 한다.
 
 `process()`로 넘겨받은 item을 가공하여 수정된 item을 그대로 넘기거나 새로운 객체를 만들어 
 
@@ -348,9 +352,9 @@ ItemReader -> ItemWriter로 바로 넘겨도 상관없다.
 
 ItemReader 혹은 ItemProcessor가 ItemWriter로 데이터를 넘겨주면 리스트에 차곡차곡 쌓아놓는다. 
 
-이때 `commit-interval` 프로퍼티의 정의된 개수만큼 데이터가 모이면 `write 메소드`를 실행하게 된다. 
+이때 `commit-interval` 프로퍼티의 정의된 개수만큼 데이터가 모이면 `write 메소드`를 실행하게 
 
-commit-interval은 Step에(정확히는 Step 안에 Chunk에) 설정할 수 있다. 
+된다. commit-interval은 Step에(정확히는 Step 안에 Chunk에) 설정할 수 있다. 
 
 ItemReader와 마찬가지로 스프링 배치에서 제공해주는 자주 쓰이는 ItemWriter 구현체들이다.
 
