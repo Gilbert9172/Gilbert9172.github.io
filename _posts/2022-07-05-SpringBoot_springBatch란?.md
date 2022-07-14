@@ -2,7 +2,7 @@
 layout: post
 title: SpringBatch란?
 categories: spring
-tags: spiringBatch
+tags: springBatch
 ---
 
 ## <span style="color:gray">Spring Batch</span>

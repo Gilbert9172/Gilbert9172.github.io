@@ -2,7 +2,7 @@
 layout: post
 title: SpringBatch 구조
 categories: spring
-tags: spiringBatch
+tags: springBatch
 ---
 
 ## <span style="color:gray">Spring Batch 구조</span>
