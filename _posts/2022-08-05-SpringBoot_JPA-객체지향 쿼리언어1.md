@@ -113,3 +113,60 @@ where
 • ***<span style="color:Red">너무 복잡하고 실용성이 없다.</span>***
 
 • QueryDSL 사용 권장.
+
+<br>
+
+## <span style="color:gray">QueryDSL</span>
+
+---
+
+📚 [Querydsl Docs](http://querydsl.com/)
+
+#### ***QueryDSL이란?***
+
+> Criteria의 대안
+
+• Open Source Library
+
+• JPQL 문법을 알고 [Querydsl Docs](http://querydsl.com/)를 참고하면 사용하는데 무리 없다.
+
+• 문자가 아닌 자바코드로 JPQL을 작성할 수 있음
+
+• JPQL 빌더 역할
+
+• 컴파일 시점에 문법 오류를 찾을 수 있음
+
+• ***<span style="background-color:yellow">동적쿼리 작성 편리함</span>***
+
+• ***<span style="background-color:yellow">실무 사용 권장</span>***
+
+<br>
+
+#### ***예제 코드***
+
+```java
+JPAFactoryQuery query = new JPAQueryFactory(em);
+QMember m = QMember.member;
+
+List<Member> list= query.selectFrom(m)
+                        .where(m.age.gt(18))
+                        .orderBy(m.naem.desc())
+                        .fetch();
+```
+
+<br>
+
+## <span style="color:gray">JDBC 직접 사용, SpringJdbcTemplate 등</span>
+
+---
+
+JPA를 직접 사용하면서 JDBC 커넥션을 직접 사용하거나, 스프링 JdbcTemplate, 
+
+Mybatis 등을 함께 사용 가능하다. 단, 여기서 한 가지 주의해야 할 부분이 있다.
+
+이렇게 JPA를 우회해서 SQL을 실행한다면 영속성 컨텍스트를 적절한 시점에 
+
+***`flush`*** 해줘야 한다.
+
+> 참고로 flush는 commit( ) 그리고 createQuery(...)를 하는 시점에 이루어진다.
+
