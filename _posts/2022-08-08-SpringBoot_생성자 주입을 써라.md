@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 생성자 주입을 써라!!!
+title: 생성자 주입을 써라
 categories: spring
 tags: springBoot
 ---
@@ -82,4 +82,3 @@ DI 프레임워크 대부분이 생성자 주입을 권장한다. 그 이유는 
 
 그리고 될 수 있으면 필드 주입은 사용하지 않는게 좋다.
 
----
