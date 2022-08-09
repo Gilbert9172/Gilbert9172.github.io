@@ -493,3 +493,10 @@ String query = "select nullif(m.username,'관리자') from Member m";
 ## <span style="color:gray">JPQL 함수</span>
 
 ---
+
+Index는 안쓰는게 좋음.
+
+<br>
+
+#### ***사용자 정의 함수***
+
