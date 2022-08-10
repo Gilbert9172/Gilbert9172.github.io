@@ -72,4 +72,26 @@ public Long registerBoard(BoardVo boardVo) {
 
 제대로된 값(`LAST_INSERT_ID()`) 을 얻을수가 없었다.
 
+<br>
+
+## <span style="color:gray">2022.08.10 추가</span>
+
 ---
+
+#### ***Oracle에서 SelectKey 사용하기.***
+
+```xml
+<insert id="uploadNotice" parameterType="NoticeVo">
+    INSERT INTO NOTICE (NOTICE_SEQ, NOTICE_TITLE, NOTICE_CONT, TOP_YN, DEL_YN, REG_MANAGER_SEQ, REG_DTTM)
+    VALUES (NOTICE_SEQ.NEXTVAL, #{noticeTitle}, #{noticeCont}, #{topYn}, 'N', #{regManagerSeq}, CURRENT_DATE)
+    <selectKey keyProperty="noticeSeq" order="AFTER" resultType="Long">
+        SELECT NOTICE_SEQ.CURRVAL FROM DUAL
+    </selectKey>
+</insert>
+```
+
+오라클 DB에서는 `SELECT NOTICE_SEQ.CURRVAL FROM DUAL`와 같이 사용하다. 
+
+CURRVAL는 새로 생성된 Seq의 값을 반환해 준다.
+
+만약 `SELECT NOTICE_SEQ.NEXTVAL` 과 같이 사용하면 새로 생성된 값의 다음값을 반환해준다.
