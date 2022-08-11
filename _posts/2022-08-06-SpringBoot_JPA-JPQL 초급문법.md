@@ -1,6 +1,6 @@
 ---
 layout: post
-title: JPQL
+title: JPQL 초급문법
 categories: spring
 tags: jpa
 ---
@@ -494,9 +494,37 @@ String query = "select nullif(m.username,'관리자') from Member m";
 
 ---
 
-Index는 안쓰는게 좋음.
+JPQL에서 제공해주는 표준 함수로, JDBC에 관계 없이 사용하면 된다.
+
+|JPQL 기본 함수|
+|--------------|
+|CONCAT|
+|SUBSTRING|
+|TRIM|
+|LOWER, UPPER|
+|LENGTH|
+|LOCATE|
+|ABS, SQRT, MOD|
+|SIZE,INDEX(안 쓰는게 좋음)|
 
 <br>
 
 #### ***사용자 정의 함수***
 
+`H2Dialect`를 상속 받은 클래스를 작성해야 한다.
+
+```java
+public class MyH2DIalect extends H2Dialect {
+    public MyH2Dialect() {
+        registerFunction("test_method", new StandartdSQLFunction("test_method", StandardBasicTypes.STRING);)
+    }
+}
+```
+
+그리고 JPA xml설정 파일에 있는 `hibernate.dialect` 속성에 MyH2DIalect를 등록해준다.
+
+실제로 사용할 때는 아래와 같이 사용하면 된다.
+
+```java
+select function('test_method', i.name) from Item i
+```
