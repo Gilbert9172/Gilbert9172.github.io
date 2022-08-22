@@ -98,3 +98,42 @@ Parameters:
 Updates: 
     1
 ```
+
+<br>
+
+## <span style="color:gray">Oracle</span>
+
+---
+
+> 2022.08.22 추가
+
+Oracle DB를 Mybatis에서 사용하면 아래와 같이 사용한다고 한다.
+
+#### ***INSERT***
+
+```xml
+<insert id="addImmunization" parameterType="List">
+    <foreach collection="immunizationCds" item="immunizationCd" index="index" open="INSERT ALL" close="SELECT * FROM DUAL" separator="">
+    INTO IMMUNIZATION (
+                MEMBER_SEQ
+                ,IMMUNIZATION_CD
+                ,IMMUNIZATION_REPORT_CHECK
+    ) VALUES
+        (#{memberSeq}, #{immunizationCd}, 'A')
+    </foreach>
+</insert>
+```
+
+<br>
+
+#### ***UPDATE***
+
+```xml
+<update id="updateWaitingNum" parameterType="List">
+    UPDATE EVALUATE_RESERV er
+    SET er.EVALUATE_RESERVE_ORDER = er.EVALUATE_RESERVE_ORDER - 1
+    <foreach collection="memberSeqList" item="memberSeq" separator=";" open="DECLARE BEGIN" close="; END;">
+        WHERE er.MEMBER_SEQ = #{memberSeq}
+    </foreach>
+</update>
+```
