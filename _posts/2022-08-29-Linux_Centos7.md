@@ -158,12 +158,19 @@ systemctl (re)start test
 systemctl stop application
 ```
 
+<br>
 
+## <span style="color:gray">Spring Boot jar파일 서비스 등록하기</span>
 
+---
 
+오늘 강남구청 서버에 jar파일을 올리면서 겪었던 문제이다.
 
+> 하나의 서버에 여러개의 자바가 있는데 그 중 적절한 버전을 선택해야 한다.
 
+```
+update-alternatives --config java
+update-alternatives --config javac
+```
 
-
-
-
+이렇게 하면 설치된 자바 버전중 하나를 선택할 수 있게 나온다.
