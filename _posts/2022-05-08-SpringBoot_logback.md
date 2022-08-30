@@ -51,6 +51,10 @@ tags: springBoot
 
 그 순서가 반대로 되어서 LOG_PATH_IS_UNDEFINED 폴더가 생성되는 이슈가 있었다.
 
+> 해당 문제에 대한 공식문서 팁
+
+<img src="/assets/img/spring/log/logback1.png">
+
 ---
 
 <br>
@@ -67,7 +71,7 @@ tags: springBoot
 
 
 
-<span style="background-color:yellow">→ 10초마다 설정 파일의 변경을 확인하여 변경시 갱신</span>***
+***<span style="background-color:yellow">→ 10초마다 설정 파일의 변경을 확인하여 변경시 갱신</span>***
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -138,6 +142,14 @@ ${} 안에 있는 변수들은 application.properties에서 설정해준 값들�
 ```
 
 추가적으로 마지막에 있는 ***[로그 파일 패턴](https://livenow14.tistory.com/64)*** 을 정리해둔 블로그를 참고했다.
+
+|로그 패턴|설명|
+|---------|----|
+|%-5level|로그 레벨|
+|%d{yyyy-mm-dd HH:mm:ss}| %d는 date를 의미하며, 중괄호에 들어간 문자열은 dataformat을 의미.|
+|%c|로깅이 발생한 카테고리|
+|%logger{0}|패키지를 제외한 클래스 이름만 출력|
+|%line|로깅이 발생한 호출지의 라인|
 
 ---
 
@@ -264,7 +276,7 @@ ${} 안에 있는 변수들은 application.properties에서 설정해준 값들�
 
 > ***logger(지역 설정)***
 
-이렇게 하면 불필요한 로그들이 설정한 level에 따라나오지 않게된다.
+***🔎  설명 추가 예정***
 
 ```xml
 <logger name="org.springframework" level = "INFO" additivity = "false">
