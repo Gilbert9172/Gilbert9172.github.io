@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 기능개발
+title: 주식가격
 categories: algorithm
 ---
 
