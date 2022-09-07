@@ -168,9 +168,59 @@ IntStream intStream2 = IntStream.of(1, 2, 3, 4, 5);
 
 #### ***<span style="color:#A0522D">filter()</span>***
 
+filter 메서드로 스트림 내 요소들을 조건에 맞게 필터링할 수 있다.
+
+```java
+public class Filter {
+
+    public static void main(String[] args) {
+
+        int[] lst = {1, 2, 3, 4, 5, 6, 7};
+
+        Arrays.stream(lst)
+                .boxed()
+                .filter(i -> i > 4).collect(Collectors.toList())
+                .forEach(System.out::println);
+    }
+}
+```
+
+
 <br>
 
 #### ***<span style="color:#A0522D">flatMap()</span>***
+
+중첩된 구조를 한 단계 없애고 단일 원소 스트림으로 만들어준다.
+
+```java
+public class StreamFlatMap {
+
+    public static void main(String[] args) {
+
+        List<String> list1 = List.of("jung", "gilbert");
+        List<String> list2 = List.of("kim", "gilbert");
+        List<List<String>> combinedList = List.of(list1, list2);
+
+        combinedList.stream()
+                    .flatMap(list -> list.stream())
+                    .filter(x -> "jung".equals(x))
+                    .collect(Collectors.toList())
+                    .forEach(System.out::println);
+
+        System.out.println("====");
+
+        // 2차원 배열
+        String[][] arrays = new String[][]{
+                {"jung", "gilbert"}, {"kim", "gilbert"}
+        };
+
+        Arrays.stream(arrays)
+                .flatMap(arr -> Arrays.stream(arr))
+                .collect(Collectors.toList())
+                .forEach(System.out::println);
+    }
+}
+```
 
 <br>
 
@@ -184,34 +234,58 @@ IntStream intStream2 = IntStream.of(1, 2, 3, 4, 5);
 
 변환하는 것이 더 유용할 수 있다.
 
+<br>
+
+아래 예시는 `map()`을 사용하여 `int 배열`을 `List<Integer>`로 바꿔 보는 연습을 한 것이다.
+
 ```java
-String[] str = {"10", "20", "30", "40", "50"};
+int[] array = {1, 2, 3};
 
-// str[] → Stream
-Stream<String> stream = Stream.of(str);
-Stream<String> stream = Arrays.stream(str);
+/* int[] → IntStream */
+IntStream intStream = Arrays.stream(array);
+IntStream intStream2 = IntStream.of(array);
 
-// Stream → IntStream
-IntStream intStream = stream.mapToint(Integer::parseInt);
+/* IntStream → Stream<Integer> */
+Stream<Integer> intStreamMap = intStream.mapToObj(i -> i);
 
-// IntStream → int[]
-int[] intArr = intStream.toArray();
+/* 
+ * Stream<Integer> intStreamBoxed = intStream.boxed(); 
+ * 스트림은 1회용이기 때문에 이 부분을 주석으로 돌리지 않으면 에러가 난다.
+ */
 
-// IntStream → Stream<Integer>
-Stream<Integer> streamInteger = intStream.boxed();
-
-// Stream<Integer> → List<Integer>
-List<Integer> listInteger = streamInteger.collect(Collections.toList());
+/* Stream<Integer> → List<Integer> */
+List<Integer> arrayList = intStreamMap.collect(Collectors.toList());
+List<Integer> arrayList2 = intStreatBoxed.collect(Collectors.toList()); 
 ```
 
+<br>
+
+아래 예시는 `List<Integer>`을 `int 배열`로 바꿔 보는 연습을 한 것이다.
+
 ```java
-int[] score = {10, 20, 30, 40, 50};
 
-// int[] → Stream<String>
-Stream<String> stream = Arrays.stream(score).mapToObj(String::ValueOf);
+/* List<Integer> → Stream<Integer> */
+Stream<Integer> stream1 = arrayList.stream();
 
-// int[] → Stream<Integer>
-Stream<Integer> integerStream = Arrays.stream(score).boxed();
+/* Stream<Integer> → IntStream */
+IntStream intStream = stream1.mapToInt(Integer::intValue);
+
+/* IntStream → int[] */
+int[] newArray = intStream.toArray();
+```
+<br>
+
+```java
+public static void main(String[] args) {
+
+    List<User> userList = addDummyDate();
+
+    userList.stream()
+            .map(o -> o.getAge())
+            .filter(age -> age > 30)
+            .collect(Collectors.toList())
+            .forEach(System.out::println);
+}
 ```
 
 <br>
@@ -220,9 +294,40 @@ Stream<Integer> integerStream = Arrays.stream(score).boxed();
 
 int, long, double 요소를 Integer, Long, Double 요소로 박싱해서 Stream을 생성합니다.
 
+```java
+Stream<Integer> intSteam1Boxed = intStream1.boxed();
+```
+
 <br>
 
 #### ***<span style="color:#A0522D">정렬</span>***
 
 > 이 부분은 개별 포스트로 따로 정리.
 
+<br>
+
+## <span style="color:gray">Stream 최종연산</span>
+
+---
+
+#### ***<span style="color:#A0522D">reduce()</span>***
+
+스트림의 요소를 줄여 나가면서 수행하고 최종 결과를 반환한다.
+
+처음 두 요소를 가지고 연산한 결과를 사용해 다음 요소와 연산한다.
+
+초기값을 주는 경우는 초기값과 스트림의 초기값과 스트림의 첫 번째 요소로 연산을
+
+시작하고, 연산한 결과를 사용해 다음 요소와 연산한다.
+
+```java
+public class StreamReduce {
+
+    public static void main(String[] args) {
+
+        int[] arr = {1,2,3};
+        int result = Arrays.stream(arr).reduce(5, (a, b) -> a + b);
+        System.out.println(result); // 11
+    }
+}
+```
