@@ -146,7 +146,7 @@ public class SwapPurmuation {
         if (depth == r) {
             String joiningElements = Arrays.stream(arr)
                                         .mapToObj(String::valueOf)
-                                        .collect(Collections.joining());
+                                        .collect(Collectors.joining());
             System.out.println(joiningElements)
         }
 
@@ -179,23 +179,64 @@ public class SwapPurmuation {
 
 ### ***⒉ Visited 배열을 사용한 순열 구현***
 
+Visited 배열을 사용하는 방식은 Swap과는 다르게 순서를 지킨다.
 
+|파라미터|설명|
+|arr|배열|
+|output|DFS를 돌면서 노드를 넣어준다.|
+|visited|노드 방문 여부 확인|
+|n|nPr의 n|
+|r|nPr의 r|
 
+```java
+public class permutation {
 
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3};
+        boolean[] visited = new boolean[arr.length];
+        int[] output = new int[arr.length];
 
+        for (int i = 0; i < arr.length; i++) {
+            permutation(arr, output, visited, 0, arr.length, i+1);
+        }
+    }
 
+    // 순열
+    public static void permutation(int[] arr, int[] output, boolean[] visited, int depth, int n, int r) {
 
+        // 탈출 조건
+        if (depth == r) {
+            int[] temp = Arrys.copyOfRange(output, 0, depth);
+            String result = Arrays.stream(temp).mapToObj(String::valueOf).collect(Collectors.joining());
+            System.out.println(result);
+        }
 
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+                output[depth] = arr[i];
+                permutation(arr, output, visited, depth + 1, n , r);
+                visited[i] = false;
+            }
+        }
+    }
+}
 
+```
 
+✅ **`Arrays.copyOfRange(원본 배열, 복사할 시작인덱스, 복사할 끝인덱스)`**
 
+위 함수를 사용한 이유는 3개의 숫자중 하나 혹은 두 개의 숫자를 선택할 경우에, 
 
+3번 째 값을 넣을 필요가 없다. 코드에서 해당 코드를 빼고 실행하게 되면 
 
+|결과|
+|----|
+|100, 232, 331, 121, 133, 212, 233, 311, 322, 123, 132, 213, 231, 312, 321|
 
+위의 표와 같이 결과가 나오는데 자세히 보면 중복되는 요소가 들어간다.
 
-
-
-
+즉, 위 함수는 불필요한 요소는 무시하고 필요한 위치의 요소만 가져오기 위함이다.
 
 <br>
 
@@ -203,9 +244,71 @@ public class SwapPurmuation {
 
 ---
 
-***🔖 [소스 코드]()***
+***🔖 [소스 코드](https://github.com/Gilbert9172/coding-test/blob/main/programmers/levelTwo/quiz42839.java)***
 
 ```java
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
+public class quiz42839 {
 
+    static HashSet<String> setList = new HashSet<>();
+
+    public static void main(String[] args) {
+
+        String numbers = "017";
+        int[] arr = Arrays.stream(number.split("")).mapToInt(Integer::parseInt).toArray();
+        int[] output = new int[arr.length];
+        boolean[] visited = new boolean[arr.length];
+
+        // 순열
+        for (int i = 0; i < arr.length; i++) {
+            permutation(arr, output, visited, 0, arr.length, i + 1);
+        }
+
+        // 소수 판별
+        for (Integer element : setList) {
+            if (isPrimeNum(element)) {
+                answer ++;
+            }
+        }
+
+        System.out.println(answer);
+    }
+
+    // 순열
+    public static void permuataion(int[] arr, int[] ouptut, boolean[] visited, int depth, int n, int r) {
+
+        // 탈출 조건
+        if (depth == r) {
+            int[] temp = Arrays.copyOfRange(output, 0, depth);
+            String result = Arrays.stream(temp).mapToObj(String::valueOf).collect(Collectors.joining());
+            setList.add(Integer.valueOf(result));
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+                output[depth] = arr[i];
+                permutation(arr, output, visited, depth + 1, n, r);
+                visited[i] = false;
+            }
+        }
+    }
+
+    // 소수 찾기(에라토네스의 체)
+    public static boolean isPrimeNum(int num) {
+        if (num == 0 || num == 1) {
+            return false;
+        }
+
+        for (int i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i == 0) {
+                return false;
+            } 
+            return true;
+        }
+    }
+}
 ```
