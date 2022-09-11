@@ -182,6 +182,7 @@ public class SwapPurmuation {
 Visited 배열을 사용하는 방식은 Swap과는 다르게 순서를 지킨다.
 
 |파라미터|설명|
+|--------|----|
 |arr|배열|
 |output|DFS를 돌면서 노드를 넣어준다.|
 |visited|노드 방문 여부 확인|
