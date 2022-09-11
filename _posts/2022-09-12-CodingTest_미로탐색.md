@@ -79,7 +79,7 @@ categories: algorithm
 
 ---
 
-***🔖 [소스 코드](https://github.com/Gilbert9172/coding-test/blob/main/backJoon/dfsbfs/%EB%AF%B8%EB%A1%9C%ED%83%90%EC%83%89.java)***
+***🔖 [소스 코드](https://github.com/Gilbert9172/coding-test/blob/main/backJoon/dfsbfs/quiz2178.java)***
 
 ```java
 import java.util.*;
