@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 백준 - 미로탐색
+title: 미로탐색
 categories: algorithm
 ---
 
