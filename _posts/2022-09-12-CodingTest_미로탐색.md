@@ -10,7 +10,8 @@ categories: algorithm
 
 #### ***문제***
 
-***🔖 <a href="https://www.acmicpc.net/problem/2178" target="_blank">백준 - 미로탐색</a>***
+***🔖 [백준 - 미로탐색](https://www.acmicpc.net/problem/2178)***
+
 
 
 
@@ -78,7 +79,7 @@ categories: algorithm
 
 ---
 
-***🔖 <a href="https://github.com/Gilbert9172/coding-test/blob/main/backJoon/dfsbfs/%EB%AF%B8%EB%A1%9C%ED%83%90%EC%83%89.java" target="_blank">소스 코드</a>***
+***🔖 [소스 코드](https://github.com/Gilbert9172/coding-test/blob/main/backJoon/dfsbfs/%EB%AF%B8%EB%A1%9C%ED%83%90%EC%83%89.java)***
 
 ```java
 import java.util.*;
