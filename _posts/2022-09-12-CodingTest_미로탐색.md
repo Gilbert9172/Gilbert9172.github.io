@@ -96,7 +96,7 @@ public class 미로탐색 {
     //순서대로 : 상,하,좌,우
     static int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // 입력조건을 위한 로직
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
@@ -104,13 +104,12 @@ public class 미로탐색 {
         m = Integer.parseInt(st.nextToken());
 
         for (int i = 0; i < n; i++) {
-            for (int k = 0; k < m; k++) {
-                String[] str = br.readLine().split("");
-                List<Integer> inputList = Arrays.stream(str)
-                                                .map(Integer::parseInt)
-                                                .collect(Collectors.toList());
-                graph.add(inputList);
-            }
+            String[] str = br.readLine().split("");
+            List<Integer> inputList = Arrays.stream(str)
+                                            .map(Integer::parseInt)
+                                            .collect(Collectors.toList());
+            graph.add(inputList);
+        
         }
 
         visited = new boolean[n][m];
@@ -122,7 +121,7 @@ public class 미로탐색 {
         System.out.println(graph.get(n-1).get(m-1));
     }
 
-    public static bfs(int row, int col) {
+    public static void bfs(int row, int col) {
 
         // 1. 방문한 노드를 저장할 Queue 생성 && 최초 진입 노드 좌표 큐에 삽입
         Queue<int[]> queue = new LinkedList<>();
@@ -137,7 +136,7 @@ public class 미로탐색 {
             visited[curRow][curCol] = true;
 
             //3. 현재 위치에서 이동할 수 있는 노드의 좌표 확인
-            for (int i = 0; i < move.length; i ++) {
+            for (int i = 0; i < move.length; i++) {
                 int newRow = curRow + move[i][0];
                 int newCol = curCol + move[i][1];
 
@@ -162,7 +161,7 @@ public class 미로탐색 {
         }
     }
 
-    public static isInRange(int newRow, int newCol) {
+    public static boolean isInRange(int newRow, int newCol) {
         /*
          * 해당 열과 행이 0보다는 커거나 같아야 하며,
          * 주어진 범위(n,m) 보다는 작아야 하며,
@@ -170,7 +169,7 @@ public class 미로탐색 {
          * 해당 좌표가 이동가능한 길이여야 한다.
          */
         if (newRow >= 0 && newRow < n && newCol >= 0 && newCol < m
-            && !visited[newRow][newRow] && graph.get(newRow).get(newRow) ==1) {
+            && !visited[newRow][newCol] && graph.get(newRow).get(newCol) == 1) {
                 return true;
             }
         return false;
