@@ -92,7 +92,7 @@ public class quiz2178 {
     static boolean[][] visited;
     static List<List<Integer>> graph = new ArrayList<>();
     //순서대로 : 상,하,좌,우 
-    //(블로그 build 오류로 주석 처리) static int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; 
+    static int[][] move = [{1, 0}, {-1, 0}, {0, 1}, {0, -1}]; 
 
     public static void main(String[] args) throws IOException {
         // 입력조건을 위한 로직
