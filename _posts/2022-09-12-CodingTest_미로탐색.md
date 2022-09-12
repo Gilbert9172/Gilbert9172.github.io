@@ -12,9 +12,6 @@ categories: algorithm
 
 ***🔖 [백준 - 미로탐색](https://www.acmicpc.net/problem/2178)***
 
-
-
-
 <br>
 
 #### ***주요 조건***
@@ -88,7 +85,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class 미로탐색 {
+public class quiz2178 {
 
     static int n;
     static int m;
