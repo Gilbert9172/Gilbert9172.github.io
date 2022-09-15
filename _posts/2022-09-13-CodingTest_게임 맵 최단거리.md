@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 게임 맴 최단거리
+title: 게임 맵 최단거리
 categories: algorithm
 ---
 
@@ -10,7 +10,7 @@ categories: algorithm
 
 #### ***문제***
 
-***🔖 <a href="https://school.programmers.co.kr/learn/courses/30/lessons/1844" target="_blank">프로그래머스 - 게임 맴 최단거리</a>***
+***🔖 <a href="https://school.programmers.co.kr/learn/courses/30/lessons/1844" target="_blank">프로그래머스 - 게임 맵 최단거리</a>***
 
 <a href="https://gilbert9172.github.io/algorithm/2022/09/12/CodingTest_%EB%AF%B8%EB%A1%9C%ED%83%90%EC%83%89/" target="_blank">미로탐색</a> 과 비슷한 유형의 문제이다.
 
