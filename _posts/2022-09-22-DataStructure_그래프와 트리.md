@@ -39,7 +39,7 @@ tags: dataStructure
 
 그래프를 구현하는 방법에는 인접행렬과 인접리스트 방식이 있다. 
 
-#### <span style="background-color:black; color:white">인접 행렬</sapn>
+#### <span style="background-color:black; color:white">인접 행렬</span>
 
 > 2차원 배열로 그래프의 연결 관계를 표현하는 방식
 
@@ -59,7 +59,7 @@ tags: dataStructure
 
 <br>
 
-#### <span style="background-color:black; color:white">인접 리스트</sapn>
+#### <span style="background-color:black; color:white">인접 리스트</span>
 
 <img src="/assets/img/codingTest/인접리스트.png"><br>
 
