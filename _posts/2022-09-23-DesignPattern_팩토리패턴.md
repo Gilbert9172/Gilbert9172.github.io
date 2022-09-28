@@ -354,3 +354,208 @@ public class PizzaOrderSystem {
 • 이 방법을 사용하면 인터페이스를 바탕으로 프로그래밍을 할 수 있기 때문에
 
 **<span style="background-color:yellow">유연성과 확장성이 뛰어난 코드를 만들 수 있다.</span>**
+
+<br>
+
+## <span style="color:gray">의존성 뒤집기 원칙</span>
+
+---
+
+#### <span style="background-color:black; color:white">앞에서 했던 내용을 복귀</span>
+
+아래의 코드는 `Pizza 구상(Concrete) 클래스`가 바뀌게 되면 PizzaStore까지도 바뀌게 되는
+
+치명적인 단점을 가지고 있다.
+
+```java
+public class PizzaStore {
+    Pizza orderPizza(String type) {
+        Pizza pizza = null;
+
+        // 여러 종류의 피자
+        if (type.equals("cheese")) {
+            pizza = new CheesePizza();
+        } else if (type.equals("pepperoni")) {
+            pizza = new PepperoniPizza();
+        } else if (type.equals("clam")) {
+            pizza = new ClamPizza();
+        } else if (type.equals("veggie")) {
+            pizza = new VeggiePizza();
+        }
+
+        pizza.prepare();
+        pizza.bake();
+        pizza.cut();
+        pizza.box();
+
+        return pizza;
+    }
+}
+```
+
+반면에 아래의 코드에서 PizzaStore는 추상클래스인 Pizza에 의존하게 된다.
+
+그리고 각각의 Pizza 구성 클래스 또한 추상클래스인 Pizza에 의존하게 된다.
+
+```java
+public abstract class PizzaStore {
+
+    abstract Pizza createPizza(String type);
+
+    public Pizza orderPizza(String type) {
+		Pizza pizza = createPizza(type);
+		return pizza;
+	}
+}
+```
+
+<br>
+
+#### <span style="background-color:black; color:white">의존성 뒤집기 원칙을 지키는 방법</span>
+
+> 원칙을 지키는 데 도움이 될 뿐, 무조건 적으로 지키라는 것은 아님.
+
+**⒈ 변수에 구상 클래스의 레퍼런스를 저장하지 않는다.**
+
+→ new 연산자를 사용하면 구상 클래스의 레퍼런스를 사용하게 된다. 그러니 팩토리를 써서
+
+구상 클래스의 레퍼런스를 변수에 저장하는 일을 미리 방지한다.
+
+<br>
+
+**⒉ 구상 클래스에서 유도된 클래스를 만들지 않는다.**
+
+→ 구상 클래스에서 유도된 클래스를 만들면 특정 구상 클래스에 의존하게 된다.
+
+인터페이스나 추상 클래스처럼 추상화된 것으로부터 클래스를 만들어야 한다.
+
+<br>
+
+**⒊ 베이스 클래스에 이미 구현되어 있는 메소드를 오버라이드하지 않는다.**
+
+→ 이미 구현되어 있는 메소드를 오버라이드한다면 베이스 클래스가 제대로 추상화되지
+
+않는다. 베이스 클래스에서 메소드를 정의할 때는 모든 서브클래스에서 공유할 수 있는
+
+것만 정의해야 한다.
+
+<br>
+
+## <span style="color:gray">추상 팩토리 패턴의 정의</span>
+
+---
+
+#### <span style="background-color:black; color:white">추상 팩토리란?</span>
+
+**추상 팩토리 패턴(Abstract Factory Pattern)** 은 구상 클래스에 의존하지 않고도
+
+서로 연관되거나 의존적인 객체로 이루어진 제품군을 생산하는 인터페이스를 제공한다.
+
+구상 클래스는 서브클래스에서 만든다.
+
+<br>
+
+## <span style="color:gray">팩토리 메소드 패턴 VS 추상 팩토리 패턴</span>
+
+---
+
+#### <span style="background-color:black; color:white">공통점</span>
+
+> 객체 생성을 캡슐화해서 애플리케이션의 결합을 느슨하게 만들고, 특정 구현에 덜 의존하도록 만든다.
+
+• 애플리케이션을 특정 구현으로부터 분리하는 역할
+
+• 클라이언트와 구상형식을 분리하는 역할
+
+• 객체를 만드는 역할
+
+<br>
+
+#### <span style="background-color:black; color:white">차이점</span>
+
+**팩토리 메소드 패턴**
+
+> 클라이언트 코드와 인스턴스를 만들어야 할 구상 클래스를 분리시켜야 할 때 사용한다.
+
+
+상속으로 객체를 만든다. 
+
+팩토리 메소드 패턴으로 객체를 생성할 때는 **<u>클래스를 확장</u>** 하고, **<u>팩토리 메소드를 오버라이드</u>** 해야 한다.
+
+
+```java
+// 클래스를 확장 : extends
+public class ChicagoPizzaStore extends PizzaStoreB {
+
+    // 팩토리 메소드를 오버라이드
+    public PizzaB createPizza(String item) {
+        ...
+    }
+}
+```
+
+<br>
+
+**추상 팩토리 패턴**
+
+> 클라이언트에서 서로 연관된 일련의 제품을 만들어야 할 때 사용한다.
+
+객체 구성을 사용하며, 제품군을 만드는 추상형식을 제공한다.
+
+```java
+public interface PizzaIngredientFactory {
+
+    public Dough createDough();
+    public Sauce createSauce();
+    public Cheese createCheese();
+    ...
+}
+```
+
+제품이 생산되는 방법은 위 형식의 서브클래스에서 정의한다.
+
+```java
+public class NYPizzaIngredientFactory implements PizzaIngredientFactory {
+
+    public Dough createDough() {
+        return new ThinCrustDough();
+    }
+
+    public Sauce createSauce() {
+        return new MarinaraSauce();
+    }
+
+   ...
+}
+```
+제품군을 추가해야 할 때는 인터페이스를 수정해야 한다는 함정이 있다.
+
+구상 팩토리를 구현할 때 팩토리 메소드로 제품을 생산할 때가 종종 있다.
+
+반면에 팩토리 메소드 패턴은 서브클래스에서 만드는 구상 형식을 활용하는 
+
+추상 생산자(생성자 아님)에서 코드를 구현하다. (아래의 코드)
+
+```java
+public class ChicagoPizzaStore extends PizzaStoreB {
+
+    public ChicagoPizzaStore() {};
+
+    @Override
+    public PizzaB orderPizza(String type) {
+        return super.orderPizza(type);
+    }
+
+    public PizzaB createPizza(String item) {
+        if (item.equals("cheese")) {
+            return new ChicagoStyleCheesePizza();
+        } else if (item.equals("veggie")) {
+            return new ChicagoStyleVeggiePizza();
+        } else if (item.equals("clam")) {
+            return new ChicagoStyleClamPizza();
+        } else if (item.equals("pepperoni")) {
+            return new ChicagoStylePepperoniPizza();
+        } else return null;
+    }
+}
+```
