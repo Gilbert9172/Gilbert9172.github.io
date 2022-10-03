@@ -193,7 +193,7 @@ public class SingletonTest {
 
 <br>
 
-**<u>1 ) 동기화</u>**
+**<u>1 ) Synchronized (동기화, Thread-safe)</u>**
 
 `getInstance()`를 동기화하면 멀티스레딩과 관련된 문제가 간단하게 해결된다.
 
@@ -238,7 +238,9 @@ public class SingletonExample {
 
 <br>
 
-**<u>2 ) 처음부터 객체 인스턴스를 생성하기.</u>**
+**<u>2 ) Eager Initialization (이른 초기화, Thread-safe) </u>**
+
+> 클래스 초기화 시점에서 인스턴스 생성.
 
 ```java
 public class SingletonExample {
@@ -277,7 +279,9 @@ return singletonExample;
 
 <br>
 
-**<u>3 ) DCL(Double-Checked Locking)를 써서 동기화 되는 부분 줄이기.</u>**
+**<u>3 ) DCL(Double-Checked Locking, Thread-safe)</u>**
+
+> Synchronized 방식을 개선한 방식 : 인스턴스가 생성되지 않은 경우에만 동기화 블럭이 실행
 
 ```java
 public class SingletonExample {
@@ -333,6 +337,79 @@ if (singletonExample == null) {
 
 <br>
 
+**<span style="background-color:yellow"><u>4 ) LazyHolder (게으른 홀더, Thread-safe)</u></span>**
+
+> 이 부분을 공부하기 이전에 static, 클래스 로드와 초기화에 대해 숙지해야 한다.
+
+• [블로그1](https://kdhyo98.tistory.com/70), [블로그2](https://velog.io/@skyepodium/%ED%81%B4%EB%9E%98%EC%8A%A4%EB%8A%94-%EC%96%B8%EC%A0%9C-%EB%A1%9C%EB%94%A9%EB%90%98%EA%B3%A0-%EC%B4%88%EA%B8%B0%ED%99%94%EB%90%98%EB%8A%94%EA%B0%80)
+
+요약하자면, 클래스는 호출될 때 초기화를 진행한다. 우리는 대부분 new 생성자를 통해서 
+
+클래스를 초기화 하며 이때 static으로 선언된 애들이 올라가게 된다.
+
+하지만, static은 유일한 하나이기 때문에 한 번 올라가면, 새로 해당 클래스를 초기화를 
+
+진행하더라도 먼저 올라간 걸 호출해서 사용된다.
+
+<br>
+
+LazyHolder 방식은 가장 많이 사용되는 싱글턴 구현 방식이다.
+
+volatile 이나 synchronized 키워드 없이도 동시성 문제를 해결하기 때문에 성능이 뛰어나다.
+
+자 이제 본격적으로 LazyHolder 방식으로 싱글턴을 구현해봐야겟다.
+
+```java
+public class SingletonExample {
+    private singeltonExample() {};
+
+    private static class InnerInstanceClass {
+        private static final SingletonExample singletonExample = new SingletonExample();
+    }
+
+    public static SingletonExample getInstance() {
+        return InnerInstanceClass.singletonExample;
+    }
+}
+```
+
+<br>
+
+```java
+public class SingletonTest {
+
+    public static void main(String[] args) {
+        Thread thread1 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                SingletonExample.getInstance();
+            }
+        });
+        thread1.start();
+
+        Thread thread2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                SingletonExample.getInstance();
+            }
+        });
+        thread2.start();
+    }
+}
+
+```
+
+최초에 SingletonTest 클래스를 실행 할 때, `SingletonExample`과 `InnerInstanceClass`는
+
+클래스로더에 의해 로딩이 된다. 그리고 초기화는 각각 `getInstance()` 메소드를 호출할 때 
+
+진행된다. 즉, 런타임시에 성격이 결정되며 Thread-safe하며 성능이 뛰어나다.
+
+
+<br>
+
 ## <span style="color:gray">싱글톤 패턴의 문제점</span>
 
 ---
@@ -349,13 +426,13 @@ if (singletonExample == null) {
 
 <br>
 
-#### <span style="background-color:black; color:white">리플렉션, 직렬화, 역직렬화 문제도 있지 않을까?</span>
+#### <span style="background-color:black; color:white">2. 리플렉션, 직렬화, 역직렬화 문제도 있지 않을까?</span>
 
 리플렉션, 직렬화, 역직렬화도 싱글턴에서 문제가 될 수 있다. 
 
 <br>
 
-#### <span style="background-color:black; color:white">싱글턴은 하나의 객체가 2가지 역할을 하는거 같은데...</span>
+#### <span style="background-color:black; color:white">3. 싱글턴은 하나의 객체가 2가지 역할을 하는거 같은데...</span>
 
 싱글턴은 자신의 인스턴스를 관리하는 일 외에도 원래 그 인스턴스를 사용하고자 하는 목적에 
 
@@ -367,7 +444,7 @@ if (singletonExample == null) {
 
 <br>
 
-#### <span style="background-color:black; color:white">전역변수가 싱글톤보다 더 좋은거 같은데?</span>
+#### <span style="background-color:black; color:white">4. 전역변수가 싱글톤보다 더 좋은거 같은데?</span>
 
 전역 변수는 게으른 인스턴스 생성(lazyinstantiation)이 불가하며, 인스턴스를 사용하든 
 
@@ -383,7 +460,7 @@ if (singletonExample == null) {
 
 ---
 
-#### <span style="background-color:black; color:white">Enum으로 싱글턴을? </span>
+#### <span style="background-color:black; color:white">Enum (열거 상수 클래스, Thread-safe)</span>
 
 위에서 봤던 싱글턴의 문제점들은 `enum`으로 싱글턴을 생성하면 해결할 수 있다.
 
@@ -392,3 +469,21 @@ public enum SingletonEnum {
     singletonEnumExample;
 }
 ```
+
+Enum 인스턴스의 생성은 기본적으로 Thread-Safe 하다. 따라서 스레드 관련 코드가
+
+없어져서 코드가 더욱 간단해진다. 하지만 Enum 내의 다른 메서드가 있는 경우에 
+
+해당 메서드가 Thread-Safe힌지는 개발자가 확인해야 하는 부분이다.
+
+Enum 방식을 사용하면 아주 복잡한 직렬화 상황이나, 리플렉션 공격에도 제2의 인스턴스가
+
+생성되는 것을 막아주는 장점이 있다. 하지만 만들려는 싱글턴이 Enum 외의 다른 클래스를
+
+상속해야 하는 경우에는 사용할 수 없다.
+
+<br>
+
+## <span style="color:gray">SpringBoot에서의 싱글턴 패턴</span>
+
+---
