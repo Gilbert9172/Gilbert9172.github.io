@@ -73,4 +73,8 @@ public class SessionManager {
 
 #### <span style="background-color:black; color:white">참고 블로그</span>
 
-**📚 [bcp0109:티스토리](https://bcp0109.tistory.com/227)**
+***<a href="https://bcp0109.tistory.com/227" target="_blank">📚 bcp0109:티스토리</a>***
+
+***<a href="https://wildeveloperetrain.tistory.com/143" target="_blank">📚 wildeveloperetrain:티스토리</a>***
+
+***<a href="https://rengineer.tistory.com/43" target="_blank">📚 rengineer:티스토리</a>***
