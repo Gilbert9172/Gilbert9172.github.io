@@ -275,3 +275,14 @@ FROM "MEMBER" m;
 
 > `LPAD("*", 4 ,"*")` : 왼쪽 부터 *(별)로 채워서 4자리를 만든다.
 
+<br>
+
+#### ***오라클 순서 매기기***
+
+[참고 블로그](https://coding-factory.tistory.com/443)
+
+<br>
+
+#### ***NULL 처리방법***
+
+[참고 블로그](https://developer-talk.tistory.com/257)
