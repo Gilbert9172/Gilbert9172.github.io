@@ -353,7 +353,7 @@ void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @
 
 <br>
 
-**<u>4. ViewResolver 호출 & View Render</u>**
+**<u>4. ViewResolver 호출 & View 반환</u>**
 
 이제 거의 다 왔다. 위 과정에서 생성? 한 매개변수(processedRequest, response, mappedHandler, mv, 
 
@@ -376,77 +376,28 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 
 <br>
 
+그리고 `processDispatchResult()` 메소드 내부에 있는 `render()` 메소드를 호출한다.
+
 ```java
 private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, @Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv, @Nullable Exception exception) throws Exception {
     boolean errorView = false;
     if (exception != null) {
-        if (exception instanceof ModelAndViewDefiningException) {
-            this.logger.debug("ModelAndViewDefiningException encountered", exception);
-            mv = ((ModelAndViewDefiningException)exception).getModelAndView();
-        } else {
-            Object handler = mappedHandler != null ? mappedHandler.getHandler() : null;
-            mv = this.processHandlerException(request, response, handler, exception);
-            errorView = mv != null;
-        }
+        ...
     }
 
     if (mv != null && !mv.wasCleared()) {
+        
+        //========= render() =========//
         this.render(mv, request, response);
         if (errorView) {
-            WebUtils.clearErrorRequestAttributes(request);
+            ...
         }
     } else if (this.logger.isTraceEnabled()) {
-        this.logger.trace("No view rendering, null ModelAndView returned.");
+        ...
     }
 
     if (!WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
-        if (mappedHandler != null) {
-            mappedHandler.triggerAfterCompletion(request, response, (Exception)null);
-        }
-
-    }
-}
-```
-
-<br>
-
-그리고 `processDispatchResult()` 메소드 내부에 있는 `render()` 메소드를 호출한다.
-
-```java
-protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
-    Locale locale = this.localeResolver != null ? this.localeResolver.resolveLocale(request) : request.getLocale();
-    response.setLocale(locale);
-    String viewName = mv.getViewName();
-    View view;
-    if (viewName != null) {
-        view = this.resolveViewName(viewName, mv.getModelInternal(), locale, request);
-        if (view == null) {
-            throw new ServletException("Could not resolve view with name '" + mv.getViewName() + "' in servlet with name '" + this.getServletName() + "'");
-        }
-    } else {
-        view = mv.getView();
-        if (view == null) {
-            throw new ServletException("ModelAndView [" + mv + "] neither contains a view name nor a View object in servlet with name '" + this.getServletName() + "'");
-        }
-    }
-
-    if (this.logger.isTraceEnabled()) {
-        this.logger.trace("Rendering view [" + view + "] ");
-    }
-
-    try {
-        if (mv.getStatus() != null) {
-            request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
-            response.setStatus(mv.getStatus().value());
-        }
-
-        view.render(mv.getModelInternal(), request, response);
-    } catch (Exception var8) {
-        if (this.logger.isDebugEnabled()) {
-            this.logger.debug("Error rendering view [" + view + "]", var8);
-        }
-
-        throw var8;
+        ...
     }
 }
 ```
@@ -455,7 +406,25 @@ protected void render(ModelAndView mv, HttpServletRequest request, HttpServletRe
 
 `render()` 메소드 내부에 있는 `resolveViewName()` 메소드를 호출하여 
 
-View의 논리 이름을 **물리 이름**으로 변환한다.
+View의 **<span style="background-color:#F0E68C">논리 이름을 물리 이름으로 변환한다.</span>**
+
+```java
+protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+    String viewName = mv.getViewName();
+    View view;
+
+    if (viewName != null) {
+        view = this.resolveViewName(viewName, mv.getModelInternal(), locale, request);
+        ...
+    } else {
+        ...
+    }
+    ...
+}
+```
+
+<br>
 
 ```java
 @Nullable
@@ -478,15 +447,27 @@ protected View resolveViewName(String viewName, @Nullable Map<String, Object> mo
 
 <br>
 
-마지막으로 View 객체의 render() 메소드를 호출하여 View에 Model 데이터를 렌더링한다.
+마지막으로 View 객체의 `render()` 메소드를 호출하여 View에 Model 데이터를 렌더링한다.
 
 ```java
-view.render(mv.getModelInternal(), request, response);
+protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    
+    View view;
+    
+    ...
+
+    try {
+        ...
+        view.render(mv.getModelInternal(), request, response);
+    } catch (Exception var8) {
+        ...
+    }
+}
 ```
 
 <br>
 
-**<u>5.</u>**
+**<u>5. HTML 응답</u>**
 
 맨 마지막으로 Interceptor를 한번 더 실행한다. 이때, `triggerAfterCompletion()` 메소드를 호출하고 
 
