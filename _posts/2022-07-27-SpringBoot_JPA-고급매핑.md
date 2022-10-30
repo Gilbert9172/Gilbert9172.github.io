@@ -184,7 +184,9 @@ public class Item {
 
 각각 ALBUM, MOVIE, BOOK 테이블이 생성이 되는데, 부모 클래스의 필드(id,name,price)가 
 
-하위 클래스에 모두 중복으로 들어가게 된다. 그리고 **<span style="background-color:#F0E68C">ITEM 테이블이 생성되지 않는다.</span>**
+하위 클래스에 모두 중복으로 들어가게 된다. 
+
+그리고 **<span style="background-color:#F0E68C">Item을 추상클래스로 정의했기 때문에 ITEM 테이블이 생성되지 않는다.</span>**
 
 ```java
 @Entity
@@ -212,7 +214,7 @@ public abstract class Item {
 
 이 전략은 데이터를 삽입할 때 문제가 되지 않는다. 그런데 Item 타입으로 조회할 때, 
 
-`UNION ALL`로 Item을 상속 받은 모든 테이블을 조회한다. 따라서 성능 저하가 초래된다.
+**<span style="color:red">UNION ALL로 Item을 상속 받은 모든 테이블을 조회한다.</span>** 따라서 성능 저하가 초래된다.
 
 <br>
 
