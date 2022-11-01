@@ -128,11 +128,15 @@ public class Team {
 
 • DB 테이블에서 일대다 관계는 항상 다(N) 쪽에 외래 키가 있음.
 
-• 객체와 테이블의 차이 때문에 **<span style="background-color:#F0E68C">반대편 테이블의 외래 키를 관리하는 특이한 구조</span>**
-
 • `@JoinColumn`을 꼭 사용해야 한다.
 
 • `@JoinColumn`을 사용하지 않으면 중간에 테이블이 하나 추가됨.
+
+• 객체와 테이블의 차이 때문에 **<span style="background-color:#F0E68C">반대편 테이블의 외래 키를 관리하는 특이한 구조</span>**
+
+<br>
+
+<img src="/assets/img/jpa/일대다단방향.png">
 
 ```java
 @Entity
