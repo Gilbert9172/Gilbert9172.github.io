@@ -9,15 +9,27 @@ tags: jpa
 
 ---
 
-#### ***JPQL 문법***
+#### <span style="background-color:black; color:white">JPQL 소개</span>
 
-• 엔티티와 속성은 대소문자 구분O
+• JPQL은 객체지향 쿼리 언어이다. 
 
-• JPQL 키워드는 대소문자 구분X
+• 엔티티 객체를 대상으로 쿼리한다.
+
+• SQL을 추상화해서 특정 데이터베이스 SQL에 의존하지 않는다.
+
+• JPQL은 결국 SQL로 변한다.
+
+<br>
+
+#### <span style="background-color:black; color:white">JPQL 문법</span>
+
+• 엔티티와 속성은 대소문자 구분 ⭕️
+
+• JPQL 키워드는 대소문자 구분 ❌
 
 • 엔티티 이름 사용, 테이블 이름이 아님
 
-• ***<span style="background-color:yellow">별칭은 필수</span>***
+• **<span style="background-color:#F0E68C">별칭은 필수(as는 생략가능)</span>**
 
 <br>
 
@@ -25,20 +37,20 @@ tags: jpa
 
 ---
 
-***TypeQuery***
+#### <span style="background-color:black; color:white">TypedQuery</span>
 
-> 반환 타입이 명확할 때 사용
+• 반환 타입이 명확할 때 사용
 
 ```java
-TypeQuery<Member> query1 = 
+TypedQuery<Member> query1 = 
             em.createQuery("SELECT m FROM Member m", Member.class);
 ```
 
 <br>
 
-***Query***
+#### <span style="background-color:black; color:white">Query</span>
 
-> 반환 타입이 명확하지 않을 때 사용
+• 반환 타입이 명확하지 않을 때 사용
 
 ```java
 Query<Member> query1 = 
@@ -47,32 +59,35 @@ Query<Member> query1 =
 
 <br>
 
-## <span style="color:gray">결과 API 조회</span>
+## <span style="color:gray">결과 조회</span>
 
 ---
 
-***`query.getResultList();`***
+#### <span style="background-color:black; color:white">query.getResultList()</span>
 
-> 결과가 하나 이상일 때, 리스트 반환
+• 결과가 하나 이상일 때, 리스트 반환
 
 • 결과가 없으면 빈 리스트 반환
 
 ```java
-
+String sql1 = "SELECT m FROM Member m";
+TypedQuery<Member> query1 = em.createQuery(sql1, Member.class);
+List<Member> resultList = query1.getResultList();
 ```
 
 <br>
 
-***`query.getSingleResult();`***
+#### <span style="background-color:black; color:white">query.getSingleResult()</span>
 
-> 결과가 정확히 하나, 단일 객체 반환
+• 결과가 정확히 하나, 단일 객체 반환
 
 • 결과가 없으면 **`javax.persistence.NoResultException`**
 
 • 결과가 둘 이상이면 **`javax.persistence.NonUniqueResultException`**
 
 ```java
-
+TypedQuery<Member> query1 = em.createQuery(sql1, Member.class);
+Member singleResult = query1.getSingleResult();
 ```
 
 <br>
@@ -81,14 +96,26 @@ Query<Member> query1 =
 
 ---
 
-위치 기반은 쓰지 않는 걸 추천. 나중에 새로운 값이 추가됐을 때 유지보수 힘듬.
+**<u>▷ 이름 기준</u>**
 
 ```java
 String query = "SELECT m FROM Member m WHERE m.username = :username";
 
 Member result = em.createQuery(query, Member.class)
-                    .setParameter("username", "member1")
-                    .getSingleResult();
+                  .setParameter("username", "member1").getSingleResult();
+```
+
+<br>
+
+**<u>▷ 위치 기준</u>**
+
+위치 기반은 쓰지 않는 걸 추천. 나중에 새로운 값이 추가됐을 때 유지보수 힘듬.
+
+```java
+String query = "SELECT m FROM Member m WHERE m.username = ?1";
+
+Member result = em.createQuery(query, Member.class)
+                  .setParameter(1,"member1").getSingleResult();
 ```
 
 <br>
@@ -97,24 +124,28 @@ Member result = em.createQuery(query, Member.class)
 
 ---
 
-#### ***프로젝션이란?***
+#### <span style="background-color:black; color:white">프로젝션이란?</span>
 
 • SELECT 절에 조회할 대상을 지정하는 것
 
-• 프로젝션 대상은 `엔티티`, `임베디드 타입`, `스칼라 타입` 이다.
+• 프로젝션 대상은 **엔티티**, **임베디드 타입**, **스칼라 타입** 이다.
+
+> 스칼라 타입 : 숫자, 문자등 기본 데이터 타입
 
 |프로젝션 대상|쿼리|영속성 컨텍스트 관리|
 |-------------|----|--------------------|
-|SELECT m FROM Member m|엔티티 프로젝션|O|
-|SELECT m.team FROM Member m|엔티티 프로젝션|O|
-|SELECT m.address FROM Member m|임베디드 타입 프로젝션|O|
-|SELECT m.username, m.age FROM Member m|스칼라 타입 프로젝션|O|
+|SELECT **m** FROM Member m|엔티티 프로젝션|O|
+|SELECT **m.team** FROM Member m|엔티티 프로젝션|O|
+|SELECT **m.address** FROM Member m|임베디드 타입 프로젝션|O|
+|SELECT **m.username, m.age** FROM Member m|스칼라 타입 프로젝션|O|
 
 • DISTINCT로 중복 제거 가능
 
+> 참고로 임베디드 타입의 경우에는 엔티티로 부터 값을 가져올 수 있다.
+
 <br>
 
-> 참고
+**<u>▷ 참고</u>**
 
 ```java
 List<Team> result = em.createQuery("select m.team from Member m",Team.class)
@@ -132,13 +163,15 @@ List<Team> result = em.createQuery("select t from Member m join m.team",Team.cla
 
 <br>
 
-#### ***프로젝션 여러 값 조회***
+#### <span style="background-color:black; color:white">프로젝션 여러 값 조회</span>
 
-`SELECT m.username, m.age FROM Member m` 과 같이 타입이 서로 다른 값을 가져올 떄는
+`SELECT m.username, m.age FROM Member m` 과 같이 타입이 서로 다른 값을 가져올 때는
 
 어떻게 해야할까?
 
-• Query 타입으로 조회
+<br>
+
+**<u>▷ Query 타입으로 조회</u>**
 
 ```java
 List resultList = em.createQuery("SELECT m.username, m.age FROM Member m")
@@ -148,7 +181,9 @@ Object o = resultList.get(0);
 Object[] result = (Object[]) o;
 ```
 
-• Object[] 타입으로 조회
+<br>
+
+**<u>▷ Object[ ] 타입으로 조회</u>**
 
 ```java
 List<Object[]> resultList = em.createQuery("SELECT m.username, m.age FROM Member m")
@@ -156,7 +191,9 @@ List<Object[]> resultList = em.createQuery("SELECT m.username, m.age FROM Member
 Object[] result = resultList.get(0);
 ```
 
-• new 명령어로 조회
+<br>
+
+**<u>▷ new 명령어로 조회</u>**
 
 ```java
 List<MemberDto> resultList = em.createQuery("SELECT new com.example.hellojpql.jpql.MemberDto(m.username, m.age) FROM Member m", MemberDto.class)
@@ -182,6 +219,11 @@ System.out.println("age = " + memberDto.getAge());
 
 ---
 
+|함수|설명|
+|----|----|
+|`setFirstResult(int startPosition)`|조회 시작 위치(0부터시작)|
+|`setMaxResults(int maxResult)`|조회할 데이터 수| 
+
 ```java
 //페이징 쿼리
 String jpql = "select m from Member m order by m.name desc";
@@ -191,10 +233,18 @@ List<Member> resultList = em.createQuery(jpql, Member.class)
                             .getResultList();
 ```
 
-|함수|설명|
-|----|----|
-|setFirstResult(int startPosition)|조회 시작 위치(0부터시작|
-|setMaxResults(int maxResult)|조회할 데이터 수| 
+```sql
+select
+    member0_.id as id1_0_,
+    member0_.age as age2_0_,
+    member0_.TEAM_ID as team_id5_0_,
+    member0_.type as type3_0_,
+    member0_.username as username4_0_ 
+from
+    Member member0_ 
+order by
+    member0_.username desc limit ? offset ?
+```
 
 <br>
 
@@ -202,17 +252,15 @@ List<Member> resultList = em.createQuery(jpql, Member.class)
 
 ---
 
-#### ***INNER JOIN***
+#### <span style="background-color:black; color:white">INNER JOIN</span>
 
-✔︎ Java Code
 ```java
-String query = "SELECT m FROM Member m INNER JOIN m.team t";
+String query = "SELECT m FROM Member m [INNER] JOIN m.team t";
 
 List<Member> resultList = em.createQuery(query, Member.class)
         .getResultList();
 ```
 
-✔︎ SQL
 ```sql
 select
     member0_.id as id1_0_,
@@ -227,17 +275,14 @@ inner join Team team1_
 
 <br>
 
-#### ***OUTTER JOIN*** 
+#### <span style="background-color:black; color:white">OUTTER JOIN</span>
 
-✔︎ Java Code
 ```java
-String query = "SELECT m FROM Member m LEFT OUTER JOIN m.team t";
+String query = "SELECT m FROM Member m LEFT [OUTER] JOIN m.team t";
 
 List<Member> resultList = em.createQuery(query, Member.class)
         .getResultList();
 ```
-
-✔︎ SQL
 ```sql
 select
     member0_.id as id1_0_,
@@ -252,7 +297,7 @@ left outer join Team team1_
 
 <br>
 
-#### ***THETA JOIN***
+#### <span style="background-color:black; color:white">THETA JOIN</span>
 
 ✔︎ Java Code
 ```java
@@ -278,11 +323,10 @@ where
 
 <br>
 
-#### ***ON***
+#### <span style="background-color:black; color:white">ON</span>
 
 JPA 2.1 부터 ON절을 활용한 조인을 지원해준다. 
 
-✔︎ Java Code
 ```java
 // 연관관계 없는 경우
 //String query = "SELECT m FROM Member m LEFT OUTER JOIN Team t ON m.username = t.name";
@@ -293,8 +337,6 @@ List<Member> resultList = em.createQuery(query, Member.class)
         .setParameter("teamName", "teamA")
         .getResultList();
 ```
-
-✔︎ SQL
 ```sql
 select
     member0_.id as id1_0_,
@@ -316,7 +358,7 @@ left outer join Team team1_
 
 ---
 
-#### ***서브 쿼리 지원 함수***
+#### <span style="background-color:black; color:white">서브 쿼리 지원 함수</span>
 
 |함수|설명|
 |----|----|
@@ -350,15 +392,15 @@ em.createQuery(
 
 <br>
 
-#### ***JPA 서브 쿼리 한계***
+#### <span style="background-color:black; color:white">JPA 서브 쿼리 한계</span>
 
-✔︎ JPA는 WHERE, HAVING 절에서만 서브 쿼리를 사용할 수 있다.
+• JPA는 **WHERE**, **HAVING** 절에서만 서브 쿼리를 사용할 수 있다.
 
-✔︎ SELECT 절에서도 가능하다. (Hibernate 지원)
+• SELECT 절에서도 가능하다. (Hibernate 지원)
 
-✔︎ ***<span style="color:red">FROM 절의 서브 쿼리는 현재 JPQL에서 불가능하다.</span>***
+• **<span style="color:red">FROM 절의 서브 쿼리는 현재 JPQL에서 불가능하다.</span>**
 
-✔︎ ***<span style="background-color:yellow">따라서 JOIN으로 풀 수 있다면 최대한 JOIN으로 푸는게 좋다.</span>***
+• **<span style="background-color:#F0E68C">따라서 JOIN으로 풀 수 있다면 최대한 JOIN으로 푸는게 좋다.</span>**
 
 <br>
 
@@ -368,13 +410,34 @@ em.createQuery(
 
 |번호|종류|예시|
 |----|----|----|
-|1|문자|'HELLO'|
+|1|문자|'HELLO', 'She"s'|
 |2|숫자|10L(Long), 10D(Double), 10F(Float)|
 |3|Boolean|TRUE, FALSE|
 |4|ENUM|com.example.MemberType.Admin(패키지명 포함)|
 |5|엔티티 타입|TYPE(m) = Member(상속 관계에서 사용)|
 
-> 5번의 엔티티 타입에 대한 추가 설명
+<br>
+
+**<u>▷ 4번의 Enum 타입에 대한 추가 설명</u>**
+
+```java
+// -1
+String query = "select m.username from Member m " + 
+               "where m.type = 패키지명.USER";
+
+em.createQuery(query)
+
+//-2
+String query = "select m.username from Member m " + 
+               "where m.type = :userType";
+
+em.createQuery(query).setParameter("userType", MemberType.UESR);
+```
+
+
+<br>
+
+**<u>▷ 5번의 엔티티 타입에 대한 추가 설명</u>**
 
 Book 엔티티가 Item을 상속 받고 있는 경우이다. 
 
@@ -452,7 +515,7 @@ where item0_.DTYPE='Book'
 
 ---
 
-#### ***기본 CASE 절*** 
+#### <span style="background-color:black; color:white">기본 CASE 절</span>
 
 ```java
 String query =
@@ -466,7 +529,7 @@ String query =
 
 <br>
 
-#### ***COALESCE***
+#### <span style="background-color:black; color:white">COALESCE</span>
 
 ✔︎ 하나씩 조회해서 null이 아니면 반환
 
@@ -478,7 +541,7 @@ String query = "select coalesce(m.username,'이름없는 회원') from Member m"
 
 <br>
 
-#### ***NULLIF***
+#### <span style="background-color:black; color:white">NULLIF</span>
 
 ✔︎ 두 값이 같으면 NULL 반환, 다르면 첫 번째 값 반환
 
@@ -509,7 +572,7 @@ JPQL에서 제공해주는 표준 함수로, JDBC에 관계 없이 사용하면 
 
 <br>
 
-#### ***사용자 정의 함수***
+#### <span style="background-color:black; color:white">사용자 정의 함수</span>
 
 `H2Dialect`를 상속 받은 클래스를 작성해야 한다.
 

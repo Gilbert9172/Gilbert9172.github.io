@@ -11,25 +11,27 @@ tags: jpa
 
 #### <span style="background-color:black; color:white">경로식 표현이란?</span>
 
-> .(점)을 찍어 객체 그래프를 탐색하는 것
-
-**<u>상태 필드(stateField)</u>**
-
-✔︎ 단순히 값을 저장하기 위한 필드 (ex. m.username)
-
-✔︎ 경로 탐색의 끝, 더 이상 탐색을 할 수 없다.
+• .(점)을 찍어 객체 그래프를 탐색하는 것
 
 <br>
 
-**<u>단일 값 연관 필드</u>**
+**<u>▷ 상태 필드(stateField)</u>**
 
-✔︎ **<span style="background-color:#F0E68C">@ManyToOne</span>**, **<span style="background-color:#F0E68C">@OneToOne</span>** (대상이 엔티티)
+• 단순히 값을 저장하기 위한 필드 (ex. m.username)
 
-✔︎ 묵시적 내부 조인(Inner Join) 발생, 탐색 가능
+• 경로 탐색의 끝, 더 이상 탐색을 할 수 없다.
 
 <br>
 
-**<u>컬렉션 값 연관 필드</u>**
+**<u>▷ 단일 값 연관 필드</u>**
+
+• **<span style="background-color:#F0E68C">@ManyToOne</span>**, **<span style="background-color:#F0E68C">@OneToOne</span>** (대상이 엔티티)
+
+• 묵시적 내부 조인(Inner Join) 발생, 탐색 가능
+
+<br>
+
+**<u>▷ 컬렉션 값 연관 필드</u>**
 
 ```java
 // 더 이상 탐색 불가능
@@ -39,33 +41,35 @@ String query = "SELECT t.members FROM Team t";
 String query = "SELECT m.usernane FROM Team t JOIN t.members m";
 ```
 
-✔︎ **<span style="background-color:#F0E68C">@OneToMany</span>**, **<span style="background-color:#F0E68C">@ManyToMany</span>** (대상이 컬렉션)
+• **<span style="background-color:#F0E68C">@OneToMany</span>**, **<span style="background-color:#F0E68C">@ManyToMany</span>** (대상이 컬렉션)
 
-✔︎ **<span style="background-color:#F0E68C">묵시적 내부 조인 발생</span>**, 탐색 불가능
+• **<span style="background-color:#F0E68C">묵시적 내부 조인 발생</span>**, 탐색 불가능
 
-✔︎ FROM 절에서 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능.
-
-<br>
-
-**<u>로 탐색을 사용한 묵시적 조인 시 주의사항</u>**
-
-✔︎ 항상 inner join이다.
-
-✔︎ 컬렉션은 경로 탐색의 끝, 명시적 조인을 통해 별칭을 얻어야 한다.
-
-✔︎ 경로 탐색은 주로 SELECT, WHERE 절에 영향을 준다. 
-
-✔︎ 하지만 묵시적 조인으로 인해 SQL의 FROM(JOIN) 절에 영향을 준다.
+• FROM 절에서 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능.
 
 <br>
 
-**<u>실무 조언</u>**
+#### <span style="background-color:black; color:white">경로 탐색을 사용한 묵시적 조인 시 주의사항</span>
 
-✔︎ 가급적 묵시적 조인 대신에 ***<span style="color:red">명시적 조인 사용해라</span>***
+**<u>▷ 주의사항</u>**
 
-✔︎ 조인은 SQL 튜닝에 중요 포인트
+• 항상 **inner join**이다.
 
-✔︎ 묵시적 조인은 조인이 일어나는 상황을 한 눈에 파악하기 어려움
+• 컬렉션은 경로 탐색의 끝, 명시적 조인을 통해 별칭을 얻어야 한다.
+
+• 경로 탐색은 주로 SELECT, WHERE 절에 영향을 준다. 
+
+• 하지만 묵시적 조인으로 인해 SQL의 FROM(JOIN) 절에 영향을 준다.
+
+<br>
+
+**<u>▷ 실무 조언</u>**
+
+• 가급적 묵시적 조인 대신에 ***<span style="color:red">명시적 조인 사용해라</span>***
+
+• 조인은 SQL 튜닝에 중요 포인트
+
+• 묵시적 조인은 조인이 일어나는 상황을 한 눈에 파악하기 어려움
 
 <br>
 
@@ -79,7 +83,7 @@ String query = "SELECT m.usernane FROM Team t JOIN t.members m";
 select m from Member m join m.team t
 ```
 
-✔︎ join 키워드를 직접 사용하는 것.
+• join 키워드를 직접 사용하는 것.
 
 <br>
 
@@ -89,9 +93,9 @@ select m from Member m join m.team t
 select m.team from Member m
 ```
 
-✔︎ 경로 표현식에 의해 묵시적으로 SQL조인 발생
+• 경로 표현식에 의해 묵시적으로 SQL조인 발생
 
-✔︎ ***<span style="color:red">inner join만 가능</span>***
+• ***<span style="color:red">inner join만 가능</span>***
 
 <br>
 
