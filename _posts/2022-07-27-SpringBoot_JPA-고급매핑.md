@@ -9,7 +9,7 @@ tags: jpa
 
 ---
 
-• **<span style="background-color:#F0E68C">객체의 상속구조</sapn>** 와 **<span style="background-color:#F0E68C">DB의 슈퍼타입-서브타입 관계</sapn>** 를 매핑
+• **<span style="background-color:#F0E68C">객체의 상속구조</sapn>** 와 **<span style="background-color:#F0E68C">DB의 슈퍼타입-서브타입 관계</span>** 를 매핑
 
 • 관계형 데이터베이스는 상속 관계가 없다.
 
@@ -33,7 +33,7 @@ tags: jpa
 
 #### <span style="background-color:black; color:white">예시 코드</span>
 
-<img src="/assets/img/jpa/고급매핑/스크린샷 2022-10-30 오후 10.53.22.png">
+<img src="/assets/img/jpa/고급매핑/join.png">
 
 위 이미지와 같이 DB에 ITEM, ALBUM, MOVIE, BOOK 테이블이 생성된다.
 
@@ -141,7 +141,7 @@ where
 
 #### <span style="background-color:black; color:white">예시 코드</span>
 
-<img src="/assets/img/jpa/고급매핑/스크린샷 2022-10-30 오후 10.54.53.png">
+<img src="/assets/img/jpa/고급매핑/single.png">
 
 위 이미지와 같이 하나의 ITEM이라는 테이블에 모든 컬럼이 다 들어간다.
 
@@ -180,7 +180,7 @@ public class Item {
 
 #### <span style="background-color:black; color:white">예시 코드</span>
 
-<img src="/assets/img/jpa/고급매핑/스크린샷 2022-10-30 오후 10.55.54.png">
+<img src="/assets/img/jpa/고급매핑/table.png">
 
 각각 ALBUM, MOVIE, BOOK 테이블이 생성이 되는데, 부모 클래스의 필드(id,name,price)가 
 
@@ -201,7 +201,8 @@ public abstract class Item {
     private int price;
 }
 ```
-<img src = "/assets/img/jpa/고급매핑/TABLE-PER-CLASS.png">
+
+<img src = "/assets/img/jpa/고급매핑/TABLE-PER-CLASS.png">
 
 <br>
 
