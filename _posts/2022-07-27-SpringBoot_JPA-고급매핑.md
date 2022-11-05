@@ -9,7 +9,7 @@ tags: jpa
 
 ---
 
-• **<span style="background-color:#F0E68C">객체의 상속구조</sapn>** 와 **<span style="background-color:#F0E68C">DB의 슈퍼타입-서브타입 관계</span>** 를 매핑
+• **<span style="background-color:#F0E68C">객체의 상속구조</span>** 와 **<span style="background-color:#F0E68C">DB의 슈퍼타입-서브타입 관계</span>** 를 매핑
 
 • 관계형 데이터베이스는 상속 관계가 없다.
 
