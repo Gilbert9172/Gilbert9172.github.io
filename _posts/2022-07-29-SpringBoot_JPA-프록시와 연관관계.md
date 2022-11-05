@@ -192,7 +192,9 @@ System.out.println((refMember.getClass() == findMember.getClass()));    //true
 
 #### <span style="background-color:black; color:white">프록시 객체 초기화 과정</span>
 
-<img src="/assets/img/jpa/프록시/프록시객체.png"><br>
+<img src="/assets/img/jpa/프록시/프록시객체.png">
+
+<br>
 
 ⒈ 최초에 `getXxx()` 메서드를 호출할 때 `target == null` 이다.
 
