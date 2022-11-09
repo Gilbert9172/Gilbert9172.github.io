@@ -132,7 +132,9 @@ team = 팀A|1
 
 직접 확인해 봤다.
 
-<img src="/assets/img/jpa/데이터뻥튀기(oneToMany).png"><br>
+<img src="/assets/img/jpa/데이터뻥튀기(oneToMany).png">
+
+<br>
 
 위 이미지는 회사 프로젝트 DB 데이터를 조회한 것인데, Program과 Member는 일대다관계를 
 
@@ -270,7 +272,7 @@ where
 
 **<u>▷ ⒈ Fetch Join 대상에는 별칭을 줄 수 없다.</u>**
 
-```sql
+```java
 ❌ 불가 ❌
 
 select from Team t join fetch t.members m where m.age > 10
@@ -286,7 +288,7 @@ select from Team t join fetch t.members m where m.age > 10
 
 **<u>▷ ⒉ 둘 이상의 컬렉션은 패치 조인 할 수 없다.</u>**
 
-```sql
+```java
 ❌ 불가 ❌
 
 select from Team t join fetch t.members, t.orders
@@ -304,6 +306,12 @@ select from Team t join fetch t.members, t.orders
 ❌ 불가 ❌
 String query = "select from Team t join fetch t.members m"
 ```
+
+<br> 
+
+만약 컬렉션에서 fetch join을 하려고 하면 하이버네이트는 경고 로그를 남기고 
+
+메모리에서 페이징을 해버린다! **<span style="color:red">이는 굉장히 위험하다!!!</span>**
 
 <br> 
 
@@ -375,16 +383,17 @@ where
     members0_.TEAM_ID in (
         ?, ?
     )
-# 마지막 쯔음에 보니는 ?가 페이징처리를 해서 가져온 Team_Id이다.
 ```
+
+> 마지막 쯔음에 보이는 ?가 페이징처리를 해서 가져온 Team_Id이다.
  
-이렇게 batchSize를 활용하면 N+1 문제도 해결하고 최적화도 된다.
+**<span style="background-color:#F0E68C">이렇게 batchSize를 활용하면 N+1 문제도 해결하고 최적화도 된다.</span>** 
 
 <br>
 
 #### <span style="background-color:black; color:white">Fetch Join 특징</span>
 
-• 연관된 엔티티들을 하나이 SQL문으로 조회 → 성능 최적화
+• 연관된 엔티티들을 하나의 SQL문으로 조회 → 성능 최적화
 
 • 엔티티에 직접 적용하는 글로벌 로딩 전략보다 우선함.
 
