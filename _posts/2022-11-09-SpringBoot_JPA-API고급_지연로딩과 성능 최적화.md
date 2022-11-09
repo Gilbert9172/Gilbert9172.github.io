@@ -272,6 +272,8 @@ fetch join에 대한 자세한 내용은 <a href="https://gilbert9172.github.io/
 
 #### <span style="background-color:black; color:white">V4: JPA에서 DTO로 바로 조회</span>
 
+**<span style="color:#FF7F50">주의: join fetch가 아닌 일반 join을 사용한다!</span>**
+
 ```java
 public List<OrderSimpleQueryDto> findOrderDtos() {
 
@@ -284,6 +286,26 @@ public List<OrderSimpleQueryDto> findOrderDtos() {
     return em.createQuery(jpql, OrderSimpleQueryDto.class).getResultList();
 }
 ```
+```sql
+select
+    order0_.order_id as col_0_0_,
+    member1_.name as col_1_0_,
+    order0_.order_date as col_2_0_,
+    order0_.status as col_3_0_,
+    delivery2_.city as col_4_0_,
+    delivery2_.street as col_4_1_,
+    delivery2_.zipcode as col_4_2_ 
+from
+    orders order0_ 
+inner join
+    member member1_ 
+        on order0_.member_id=member1_.member_id 
+inner join
+    delivery delivery2_ 
+        on order0_.delivery_id=delivery2_.delivery_id
+```
+
+• **<span style="background-color:#F0E68C">하나의 SELECT 쿼리로 데이터를 모두 가져온다.</span>**
 
 • 일반적인 SQL을 사용할 때 처럼 원하는 값을 선택해서 조회한다.
 
