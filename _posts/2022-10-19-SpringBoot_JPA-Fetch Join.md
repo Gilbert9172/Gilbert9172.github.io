@@ -13,7 +13,7 @@ tags: jpa
 
 #### <span style="background-color:black; color:white">Fetch Join이란?</span>
 
-• 갹채 구랴푸룰 하나의 SQL로 조회하는 개념
+• 객체 그래프를 하나의 SQL로 조회하는 개념
 
 • SQL의 조인 종류가 아니다.
 
