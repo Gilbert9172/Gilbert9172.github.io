@@ -78,3 +78,5 @@ public class SessionManager {
 ***<a href="https://wildeveloperetrain.tistory.com/143" target="_blank">📚 wildeveloperetrain:티스토리</a>***
 
 ***<a href="https://rengineer.tistory.com/43" target="_blank">📚 rengineer:티스토리</a>***
+
+***<a href="https://www.baeldung.com/spring-inject-static-field" target="_blank">📚 baeldung → 제일 좋음</a>***
