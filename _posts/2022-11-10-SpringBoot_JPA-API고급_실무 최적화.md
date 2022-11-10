@@ -126,7 +126,7 @@ member.setName("ABC");
 
 > <em> spring.jpa.open-in-view: false 인 경우</em>
 
-<img src="/assets/img/jpa/활용2편/스프링OSIVOff.png">
+<img src = "/assets/img/jpa/활용2편/스프링OSIVOff.png">
 
 OSIV를 끄면 트랜잭션을 종료할 때 영속성 컨텍스트를 닫고, 데이터베이스 
 
