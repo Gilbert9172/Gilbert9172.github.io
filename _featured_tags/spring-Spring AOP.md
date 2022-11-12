@@ -4,5 +4,5 @@ title: AOP
 slug: aop
 category: spring
 menu: false
-order: 5
+order: 4
 ---

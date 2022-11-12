@@ -4,5 +4,5 @@ title: Spring Boot
 slug: springBoot
 category: spring
 menu: false
-order: 1
+order: 2
 ---

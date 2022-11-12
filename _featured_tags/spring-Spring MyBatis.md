@@ -4,5 +4,5 @@ title: MyBatis
 slug: mybatis
 category: spring
 menu: false
-order: 2
+order: 6
 ---

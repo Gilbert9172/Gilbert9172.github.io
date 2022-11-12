@@ -4,5 +4,5 @@ title: JPA
 slug: jpa
 category: spring
 menu: false
-order: 6
+order: 7
 ---

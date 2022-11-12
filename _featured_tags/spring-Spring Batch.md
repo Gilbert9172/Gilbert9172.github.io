@@ -4,5 +4,5 @@ title: Spring Batch
 slug: springBatch
 category: spring
 menu: false
-order: 4
+order: 3
 ---
