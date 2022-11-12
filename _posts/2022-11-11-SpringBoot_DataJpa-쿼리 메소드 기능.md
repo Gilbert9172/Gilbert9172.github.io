@@ -73,6 +73,17 @@ public class MemberRepository {
 #### <span style="background-color:black; color:white">스프링 데이터 JPA</span>
 
 ```java
+@Entity
+@NamedQuery(
+    name="Member.findByUsername",
+    query="select m from Member m where m.username = :username"
+    )
+public class Member {
+    //...
+}
+```
+
+```java
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query(name = "Member.findByUsername")
@@ -107,7 +118,7 @@ List<Member> findUser(@Param("username") String username, @Param("age") int age)
 
 • `@org.springframework.data.jpa.repository.Query` 어노테이션을 사용
 
-• 실행할 메서드에 정적 쿼리를 직접 작성하므로 이름없는 Named 쿼리라 할 수 있다.
+• 실행할 메서드에 **정적 쿼리**를 직접 작성하므로 이름없는 Named 쿼리라 할 수 있다.
 
 • JPA Named 쿼리처럼 애플리케이션 실행시점에 문법 오류를 발견할 수 있다.
 
@@ -140,6 +151,10 @@ List<String> findUsernameList();
 List<MemberDto> findMemberDto();
 ```
 
+DTO로 직접 조회 하려면 JPA의 new 명령어를 사용해야 한다. 
+
+그리고 위와 같이 생성자가 맞는 DTO가 필요하다. 
+
 <br>
 
 ## <span style="color:gray">파라미터 바인딩</span>
@@ -167,7 +182,7 @@ List<Member> findByNames(@Param("names") Collection<String> names);
 
 #### <span style="background-color:black; color:white">단건 조회</span>
 
-• 결과가 없을 경우 : 없으면 null 반환
+• 결과가 없을 경우 : 없으면 `null` 반환
 
 • 결과가 2건 이상 : `NonUniqueResultException` 예외 발생
 
@@ -187,7 +202,7 @@ List<Member> findByNames(@Param("names") Collection<String> names);
 
 순수한 JPA만 사용했을 때는 페이징코드와 count 코드를 함께 작성해줘야 했다.
 
-하지만 스프링 데이터 JPA를 사용하면 이 모든걸 한 번에 처리해준다.
+하지만 스프링 데이터 JPA를 사용하면 이 모든걸 **한 번에** 처리해준다.
 
 <br>
 
@@ -200,7 +215,7 @@ List<Member> findByNames(@Param("names") Collection<String> names);
 
 • `Sort` : 정렬 기능
 
-• `Pageable` : 페이징 기능(내부에 ***Sort*** 포함)
+• `Pageable` : 페이징 기능(내부에 **Sort** 포함)
 
 <br>
 
@@ -228,7 +243,7 @@ public interface Page<T> extends Slice<T> {
 
 • `Slice` : count 쿼리 결과 없이 다음 페이지 확인 가능
 
-`Slice`는 내부적으로 limt + 1 만큼 조회를 한다.
+`Slice`는 내부적으로 `limt + 1` 만큼 조회를 한다.
 
 흔히 보는 더보기 버튼이라고 생각하면 된다.
 
@@ -283,7 +298,7 @@ public interface Slice<T> extends Streamable<T> {
 ```java
 public interface MemberRepository extends Repository<Member, Long> {
 
-    Page(Member) findByAge(int age, Pageable pageable);
+    Page<Member> findByAge(int age, Pageable pageable);
 }
 ```
 ```java
@@ -384,9 +399,9 @@ public interface memberRepository extends JpaRepository<Member, Long> {
 
 #### <span style="background-color:black; color:white">JPA의 fetch join</span>
 
-`fetch joind`은 연관된 엔티티들을 한 번의 SQL로 조회하는 방법이다.
+`fetch join`은 연관된 엔티티들을 한 번의 SQL로 조회하는 방법이다.
 
-이 부분은 <a href="https://gilbert9172.github.io/spring/2022/10/19/SpringBoot_JPA-Fetch-Join/" target="_blank">Fetch Join 정리 포스팅</a>에 정리가 되어있다.
+이 부분은 <a href="https://gilbert9172.github.io/spring/2022/10/19/SpringBoot_JPA-Fetch-Join/" target="_blank">Fetch Join 포스팅</a>에 정리가 되어있다.
 
 ```java
 @Query("select m from Member m join fetch m.team m")
@@ -449,7 +464,6 @@ public class Member {
 
 ```java
 @EntityGraph("Member.all")
-@Query("select m from Member m")
 List<Member> findMemberEnityGraph();
 ```
 
