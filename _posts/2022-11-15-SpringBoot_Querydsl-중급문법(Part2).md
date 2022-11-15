@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 중급 문법 Part2
+title: 중급 문법 - Part2
 categories: spring
 tags: querydsl
 ---

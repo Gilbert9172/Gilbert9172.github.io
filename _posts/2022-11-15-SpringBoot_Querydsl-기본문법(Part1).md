@@ -184,9 +184,7 @@ public void paging() throws Exception {
 
 추가적으로 Page 인터페이스의 구현체인 `PageImpl<T>` 클래스에서 총 페이지수,
 
-다음 페이지가 있는지 여부, 마지막 페이지인지 여부 등등 다양한 메소드를
-
-제공한다.
+다음 페이지가 있는지 여부, 마지막 페이지인지 여부 등등 다양한 메소드를 제공한다.
 
 > <em>package : org.springframework.data.domain</em>
 
