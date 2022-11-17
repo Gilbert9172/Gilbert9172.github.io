@@ -40,13 +40,6 @@ public class MemberJpaRepository {
 
 <br>
 
-#### <span style="background-color:black; color:white">@PersistenceContext</span>
-
-> 별도의 포스팅 작성 예정
-
-
-<br>
-
 ## <span style="color:gray">JPA → Querydsl(정적)</span>
 
 ---
