@@ -304,8 +304,7 @@ public class Locker {
 
 **<u>▷ 양방향</u>**
 
-<img src="/assets/img/jpa/일대일양방향.png">
-
+<img src = "/assets/img/jpa/일대일양방향.png">
 
 ```java
 @Entity
