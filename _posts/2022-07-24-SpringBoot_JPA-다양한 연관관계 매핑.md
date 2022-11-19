@@ -366,7 +366,7 @@ JPA에서 지원을 해주지 않는다. 그리고 이런 모양으로 매핑할
 
 **<u>▷ 양방향</u>**
 
-<img src = "/assets/img/jpa/대상테이블양방향.png">
+<img src = "/assets/img/jpa/대상테이블양방향.png"/>
 
 ```java
 @Entity
