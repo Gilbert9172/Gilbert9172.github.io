@@ -145,7 +145,7 @@ Integer 같은 래퍼 클래스나 String 같은 특수한 클래스는 공유 �
 
 • 임베디드 타입은 엔티티의 값일 뿐이다.
 
-• **<span style="background-color:#F0E68C">임베디드 타입을 사요하기 전과 후에 매핑하는 테이블은 같다.</span>**
+• **<span style="background-color:#F0E68C">임베디드 타입을 사용하기 전과 후에 매핑하는 테이블은 같다.</span>**
 
 • 객체와 테이블을 아주 세밀하게 매핑하는 것이 가능하다.
 
