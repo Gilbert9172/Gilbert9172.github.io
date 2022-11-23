@@ -29,7 +29,7 @@ Spring Security는 Servlet이 제공해주는 Filter를 기반으로 동작한�
 
 ## <span style="color:gray">Spring Security의 구조</span>
 
-<img src="/assets/img/spring/secutiry구조.png">
+<img src="/assets/img/spring/secutiry구조.png"><br>
 
 <br>
 
@@ -51,7 +51,7 @@ Http 요청이 들어오면 AuthenticationFilter가 해당 요청을 가로챈�
 
 인증을 담당할 AuthenticationManager에게 2번에서 만든 Token 객체를 전달해주고, 
 
-AuthenticationProvider목록에서 적적한 Provider를 찾은 후 토큰을
+AuthenticationProvider목록에서 적적한 Provider를 찾은 후 토큰을 
 
 AuthenticationProvider에게 전달해준다.
 
