@@ -217,28 +217,32 @@ public void Test(@RequestBody Dto dto, @RequestParam MultipartFile multipartfile
 
 한국말로 번역을 하면 "해당 어노테이션은 'multipart/form-data' 요청의 일부를 메서드 인수와 
 
-연결하는 데 사용할 수 있다" 정도가 된다. (도대체 이게 무슨말..?🧐)
-
-요약하자면 RequestParam은 multipart/form-data을 받는데 사용할 수 있고 등록된 Converter 또는 
-
-PropertyEditor를 통한 형식 변환에 의존한다고 한다. 반면에 RequestPart는 요청 부분의 'Content-Type' 
-
-헤더를 고려하는 HttpMessage Converters에 의존한다는 것이다.
+연결하는 데 사용할 수 있다" 정도가 된다.
 
 <br>
 
-솔직히 지금 수준에서 정확하게 이해가 되지는 않지만 정리해보자면,
+요약하자면 RequestParam은 multipart/form-data을 받는데 사용할 수 있고 등록된 Converter 
+
+또는 PropertyEditor를 통한 형식 변환에 의존한다고 한다. 반면에 RequestPart는 요청 부분의 
+
+**<span style="background-color:yellow">Content-Type 헤더</span>** 를 고려하는 HttpMessage Converters에 의존한다는 것이다.
+
+<br>
+
+<s>솔직히 지금 수준에서 정확하게 이해가 되지는 않지만 정리해보자면,</s>
 
 |어노테이션|설명|
 |----------|----|
 |@RequestParam|파일과 함께 키/값 쌍으로 전송되는 간단한 데이터에 사용|
 |@RequestPart|JSON과 XML과 같은 페이로드에 다중 속성 데이터(multi-attribute data)를 보낼 때 사용한다.|
 
-오늘 하던 작업의 경우 단순히 key:value 값을 넘기는 것이 아닌, JSON객체와 MultiPart를 컨트롤러로
+오늘 하던 작업의 경우 단순히 key:value 값을 넘기는 것이 아닌, JSON객체와 MultiPart를 
 
-넘겨주는 것이였기 때문에 ***`@RequestPart`*** 가 적절한 방법이였던 것이다.
+컨트롤러로 넘겨주는 것이였기 때문에 **`@RequestPart`** 가 적절한 방법이였던 것이다.
 
-***<span style="background-color:yellow">즉, JSON객체와 MultiPartFile을 컨트롤러에서 동시에 받기 위해서는 @RequestPart를 사용해야 한다.</span>***
+**<span style="background-color:yellow">즉, JSON객체와 MultiPartFile을 컨트롤러에서 동시에 받기 위해서는</span>** 
+
+**<span style="background-color:yellow">@RequestPart를 사용해야 한다.</span>**
 
 <br>
 
@@ -246,6 +250,6 @@ PropertyEditor를 통한 형식 변환에 의존한다고 한다. 반면에 Requ
 
 <img src="/assets/img/spring/RequestPartPostman.png">
 
-오른쪽 쯤에 `•••` 버튼이 있는데 이걸 누르면 Content-Type을 지정해줄 수 있다.
+오른쪽 쯤에 `•••` 버튼이 있는데 이걸 누르면 `Content-Type`을 지정해줄 수 있다.
 
 ---
