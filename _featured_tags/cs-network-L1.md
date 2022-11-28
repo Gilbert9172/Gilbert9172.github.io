@@ -1,9 +1,8 @@
 ---
 layout: tag-blog
-title: Network
-slug: network
+title: L1
+slug: L1
 category: cs
 menu: false
-submenu: True
 order: 1
 ---
