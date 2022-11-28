@@ -4,6 +4,5 @@ title: Network
 slug: network
 category: cs
 menu: false
-submenu: True
 order: 1
 ---
