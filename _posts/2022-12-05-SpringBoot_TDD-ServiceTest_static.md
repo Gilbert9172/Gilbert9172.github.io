@@ -1,6 +1,6 @@
 ---
 layout: post
-title: [Service 계층] - Static 클래스 테스트
+title: Service 계층 - Static 클래스 테스트
 categories: tdd
 tags: jpa
 ---
