@@ -1,8 +1,8 @@
 ---
 layout: post
 title: Service 계층 - Static 클래스 테스트
-categories: tdd
-tags: jpa
+categories: spring
+tags: tdd
 ---
 
 ## <span style="color:gray">Static 클래스 mocking하기</span>

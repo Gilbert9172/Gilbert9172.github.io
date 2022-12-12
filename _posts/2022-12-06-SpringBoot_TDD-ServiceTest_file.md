@@ -1,8 +1,8 @@
 ---
 layout: post
 title: Service 계층 - File 테스트
-categories: tdd
-tags: jpa
+categories: spring
+tags: tdd
 ---
 
 ## <span style="color:gray">File mocking하기</span>
