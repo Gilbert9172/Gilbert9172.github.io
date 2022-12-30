@@ -63,9 +63,10 @@ AWS 인스턴스 생성은 위 블로그를 보고 했다. 이미지와 함께 �
 그런데 여기서 아래와 같은 의문이 생겼다.
 
 > 이런 정보들은 노출이 되면 안되니깐 gitignore파일에 명시를 해줬는데...
+
 > 그럼 도커 이미지 빌드할 때는 어디서 이 정보들을 읽어 와야하지...?
 
-의무을 품고 구글링을 하는 도중 <a href="https://kukim.tistory.com/150" target="_blank">티스토리 블로그 - secret, config 파일관리</a> 란 글을 읽으면서 
+의문을 품고 구글링을 하는 도중 <a href="https://kukim.tistory.com/150" target="_blank">티스토리 블로그 - secret, config 파일관리</a> 란 글을 읽으면서 
 
 `Git Submodule`에 대해 알게 됐다.
 
@@ -277,9 +278,9 @@ spring:
 
 생각해보면 docker-compose는 컨테이너로 올릴 이미지를 pull 받아서 컨테이너를 올려주는 것이다.
 
-그럼 결국에 ec2 인스턴스 서버에서 이미지를 pull을 받고 docker-compose 명령어를 ec2 인스턴스에서 실행해줘야 한다. 
+그럼 결국에 ec2 인스턴스 서버에서 이미지를 pull을 받고 docker-compose 명령어를 ec2 인스턴스에서 
 
-**<span style="background-color:#F0E68C">즉, ec2 서버내에 docker-compose 파일을 만들어 주면 된다.</span>**
+실행해줘야 한다. **<span style="background-color:#F0E68C">즉, ec2 서버내에 docker-compose 파일을 만들어 주면 된다.</span>**
 
 <img src = "/assets/img/project/trademarket/compose1.png"><br>
 
@@ -493,9 +494,9 @@ key : ec2 pem 파일에 있는 모든 내용을 넣어줘야한다.
 
 <span style="color:red">dial tcp [ec2의 IP]: ***: i/0 timeout</span> 라는 에러를 마주쳤다. 
 
-Yml 파일에는 문제는 없었는데 계속해서 timeout이 나는 것이었다. 어쨋듯 ec2 서버에 접근을 못한거 같다는 생각이
+Yml 파일에는 문제는 없었는데 계속해서 timeout이 나는 것이었다. 어쨋듯 ec2 서버에 접근을 못한거 
 
-들었고, 처음에는 환경변수 셋팅을 잘못했나 싶었지만 그런 문제는 아니였다.
+같다는 생각이 들었고, 처음에는 환경변수 셋팅을 잘못했나 싶었지만 그런 문제는 아니였다.
 
 <br>
 
@@ -515,7 +516,9 @@ Yml 파일에는 문제는 없었는데 계속해서 timeout이 나는 것이었
 
 #### <span style="background-color:black; color:white">실행해보기</span>
 
-포팅도 기대했던 대로 잘 됐고, URL 접속도 정상적으로 되는 것이 확인이 됐다. → <a href="http://52.78.159.127/api/swagger-ui/index.html" target="_blank">Trade-Market Swagger</a>
+포팅도 기대했던 대로 잘 됐고, URL 접속도 정상적으로 되는 것이 확인이 됐다. 
+
+• <a href="http://52.78.159.127/api/swagger-ui/index.html" target="_blank">Trade-Market Swagger</a>
 
 <img src = "/assets/img/project/trademarket/actionresult.png"><br>
 
@@ -563,10 +566,8 @@ Yml 파일에는 문제는 없었는데 계속해서 timeout이 나는 것이었
 
 작업하는 과정에서 CI/CD 툴도 정말 다양하고 개개인의 wokrflow도 정말 다양함을 느꼈다. 
 
-그리고 그 어떤 것도 틀리지 않다고 생각한다. 다만 좀 **<span style="background-color:#F0E68C">더 나은 방향이 있다면 그 방향으로 가고 싶을 뿐이다. </span>**
+그리고 그 어떤 것도 틀리지 않다고 생각한다. **<span style="background-color:#F0E68C">보다 나은 방향이 있다면 그 방향으로 가고 싶을 뿐이다. </span>**
 
 지금까지 한 CI/CD 구축은 이제 시작 단계라고 생각한다. 분명 더 복잡하고 세밀한 설계가 있을 것이다.
 
-언젠가 그 설계를 내가 주도적으로 하는 날이 왔으면 좋겠고, 그러기 위해 <span style="color:red">끊임없는 도전</span>을 이어나갈 것이다.
-
-<br>
+언젠가 그 설계를 내가 주도적으로 하는 날이 왔으면 좋겠고, 그러기 위해 <span style="color:red">끊임없는 도전</span>을 할 것이다.
