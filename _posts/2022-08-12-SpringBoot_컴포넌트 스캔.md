@@ -1,15 +1,75 @@
 ---
 layout: post
-title: 컴포넌트 스캔
+title: 빈 자동 등록
 categories: spring
 tags: springBoot
 ---
+
+## <span style="color:gray">빈 등록</span>
+
+---
+
+#### <span style="background-color:black; color:white">빈 등록 방법</span>
+
+빈 등록은 <span style="color:green">빈 메타정보</span>를 작성해서 컨테이너에게 건네주면 된다.
+
+가장 직접적이고 원시적인 방법은 BeaaDefinition 구현 오브젝트를 직접 생성하는 것이다.
+
+그러나 이 방법은 무리가 있기 때문에 보통 `XML문서`, `프로퍼티 파일`, `소스코드 애노테이션`과
+
+같은 외부 리소스로 빈 메타정보를 작성하고 이를 적절한 리더나 변환기를 통해 
+
+ApplicationContext가 사용할 수 있는 정보로 변환해주는 방법을 사용한다.
+
+<br>
+
+#### <span style="background-color:black; color:white">자동 인식을 이용한 빈 등록 : 스테레오타입 애노테이션과 빈 스캐너</span>
+
+빈으로 사용될 클래스에 특별한 애노테이션을 부여해주면 자동으로 찾아서 빈으로
+
+등록해준다. 이렇게 특정 애노테이션이 붙은 클래스를 자동으로 찾아서 빈으로 등록해주는
+
+방식을 <span style="color:#4169E1">빈 스캐닝(Scanning)을 통한 자동인식 빈 등록 기능</span>이라고 하고, 
+
+이런 스캐닝 작업을 담당하는 오브젝트를 <span style="color:green">빈 스캐너</span>라고 한다.
+
+<br>
+
+빈 스캐너에 내장된 디폴트 필터는 `@Component` 애노테이션이, 또는 `@Component`를
+
+메타 에노테이션으로 가진 에노테이션이 부연된 클래스를 선택하도록 되어 있다.
+
+그래서 `@Component` 등의 애노테이션을 지정하는 것만으로도 빈등록이 가능했던 것이였다.
+
+<br>
+
+`@Component`을 포함해 디폴트 필터에 적용되는 애노테이션을 스프링에서는 
+
+<span style="color:#4169E1">StreoType Annotation</span>이라 부른다. StreoType에는 아래 종류의 애노테이션이 있다.
+
+- @Componentnet
+- @Controller
+- @Service
+- @@Repository
+
+<br>
+
+#### <span style="background-color:black; color:white">AnnotationConfigApplicationContext</span>
+
+<img src = "/assets/img/spring/container/annotationcontext.png"><br>
+
+위 이미지는 `AnnotationConfigApplicationContext` 클래스의 일부를 캡쳐한 것이다.
+
+- Reader : AnnotatedBeanDefinitionReader 클래스
+- Scanner : ClassPathBeanDefinitionScanner 클래스
+
+<br>
 
 ## <span style="color:gray">컴포넌트 스캔</span>
 
 ---
 
-#### ***컴포넌트 스캔이란?***
+#### <span style="background-color:black; color:white">컴포넌트 스캔이란?</span>
 
 지금까지 스프링 빈을 등록할 때는 자바 코드의 `@Bean`이나 `xml`의 <bean> 등을 통해서 
 
