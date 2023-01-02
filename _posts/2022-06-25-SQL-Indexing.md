@@ -225,6 +225,8 @@ N개의 자료 중 원하는 자료를 탐색하는 알고리즘의 시간 복�
 
 **[ B-Tree ]**
 
+> <a href="https://helloinyong.tistory.com/296 " target="_blank">왜 다른 균형트리는 안될까?</a>
+
 <img src = "/assets/img/cs/b-tree.png"><br>
 
 균형트리 중 B-Tree를 사용하는 이유는 B-Tree는 하나의 노드에 여러 개의 데이터 요소를 
