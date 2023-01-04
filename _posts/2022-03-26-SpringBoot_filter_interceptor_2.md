@@ -130,8 +130,8 @@ public interface HandlerInterceptor {
 
 <br>
 
-- **preHandle**
-    - 컨트롤러 호출 전에 호출 된다. → 더 정확히는 핸들러 어댑터 호출 전에 호출된다.
+- **postHandle**
+    - 컨트롤러 호출 후에 호출된다. → 더 정확히는 핸들러 어댑터 호출 후에 호출된다.
 
 <br>
 

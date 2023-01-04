@@ -188,6 +188,21 @@ public static void main(String[] args) {
  
 <br>
 
+**[ Double-linked List ]**
+
+<details>
+<summary>설명</summary>
+<div markdown="1">
+
+<br>
+
+
+
+</div>
+</details>
+
+<br>
+
 #### <span style="background-color:black; color:white">HashTable</span>
 
 **[ 특징 ]**
@@ -211,3 +226,7 @@ public static void main(String[] args) {
 • <a href="https://woooongs.tistory.com/67" target="_blank">HashMap 과 동시성</a>
 
 • <a href="https://wonyong-jang.github.io/java/2020/10/16/Java-LinkedHashMap.html" target="_blank">LinkedHashMap</a>
+
+• <a href="https://opentutorials.org/module/1335/8940" target="_blank">생활코딩 - Doubly Linked List1</a>
+
+• <a href="https://opentutorials.org/module/1335/8941" target="_blank">생활코딩 - Doubly Linked List2</a>

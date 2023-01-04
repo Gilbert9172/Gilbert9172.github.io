@@ -237,13 +237,13 @@ protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletExcepti
 
 <br>
 
-찾은 HandlerAdapter로 Handler의 메소드를 실행하기 앞서 **Interceptor**의 `applyPreHandle()` 
+찾은 HandlerAdapter로 Handler의 메소드를 실행하기 앞서 **Interceptor**의 
 
-메소드를 호출한다. 해당 메소드의 반환 타입은 boolean이다. 만약, 반환값이 true면 Interceptor를 
+`applyPreHandle()` 메소드를 호출한다. 해당 메소드의 반환 타입은 boolean이다. 
 
-통과하여 다음 단계로 진행된다. 반면, 반환값이 false면 Interceptor를 통과하지 못해 로직을 더이상 
+만약, 반환값이 true면 Interceptor를 통과하여 다음 단계로 진행된다. 
 
-수행하지 않고 종료한다.
+반면, 반환값이 false면 Interceptor를 통과하지 못해 로직을 더이상 수행하지 않고 종료한다.
 
 ```java
 boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -265,7 +265,7 @@ boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response)
 
 Interceptor를 통과하면, 앞서 찾은 HandlerAdapter를 이용하여 `handle()` 메소드로 
 
-Handler(Controller)의 메소드를 실행한다. handle() 메소드의 반환 타입은 ModelAndView이다. 
+Handler(Controller)의 메소드를 실행한다. `handle()` 메소드의 반환 타입은 ModelAndView이다. 
 
 ```java
 protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -321,9 +321,9 @@ public interface HandlerAdapter {
 
 <br>
 
-handle() 메소드를 실행하면, DispatcherServlet 뒤에 있는 비즈니스 로직을 수행하고 
+`handle()` 메소드를 실행하면, DispatcherServlet 뒤에 있는 비즈니스 로직을 수행하고 
 
-결과로 ModelAndView를 반환한다. 반면 @RestController의 경우에는 View에 Model이 
+결과로 ModelAndView를 반환한다. 반면 <span style="color:purple">@RestController</span>의 경우에는 View에 Model이 
 
 렌더링되는 과정은 생략하고 바로 그 다음 단계를 진행한다.
 
@@ -355,9 +355,9 @@ void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @
 
 **<u>4. ViewResolver 호출 & View 반환</u>**
 
-이제 거의 다 왔다. 위 과정에서 생성? 한 매개변수(processedRequest, response, mappedHandler, mv, 
+이제 거의 다 왔다. 매개변수 processedRequest, response, mappedHandler, mv, 
 
-dispatchException)들을 받는 `processDispatchResult()` 메소드를 호출해준다.
+dispatchException을 받는 `processDispatchResult()` 메소드를 호출해준다.
 
 ```java
 protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -368,6 +368,7 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
         ModelAndView mv = null;
         try {
             ...
+            ▼ 이 부분
             mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
             this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);
     }
@@ -376,7 +377,7 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 
 <br>
 
-그리고 `processDispatchResult()` 메소드 내부에 있는 `render()` 메소드를 호출한다.
+그리고 `DispatcherServlet#render()` 메소드를 호출한다.
 
 ```java
 private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, @Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv, @Nullable Exception exception) throws Exception {
@@ -387,7 +388,7 @@ private void processDispatchResult(HttpServletRequest request, HttpServletRespon
 
     if (mv != null && !mv.wasCleared()) {
         
-        //========= render() =========//
+        ▼ 이 부분
         this.render(mv, request, response);
         if (errorView) {
             ...
@@ -404,9 +405,9 @@ private void processDispatchResult(HttpServletRequest request, HttpServletRespon
 
 <br>
 
-`render()` 메소드 내부에 있는 `resolveViewName()` 메소드를 호출하여 
+그리고 `DispatcherServlet#resolveViewName()` 메소드를 호출하여 
 
-View의 **<span style="background-color:#F0E68C">논리 이름을 물리 이름으로 변환한다.</span>**
+**<span style="background-color:#F0E68C">View의 논리 이름을 물리 이름으로 변환한다.</span>**
 
 ```java
 protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -415,6 +416,7 @@ protected void render(ModelAndView mv, HttpServletRequest request, HttpServletRe
     View view;
 
     if (viewName != null) {
+        ▼ 이 부분
         view = this.resolveViewName(viewName, mv.getModelInternal(), locale, request);
         ...
     } else {
@@ -447,7 +449,9 @@ protected View resolveViewName(String viewName, @Nullable Map<String, Object> mo
 
 <br>
 
-마지막으로 View 객체의 `render()` 메소드를 호출하여 View에 Model 데이터를 렌더링한다.
+마지막으로 <span style="color:green">View Interface</span>의 `render()` 메소드를 호출하여 
+
+View에 Model 데이터를 렌더링한다.
 
 ```java
 protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -457,7 +461,13 @@ protected void render(ModelAndView mv, HttpServletRequest request, HttpServletRe
     ...
 
     try {
+        if (mv.getStatus() != null) {
+            request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
+            response.setStatus(mv.getStatus().value());
+        }
         ...
+
+        ▼ 이 부분
         view.render(mv.getModelInternal(), request, response);
     } catch (Exception var8) {
         ...
@@ -465,13 +475,24 @@ protected void render(ModelAndView mv, HttpServletRequest request, HttpServletRe
 }
 ```
 
+```java
+public interface View {
+
+	...
+
+	void render(@Nullable Map<String, ?> model, 
+                HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+}
+```
+
 <br>
 
 **<u>5. HTML 응답</u>**
 
-맨 마지막으로 Interceptor를 한번 더 실행한다. 이때, `triggerAfterCompletion()` 메소드를 호출하고 
+맨 마지막으로 Interceptor를 한번 더 실행한다. 이때, `triggerAfterCompletion()` 메소드를 
 
-응답값이 반환되기 전에 마지막 후처리를 진행한다. 
+호출하고 응답값이 반환되기 전에 마지막 후 처리를 진행한다. 
 
 해당 메소드는 View에 Model를 렌더링한 이후, 즉 가장 마지막에 실행된다.
 
@@ -489,6 +510,34 @@ private void processDispatchResult(HttpServletRequest request, HttpServletRespon
 
 <br>
 
+## <span style="color:gray">마무리 및 정리</span>
+
+---
+
+DispatcherServlet의 동작 방식에 대한 도식화는 아래와 같다.
+
+<img src = "/assets/img/spring/server/dispatcherServlet동작방식.png"><br>
+
+⒈ 클라이언트가 특정 URL로 요청을 보낸다.
+
+⒉ 요청 URL에 매핑된 <span style="color:#228B22">핸들러(컨트롤러)</span>를 loop를 순회하면서 찾는다.
+
+⒊ 찾은 핸들러를 처리해줄 수 있는 <span style="color:#4169E1">핸들러 어뎁터</span>를 loop를 순회하면서 찾는다.
+
+⒋ 찾은 HandlerAdapter를 사용해서 Handler의 메소드를 실행한다.
+
+⒌ Handler의 반환값은 Model과 View이다.
+
+⒍ View 이름을 ViewResolver에게 전달하고, ViewResolver는 해당하는 View 객체를 반환한다.
+
+⒎ DispatcherServlet은 View에게 Model을 전달하고 화면 표시를 요청한다.
+- Model이 null이면 View를 그대로 사용한다. 
+- 반면, 값이 있으면 View에 Model 데이터를 렌더링한다.
+
+
+⒏ DispatcherServlet은 View 결과(HttpServletResponse)를 클라이언트에게 반환한다.
+
+<br>
 
 ## <span style="color:gray">참고한 자료</span>
 
