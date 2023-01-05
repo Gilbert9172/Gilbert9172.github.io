@@ -31,7 +31,7 @@ categories: sql
 - Full-Scan : 테이블에 포함된 모든 레코드를 처음부터 끝까지 읽는 방식
 - Range-Scan은 테이블의 일부 레코드에만 접근하는 방식
 
-이 두 가지 방식 중에 **<span style="background-color:#F0E68C">Range-Scan을 할 때 Index를 이용하면 성능을 향상시키는데 도움이 된다.</span>**
+이 두 가지 방식 중에 **Range-Scan을 할 때 Index를 이용하면 성능을 향상시키는데 도움이 된다.**
 
 
 <br>
@@ -40,9 +40,9 @@ categories: sql
 
 ***<span style="color:gray">Index는 RDBMS에서 검색 속도를 높이기 위한 기술이다.</span>***
 
-인덱스란 "추가적인 쓰기 작업과 저장 공간을 활용하여 데이터베이스 테이블의 검색 속도를
+인덱스란 **<span style="background-color:#F0E68C">추가적인 쓰기 작업과 저장 공간을 활용하여 데이터베이스 테이블의 검색 속도를</span>**
 
-향상시키기 위한 자료구조"이다. 이러한 인덱스는 자주 사용되는 값으로 만들어진 원본 테이블의 
+**<span style="background-color:#F0E68C">향상시키기 위한 자료구조이다.</span>** 이러한 인덱스는 자주 사용되는 값으로 만들어진 원본 테이블의 
 
 사본이라고 생각할 수 있다.
 
@@ -54,7 +54,7 @@ categories: sql
 
 보통 SELECT 쿼리의 WHERE절이나 JOIN을 사용했을 때 INDEX가 사용되며, 
 
-**<span style="background-color:#F0E68C">SELECT 쿼리의 속도를 빠르게 하느데 목적을 두고 있다.</span>** 
+<span style="color:red">SELECT 쿼리의 속도를 빠르게 하는데 목적을 두고 있다.</span> 
 
 CREATE, DELETE, UPDATE가 빈번한 속성에 인덱스를 걸게 되면 인덱스의 크기가 비대해져 
 
@@ -139,6 +139,88 @@ Memory Engine은 HEAP 테이블이라고도 부르며 메모리에 데이터를 
 이 방법은 지속적인 데이터 보다, 정형화된 임시데이터를 사용할 때 좋을거 같다.
 
 지금 생각나는 예로는 메일 인증번호나, 토큰 정보를 저장할 때 쓰면 좋을거 같다.
+
+<br>
+
+## <span style="color:gray">Indexing 설정시 고려해야하는 사항</span>
+
+---
+
+#### <span style="background-color:black; color:white">인덱스는 where 절에서 효과가 있다.</span>
+
+Where 절을 사용하지 않고, 인덱스가 걸린 컬럼을 조회하는 것은 성능에 아무런 영향이 없다.
+
+<br>
+
+#### <span style="background-color:black; color:white">무조건 많이 설정은 No!</span>
+
+인덱스는 하나 혹은 여러 개의 컬럼에 대해 설정을 할 수 있다.
+
+> 인덱스는 한 테이블당 보통 3~5개 정도가 적당합니다.
+
+> 물론 테이블의 목적 등에 따라 개수는 달라질 수 있습니다. 
+
+단일 인덱스를 여러 개 생성할 수도, 여러 컬럼을 묶어 복합 인덱스를 설정할 수도 있다.
+
+그러나 무조건 많이 설정하는게 검색 속도 향상을 높여주지는 않는다.
+
+인덱스는 데이터베이스 메모리를 사용하여 테이블 형태로 저장되므로 개수와 저장 공간은 비례한다.
+
+따라서 <span style="color:#DC143C">인덱스는 조회시 자주 사용하고, 고유한 값 위주로 설정하는게 좋다.</span>
+
+<br>
+
+#### <span style="background-color:black; color:white">DML에는 어떤 영향을 미칠까?</span>
+
+Select 쿼리에서는 성능이 잘 나오지만, Insert, Update, Delete 쿼리에서는 때에 따라 다르다.
+
+**[ Update & Delete ]**
+
+Where절에 설정된 인덱스로 조건을 붙여주면 조회할 때 성능은 크게 저하되지 않으나,
+
+업데이트 시 데이터를 찾을 때의 속도가 빨라지는 것이지, 업데이트 자체가 빨라지는 것은 아니다.
+
+<br>
+
+**[ Insert ]**
+
+새로운 데이터가 추가되면서 기존에 인덱스 페이지에 저장되어 있던 탐색 위치가 수정되어야
+
+하므로 효율이 좋지 못하다.
+
+<br>
+
+#### <span style="background-color:black; color:white">어떤 컬럼에 인덱스를 설정하는게 좋을까?</span>
+
+**[ 1. 카디널리티(Cardinality) ]**
+
+<span style="color:#4169E1">카디널리티가 높을 수록 인덱스 설정에 좋은 컬럼이다. (= 한 컬럼이 갖고 있는 값의 중복도가 낮을 수록 좋다.)</span>
+
+여러 컬럼을 인덱스로 생성할 경우, Cardinality가 높은 순에서 낮은 순으로 구성하는 것이 좋다.
+
+<br>
+
+**[ 2. 선택도(Selectivity) ]**
+
+> 선택도 = (컬럼의 특정 값의 row 수 / 테이블의 총 row 수) * 100
+
+<span style="color:#4169E1">선택도가 낮을 수록 인덱스 설정에 좋은 컬럼이다.</span>
+
+선택도는 특정 필드값을 지정했을 때 선택되는 레코드 수를 테이블 전체 레코드 수로 나눈 것이다.
+
+`5 ~ 10%` 가 적당하다고 한다.
+
+<br>
+
+**[ 3. 활용도 ]**
+
+<span style="color:#4169E1">활용도가 높을 수록 인덱스 설정에 좋은 컬럼이다.</span>
+
+<br>
+
+**[ 4. 중복도 ]**
+
+<span style="color:#4169E1">중복도가 없을 수록 인덱스 설정에 좋은 컬럼이다.</span>
 
 <br>
 
