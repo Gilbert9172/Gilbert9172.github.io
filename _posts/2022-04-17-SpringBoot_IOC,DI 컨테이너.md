@@ -5,7 +5,7 @@ categories: spring
 tags: springBoot
 ---
 
-## <span style="color:gray">IoC (Inversion of Controller)</span>
+## <span style="color:gray">IoC (Inversion of Control)</span>
 
 ---
 
@@ -13,7 +13,7 @@ tags: springBoot
 
 **<span style="background-color:#F0E68C">프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것</span>**
  
-일반적인 상황에서는 개발자가 직접 new 연산자를 통해 객체를 생성하고, 객체의 의존성을 맺어주고, 
+일반적인 상황에서는 개발자가 직접 new 키워드를 통해 객체를 생성하고, 객체의 의존성을 맺어주고, 
 
 실행했다. 하지만 Spring 에서는 `xml파일` 또는 `어노테이션 방식`으로 스프링 컨테이너에 Bean을
 
