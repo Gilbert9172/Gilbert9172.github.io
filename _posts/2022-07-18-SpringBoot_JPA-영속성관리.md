@@ -19,7 +19,7 @@ JPA에서 가장 중요한 2가지는 아래와 같다.
 
 영속성 컨텍스트는 JPA를 이해하는데 가장 중요한 용어이다.
 
-쉽게 말하면 **<span style="background-color:#F0E68C">Entity를 영구 저장하는 환경</spna>** 이라는 뜻이다.
+쉽게 말하면 **<span style="background-color:#F0E68C">Entity를 영구 저장하는 환경</span>** 이라는 뜻이다.
 
 <br>
 
