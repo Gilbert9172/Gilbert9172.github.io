@@ -233,6 +233,84 @@ public class Employee {
 
 #### <span style="background-color:black; color:white">null을 반환하지 마라.</span>
 
+null을 반환하고 싶은 경우 아래의 방법을 고려해보자.
+
+- 별도의 예외 던지기
+- 특수 사례 객체를 반환
+
+대다수의 경우에는 특수 사례 객체를 반환하는 것이 좋다고 한다.
+
+아래의 예시는 사용자가 작성한 게시물을 가져오는 간단한 예시다.
+
+<br>
+
+<details>
+<summary>개선 전</summary>
+<div markdown="1">
+
+<br>
+
+아래 코드에서 사용자가 등록한 게시물이 없을 경우 `articles.size()`를 호출할 때 
+
+<span style="color:#DC143C">NullPointException</span>이 터질것이다. 따라서 별도의 예외 처리 로직이 필요하다.
+
+```java
+List<Article> articles = testService.getArticles(1);
+System.out.println(articles.size());    //=> NullPointException
+```
+
+```java
+public class TestServiceImpl implements TestService {
+    
+    public List<Article> getArticles(Long memberId) {
+        return repository.findAllById(memberId);
+    }
+
+}
+```
+
+</div>
+</details>
+
+<br>
+
+<details>
+<summary>개선 후</summary>
+<div markdown="1">
+
+<br>
+
+반면 개선 후 코드에서는 사용자의 게시물이 없을 때 <span style="color:#6495ED">빈 컬렉션</span>을 반환했기 때문에 `0`이라는 값을 출력할 것이다.
+
+```java
+List<Article> articles = testService.getArticles(1);
+System.out.println(articles.size());    //=> 0
+```
+
+```java
+public class TestServiceImpl implements TestService {
+    
+    public List<Article> getArticles(Long memberId) {
+
+        List<Articel> articles = repository.findAllById(memberId);
+
+        if (articles == null) {
+            return Collections.emptyList();
+        }
+
+        return articles;
+    }
+
+}
+```
+
+</div>
+</details>
+
 <br>
 
 #### <span style="background-color:black; color:white">null을 전달하지 마라.</span>
+
+메서드에서 null을 반환하는 방식도 나쁘지만 메서드로 null을 전달하는 방식은 더 나쁘다.
+
+정상적인 인수로 null을 기대하는 API가 아니라면 메서드로 null을 전달하는 코드는 최대한 피한다.
