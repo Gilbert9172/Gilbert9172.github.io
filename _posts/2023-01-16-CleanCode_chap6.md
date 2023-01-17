@@ -347,3 +347,5 @@ class Demeter {
 • <a href="https://mangkyu.tistory.com/147" target="_blank">티스토리 블로그 - 망나니 개발자</a>
 
 • <a href="https://tecoble.techcourse.co.kr/post/2020-06-02-law-of-demeter/" target="_blank">Tecoble</a>
+
+• <a href="https://dsmoon.tistory.com/entry/Object-VS-Data-structure" target="_blank">티스토리 블로그 - dsmoon</a>
