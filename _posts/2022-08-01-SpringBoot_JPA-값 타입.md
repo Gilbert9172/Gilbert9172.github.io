@@ -538,7 +538,7 @@ public class Member {
     private Long id;
 
     @OneToMany()
-    @JoniColumn(name = "MEMBER_ID") // Address Entity의 FK
+    @JoniColumn(name = "MEMBER_ID") // Address Entity의 FK (일대다 단방향)
     private List<AddressEntity> addressHistory = new ArrayList<>();
 
 }
@@ -663,7 +663,7 @@ member1.getHomeAddress().setCity("newCity");
 
 <br>
 
-결론 : 불변이라는 작은 제약으로 부작용이라는 큰 재앙을 막을 수 있다.
+**<span style="background-color:#F0E68C">결론 : 불변이라는 작은 제약으로 부작용이라는 큰 재앙을 막을 수 있다.</span>**
 
 <br>
 
