@@ -33,7 +33,9 @@ tags: cleanCode
 
 #### <span style="background-color:black; color:white">외부 코드 사용하기</span>
 
-**<span style="background-color:#7FFFD4;">[ ▾ 이해하기 ]</span>**
+<br>
+
+<span style="background-color:#AFEEEE;">[ ▾ 이해하기 ]</span>
 
 이 책에서는 Map 인터페이스를 예시를 들어 설명을 해주었다. 그러나 현재 지금
 
@@ -49,7 +51,7 @@ tags: cleanCode
 
 <br>
 
-**<span style="background-color:#7FFFD4;">[ ▾ 언제 wrapping을 해야할까?]</span>**
+<span style="background-color:#AFEEEE;">[ ▾ 언제 wrapping을 해야할까?]</span>
 
 책에서는 아래의 경우에 사용하라고 하는 것 같다.
 
@@ -108,16 +110,203 @@ Id가 1번일 경우에는 15% 할인을, Id가 2번일 경우에는 20% 할인�
 
 ---
 
+#### <span style="background-color:black; color:white">들어가기 앞서</span>
 
-#### <span style="background-color:black; color:white"></span>
+책에서 어뎁터 패턴을 언급해서 이에 관해 자세히 알아보았다.
+
+구글링을 해보니 전부 해드퍼스트 디자인 패턴에 있는 내용 및 예제를 그대로 사용해여
+
+글을 정리해뒀다. 하지만 나는 실 프로젝트에서 어떻게 사용할 수 있을지 혹은 이미 
+
+작성된 코드에서 무의식적으로 사용했던건 아닌지 알아보면서 정리할 계획이다.
 
 <br>
 
-#### <span style="background-color:black; color:white"></span>
+#### <span style="background-color:black; color:white">어뎁터 패턴의 목적</span>
+
+어뎁터 패턴의 목적은 호환되지 않는 인터페이스 때문에 동작하지 않는 클래스들을 동작할 
+
+수 있게 해주는 것이다. Java에서는 <span style="color:#4169E1;">Wrapper 클래스</span>로 이야기한다고 한다.
 
 <br>
 
-#### <span style="background-color:black; color:white"></span>
+예를 들어 우리가 일본으로 여행을 갔다고 가정해보자. 숙소를 들어가 핸드폰을 충전해야
+
+하는데 일본은 한국과 다르게 110v를 사용한다. 하지만 우리는 220v 규격의 충전기 밖에
+
+없다. 이럴 때 우리는 `변압기(돼지코)`를 사용한다.
+
+<br>
+
+어뎁터 패턴도 이와 유사하다. 이미지를 보면서 이해해보자.
+
+<img src = "/assets/img/designPattern/adapter/adapter.png">
+
+위 이미지와 예시를 매핑해보면 아래와 같다.
+
+- 기존 시스템 : 220v
+- 어뎁터 : 변압기(돼지코)
+- 업체에서 제공한 클래스 : 110v
+
+어뎁터 패턴이 어떤 상황에 어떤 목적으로 사용되는지 확실히 감은 잡았다.
+
+이제 내가 실제로 어떤 상황에 사용할 수 있을지 예제를 만들어보고, 혹은
+
+이미 어뎁트 패턴을 사용하여 뭔가 구현한 것은 없는지 알아보자.
+
+<br>
+
+#### <span style="background-color:black; color:white">Security에서 어뎁터 패턴</span>
+
+<br>
+
+<span style="background-color:#AFEEEE;">[ ▾ UserDetails]</span>
+
+최근에 친구에게 Spring Security에서 제공해주는 UserDetails라는 인터페이스를 설명해준
+
+기억이 난다. 이때 나는 이렇게 설명해줬다.
+
+> 프로젝트마다 사용자 정보를 저장하는 Entity가 다르기 때문에 <br> 일관성을 위해서 시큐리티에서 제공해주는 인터페이스라고
+
+
+<details>
+<summary><u>UserDetails Interface</u></summary>
+<div markdown="1">
+
+<br>
+
+```java
+public interface UserDetails extends Serializable {
+
+	Collection<? extends GrantedAuthority> getAuthorities();
+
+	String getPassword();
+
+	String getUsername();
+
+	boolean isAccountNonExpired();
+
+	boolean isAccountNonLocked();
+
+	boolean isCredentialsNonExpired();
+
+	boolean isEnabled();
+
+}
+
+```
+
+</div>
+</details><br>
+
+<br>
+
+즉, Spring Security를 사용하면 프로젝트에서 정의한 사용자 클래스(e.g. Agent.class)에 
+
+정보를 담는 것이 아니고 UserDetails 인터페이스를 구현한 클래스에 사용자 정보를 담아야 한다.
+
+<br>
+
+그럼 이제 어뎁터 패턴이 어떻게 사용되고 있던 것인지 이미지를 보며 이해해보자.
+
+<img src="/assets/img/designPattern/adapter/adapter2.png"><br>
+
+- Client : CustomAuthenticationProvider
+- Target : UserDetails
+- Adapter : CustomUserDetails
+- Adaptee : Agent
+
+<br>
+
+사용자 인증을 처리해주는 CustomAuthenticationProvider가 Client 코드에 해다한다.
+
+CustomAuthenticationProvider는  UserDatils와 UserDetailsService라는 정해진 
+
+규격의 인터페이스를 사용하고 있다.
+
+<details>
+<summary><u>CustomAuthenticationProvider Class</u></summary>
+<div markdown="1">
+
+<br>
+
+```java
+@RequiredArgsConstructor
+public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    private final PasswordEncoder encoder;
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
+        final UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) authentication;
+
+        String agentEmail = token.getName();
+        String agentPassword = (String) token.getCredentials();
+
+        // ▼ 이 부분
+        CustomUserDetails loginAgentDetails = (CustomUserDetails) customUserDetailsService.loadAgentByEmail(agentEmail);
+
+        if (!encoder.matches(agentPassword, loginAgentDetails.getPassword())) {
+            throw new WrongPasswordException("Wrong Password");
+        }
+
+        return new UsernamePasswordAuthenticationToken(loginAgentDetails, agentPassword, loginAgentDetails.getAuthorities());
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+    }
+}
+
+```
+
+</div>
+</details><br>
+
+<br>
+
+Adapter는 `Agent.class`를 Spring Security에서 사용할 수 있게 만들어줘야 한다.
+
+따라서 **<span style="background-color:#F0E68C">Target 인터페이스를 구현한 어뎁터 클래스를 만들어줘야 한다.</span>**
+
+<details>
+<summary><u>CustomUserDetails Class</u></summary>
+<div markdown="1">
+
+<br>
+
+```java
+@RequiredArgsConstructor
+public class CustomUserDetails implements UserDetails {
+
+    private final Agent agent;
+
+    public Agent getAgent() {
+        return agent;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(agent.getRoleType().name()));
+        return authorities;
+    }
+
+    //...
+}
+
+```
+
+</div>
+</details><br>
+
+
+<br>
+
+<span style="background-color:#AFEEEE;">[ ▾  ]</span>
 
 <br>
 
