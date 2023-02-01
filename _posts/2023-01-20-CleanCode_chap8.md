@@ -301,15 +301,4 @@ public class CustomUserDetails implements UserDetails {
 ```
 
 </div>
-</details><br>
-
-
-<br>
-
-<span style="background-color:#AFEEEE;">[ ▾  ]</span>
-
-<br>
-
-#### <span style="background-color:black; color:white"></span>
-
-<br>
+</details>
