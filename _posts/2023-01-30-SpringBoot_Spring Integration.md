@@ -308,10 +308,121 @@ Spring Integration은 위 개념을 한 단계 더 발전시켜 POJO가 Messagin
 
 <br>
 
-## <span style="color:gray">Publish /Subscribe 패턴</span>
+## <span style="color:gray">Messaging Models</span>
 
 ---
 
-#### <span style="background-color:black; color:white"></span>
+#### <span style="background-color:black; color:white">Point-to-Point</span>
 
 <br>
+
+**[ Point-to-Point ]**
+
+Point-to-Point 모델에서는 Sender가 보낸 messages는 오직 하나의 receiver에게만 
+
+전달이 된다. <span style="color:red">많은 receiver가 동일한 message Queue를 수신하는 경우에도 마찬가지다.</span>
+
+이 모델에서는 publisher, consumer라는 용어 보단 <span style="color:#4169E1">sender</span>, <span style="color:#4169E1">receiver</span>를 사용한다.
+
+<img src = "../assets/img/spring/integration/pointToPoint.png"><br>
+
+<br>
+
+해당 모델에는 아래와 같이 두 개의 타입이 존재한다.
+
+- fire-and-forget(one-way) messaging 
+- request/reply(request-response) messaging
+
+<br>
+
+**[ fire-and-forget ]** 
+
+fire-and-forget에서 sender는 Message Queue의 응답을 기다리지 않는다.
+
+다시 말해, sender는 Message Queue가 message를 받았는지 못받았는지 신경쓰지 않는다.
+
+이 모드에서 sender와 receiver는 전혀 상호 작용하지 않는다.
+
+<br>
+
+**[ request/reply ]** 
+
+Fire-and-Forget 모드와 달리 request/reply 메시징 모델에서는 sender가 하나의 Queue에 
+
+message를 보낸 다음 receiver의 응답을 기다린다. 이 모드를 사용하면 sender에서 message가 
+
+수신되었는지 여부에 주의를 기울인다.
+
+<img src="../assets/img/spring/integration/request-reply.png"><br>
+
+<br>
+
+#### <span style="background-color:black; color:white">Publish/Subscribe</span>
+
+<br>
+
+**[ Publish/Subscribe 란? ]**
+
+Publish/Subscribe Messaging 모델은 비동기(Asyncronous) 형식이다.
+
+해당 모델에서 message를 생산하는 쪽을 publisher라 하며, message를 소비하는 쪽을
+
+subscriber라고 한다.
+
+publisher는 message를 topic에 전달한다. 그리고 해당 topic을 구독하고 있는 
+
+<span style="color:red">모든 subscriber들</span>이 message를 전달받고 소비한다.
+
+> topic : 메시지 feed를 나타내는 이름이 지정된 리소스
+
+참고로 topic에 있는 message는 모든 구독자들이 message를 전달 받을 때 topic에서 제거된다.
+
+<br>
+
+publisher와 subscriber는 서로의 존재를 모른채 인터페이스 혹은 message에만 의존하기 때문에 
+
+시스템 간 상호 의존성을 줄여주는 특징이 있다.
+
+
+<img src = "../assets/img/spring/integration/pub-sub.png"><br>
+
+<br>
+
+참고로 PUB/SUB 패턴과 비슷한 패턴이 있는데 그것은 바로 Observer 패턴이다.
+
+Observer 패턴은 특정 객체 A의 상태 변화를 관찰하는 옵저버들의 목록을 이 객체에 등록하여
+
+A의 상태 변화가 있을 때 마다 A가 직접 옵저버 목록에 있는 각 옵저버들에게 <span style="color:#4169E1">notify</span>하도록
+
+하는 디자인 패턴이다. PUB/SUB 패턴과는 다르게 발행자와 구독자가 서로 잘 아는(의존성이 높은) 
+
+형태를 띄고 있다.
+
+<br>
+
+**[ point-to-point VS pub/sub ]**
+
+- message 수신자 수
+    -  ptp : 1명
+    - pub/sub : 여러명
+
+<br>
+
+- 수신자 인지 여부
+    -  ptp : 알아야 함
+    - pub/sub : 몰라도 됨 → **<span style="background-color:#F0E68C">High decoupling</span>**
+
+<br>
+
+## <span style="color:gray">참고 자료</span>
+
+---
+
+• <a href="https://www.youtube.com/watch?v=daGeuBA5Xqo" target="_blank">Point to Point vs Publish/Subscribe messaging model.
+</a>
+
+• <a href="https://programmingsharing.com/point-to-point-and-publish-subscribe-messaging-model-2efc4d2b6726" target="_blank">programmingsharing blog</a>
+
+• <a href="https://incheol-jung.gitbook.io/docs/study/srping-in-action-5th/chap-9." target="_blank">incheol-jung.gitbook.io</a>
+
+• <a href="https://docs.spring.io/spring-integration/docs/4.3.12.RELEASE/reference/html/messaging-channels-section.html" target="_blank">spring integration docs </a>
