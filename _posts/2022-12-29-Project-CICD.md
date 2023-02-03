@@ -111,7 +111,22 @@ git submodule add ${submodule_repository_url}
 ```
 
 </div>
-</details>
+</details><br>
+
+<br>
+
+#### <span style="background-color:black; color:white">최신화하기</span>
+
+submodule repo를 업데이트하고 메인 프로젝트에 최신화 해줘야한다.
+
+```shell
+git submodule update --remote ${submodule_dir_name}
+git status
+git commit -am "commit message"
+git push origin main
+```
+
+
 
 <br>
 
@@ -387,7 +402,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.CHECKOUT_TOKEN }}
+          token: ${{secrets.CHECKOUT_TOKEN}}
           submodules: true
 ```
 
