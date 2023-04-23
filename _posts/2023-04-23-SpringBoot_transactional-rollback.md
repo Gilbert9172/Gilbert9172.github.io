@@ -28,7 +28,7 @@ public void attemptPasswordAuth(String email, String inputPassword) {
 
 물론 처음 코드를 봤을 때 발견하지 못했지만 위 코드는 로직상의 문제가 있다.
 
-오늘은 위와 같이 코드를 작성했을 때 어떤 문제가 발생하는지 알아보고 어떻게 해결해야 하는지도 알아보자!
+오늘은 위와 같이 코드를 작성했을 때 어떤 문제가 발생하며, 어떻게 해결해야 하는지도 알아보자!
 
 <br>
 
@@ -77,25 +77,25 @@ protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targe
     final InvocationCallback invocation) throws Throwable {
     //... 생략
     if (txAttr == null || !(ptm instanceof CallbackPreferringPlatformTransactionManager)) {
-			TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
+        TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
 
-			Object retVal;
-			try {
-				retVal = invocation.proceedWithInvocation();
-			}
-			catch (Throwable ex) {
-				completeTransactionAfterThrowing(txInfo, ex);
-				throw ex;
-			}
-			finally {
-				cleanupTransactionInfo(txInfo);
-			}
+        Object retVal;
+        try {
+            retVal = invocation.proceedWithInvocation();
+        }
+        catch (Throwable ex) {
+            completeTransactionAfterThrowing(txInfo, ex);
+            throw ex;
+        }
+        finally {
+            cleanupTransactionInfo(txInfo);
+        }
 
-			//... 생략
+        //... 생략
 
-			commitTransactionAfterReturning(txInfo);
-			return retVal;
-		}
+        commitTransactionAfterReturning(txInfo);
+        return retVal;
+    }
     //... 생략
 }
 ```
@@ -110,7 +110,9 @@ protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targe
 
 <br>
 
-attemptPasswordAuth에서 던진 AdminAccountPasswordNotMatchedException을 아래에서 잡아서 처리한다.
+attemptPasswordAuth에서 던진 AdminAccountPasswordNotMatchedException을 
+
+아래에서 잡아서 처리한다.
 
 ```java
 completeTransactionAfterThrowing(txInfo, ex);
@@ -120,10 +122,10 @@ completeTransactionAfterThrowing(txInfo, ex);
 
 ```java
 protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
-if (txInfo != null && txInfo.getTransactionStatus() != null) {
+    if (txInfo != null && txInfo.getTransactionStatus() != null) {
         if (logger.isTraceEnabled()) {
             logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
-                    "] after exception: " + ex);
+            "] after exception: " + ex);
         }
         // 이부분!!!
         if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
@@ -187,17 +189,17 @@ public void attemptPasswordAuth(String email, String inputPassword) {
 }
 ```
 
-애초에 `attemptPasswordAuth(...)` 메서드에서 발생한 RuntimeException을 try-catch를 통해 내부에서 
+애초에 `attemptPasswordAuth(...)` 메서드에서 발생한 RuntimeException을 try-catch를 통해 
 
-처리하였기 때문에 `invocation.proceedWithInvocation()` 실행이 되어도 catch에서 잡을 Exception이 
+내부에서 처리하였기 때문에 `invocation.proceedWithInvocation()` 실행이 되어도 catch에서 
 
-없게 된다. 따라서 catch 부분은 통과하고 finally 부분 실행 이후 `commitTransactionAfterReturning()` 
+잡을 Exception이 없게 된다. 따라서 catch 부분은 통과하고 finally 부분 실행 이후 
 
-메서드를 통해 커밋이 실행된다.
+`commitTransactionAfterReturning()` 메서드를 통해 커밋이 실행된다.
 
-<span style="color:red">결국 Unchecked Exception이지만, 메서드 내부에서 예외처리를 해주면 Rollback이 되지 않고,</span>
+<span style="color:red">비록 Unchecked Exception이지만, 메서드 내부에서 예외처리를 해주면 Rollback이 되지 않고,</span>
 
-<span style="color:red">Commit 됨을 확인했다.</span>
+<span style="color:red">Commit 됨을 확인할 수 있다.</span>
 
 <br>
 
@@ -214,43 +216,24 @@ public void attemptPasswordAuth(String email, String inputPassword) {
 
 CheckedException의 경우에는 TransactionAspectSupport 클래스의 
 
-completeTransactionAfterThrowing 메서드를 파악하면 된다.
+`completeTransactionAfterThrowing(...)` 메서드를 파악하면 된다.
 
 ```java
 protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
     if (txInfo != null && txInfo.getTransactionStatus() != null) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
-                    "] after exception: " + ex);
-        }
+        //... 생략
         if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
             try {
                 txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
             }
-            catch (TransactionSystemException ex2) {
-                logger.error("Application exception overridden by rollback exception", ex);
-                ex2.initApplicationException(ex);
-                throw ex2;
-            }
-            catch (RuntimeException | Error ex2) {
-                logger.error("Application exception overridden by rollback exception", ex);
-                throw ex2;
-            }
+            //... 생략
         }
         else {
             // !!!여기!!!
             try {
                 txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
             }
-            catch (TransactionSystemException ex2) {
-                logger.error("Application exception overridden by commit exception", ex);
-                ex2.initApplicationException(ex);
-                throw ex2;
-            }
-            catch (RuntimeException | Error ex2) {
-                logger.error("Application exception overridden by commit exception", ex);
-                throw ex2;
-            }
+            //... 생략
         }
     }
 }
@@ -275,7 +258,7 @@ commit이 이루어진다.
 정리해보자면 최초에 작성한 코드의 문제는 아래와 같다.
 
 1. 비밀번호가 틀린 경우 AdminAccountPasswordNotMatchedException을 터트린다.
-2. AdminAccountPasswordNotMatchedException은 UnCheckedException이기에 Commit이 안된다.
+2. AdminAccountPasswordNotMatchedException은 UnCheckedException이기에 롤백 된다.
 3. login_fail_count가 기대한대로 db에 업데이트가 안된다.
 
 <br>
@@ -307,7 +290,7 @@ public void attemptPasswordAuth(String email, String inputPassword) {
 
 `@Transactional`은 보다 코드를 간략하게 작성할 수 있는 방식을 제공한다.
 
-따라서 이번 트러블 슈팅의 해결책으로 @Transactional에서 제공해주는 noRollbackFor을 사용해보려한다.
+따라서 이번 문제의 해결책으로 @Transactional에서 제공해주는 noRollbackFor을 사용해보려한다.
 
 코드는 정말 간단하다.
 
@@ -323,10 +306,9 @@ public void attemptPasswordAuth(String email, String inputPassword) {
 }
 ```
 
-그러면 이제 내부 동작원리에 대해서 알아보자!
-
 <br>
 
+그러면 이제 내부 동작원리에 대해서 알아보자!
 
 <details>
 <summary><u>noRollbackFor의 내부동작 이해하기</u></summary>
@@ -392,9 +374,9 @@ protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo
 
 `txInfo.transactionAttribute.rollbackOn(ex) == false` 이기 때문에 else 조건절을 탄다.
 
-결과적으로 `txInfo.getTransactionManager().commit(txInfo.getTransactionStatus())`를 통해
+결과적으로 `txInfo.getTransactionManager().commit(txInfo.getTransactionStatus())`
 
-Commit이 이루어진다.
+메서드를 통해 Commit이 이루어진다.
 
 </div>
 </details><br>
