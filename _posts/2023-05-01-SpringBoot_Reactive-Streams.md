@@ -105,27 +105,6 @@ Reactive-Streams를 보기 전에 추가적으로 알아야할 내용들이 있�
 
 <br>
 
-위 블로그를 읽다보면 Back Pressure라는 용어가 나와서 .
-
-<details>
-<summary><u>Back Pressure</u></summary>
-<div markdown="1">
-
-<br>
-
-Back Pressure를 이해하기 위해선 Observer 패턴의 push, pull 방법의 차이를 이해해야한다.
-
-Back Pressuer는 pull 방식을 사용하고 정의하자면 다음과 같다.
-
-|key word|description|
-|--------|-----------|
-|Back Pressure|구독자가 수용할 수 있는 만큼만 발행자에게 데이터를 요청하는 방식|
-
-</div>
-</details>
-
-<br>
-
 #### <span style="background-color:black; color:white">API Components</span>
 
 Reactive Streams는 Publisher, Subscriber, Subscription, Processor라는 4개 인터페이스를 제공한다.
@@ -147,13 +126,30 @@ Reactive Streams는 Publisher, Subscriber, Subscription, Processor라는 4개 �
 - Subscriber 인터페이스는 Observer 패턴과 Iterator 패턴의 결합물
 - Subscription 인터페이스로 Back Pressure를 구현
 
+<details>
+<summary><u>Back Pressure</u></summary>
+<div markdown="1">
+
+<br>
+
+Back Pressure를 이해하기 위해선 Observer 패턴의 push, pull 방법의 차이를 이해해야한다.
+
+Back Pressuer는 pull 방식을 사용하고 정의하자면 다음과 같다.
+
+|key word|description|
+|--------|-----------|
+|Back Pressure|구독자가 수용할 수 있는 만큼만 발행자에게 데이터를 요청하는 방식|
+
+</div>
+</details><br>
+
 <br>
 
 Reactive Streams Component들간의 흐름을 도식화한 그림이다.
 
 <img src = "/assets/img/spring/reactive/pub-sub.png"><br>
 
-- Subscription은 Subscriber와 Publisher 간 통신의 매개체
+- Subscription은 Subscriber와 Publisher 간 통신의 매개체이다.
 
 <br>
 
