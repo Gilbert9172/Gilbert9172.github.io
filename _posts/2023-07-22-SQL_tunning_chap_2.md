@@ -218,6 +218,8 @@ MySQL/MariaDB에서 기본 키는 클러스터 형 인덱스로 작동한다.
 
 입장에서는 번거로울 수도 있을거 같음.
 
+추가적으로 application 레벨에서 view를 생성하는 것이 리소스 측면에서 보다 효율적임.
+
 <br>
 
 ## <span style="color:gray">2.2 논리적인 SQL 개념 용어</span>
@@ -465,7 +467,7 @@ SELECT * FROM employees;
 CREATE INDEX idx_emp_age ON employees(emp_age);
 
 -- emp_age 열에 인덱스를 사용하여 emp_age가 25보다 큰 레코드 검색
-SELECT * FROM employees WHERE emp_age > 25;
+SELECT emp_age FROM employees WHERE emp_age > 25;
 ```
 
 <br>
@@ -482,7 +484,7 @@ SELECT * FROM employees WHERE emp_age > 25;
 CREATE INDEX idx_emp_age ON employees(emp_age);
 
 -- emp_age 열의 인덱스를 풀 스캔하여 모든 레코드 검색
-SELECT * FROM employees ORDER BY emp_age;
+SELECT emp_age FROM employees ORDER BY emp_age; 
 ```
 
 <br>
@@ -516,7 +518,7 @@ SELECT * FROM employees WHERE emp_id = 3;
 CREATE INDEX idx_emp_age ON employees(emp_age);
 
 -- 인덱스 루스 스캔을 사용하여 emp_age가 25보다 큰 모든 레코드 검색
-SELECT * FROM employees WHERE emp_age > 25;
+SELECT emp_age FROM employees WHERE emp_age > 25;
 ```
 
 위의 SQL문에서 `WHERE emp_age > 25` 부분이 인덱스 루스 스캔을 활용하는 부분이다. 
@@ -542,7 +544,7 @@ CREATE INDEX idx_emp_age ON employees(emp_age);
 CREATE INDEX idx_emp_department ON employees(emp_department);
 
 -- 인덱스 병합 스캔을 사용하여 emp_age가 25보다 크거나 emp_department가 'Engineering'인 레코드 검색
-SELECT * FROM employees 
+SELECT emp_age, emp_department FROM employees 
 WHERE emp_age > 25 OR emp_department = 'Engineering';
 ```
 
@@ -564,6 +566,7 @@ WHERE emp_age > 25 OR emp_department = 'Engineering';
 - 보통 테이블 풀 스캔에서 활용
 - 디스크 헤더의 움직임을 최소화하여 작업 시간과 리소르 점유 비용을 줄인다.
 - Tabl Full Scan일 때는 인접한 페이지를 여러 개 읽는 `다중 페이지 읽기(Multi-Page-Read)` 방식으로 수행
+- BigInt는 순차 접근이 가능하다.
 
 <br>
 
@@ -572,6 +575,7 @@ WHERE emp_age > 25 OR emp_department = 'Engineering';
 - 물리적으로 떨어지 페이지들에 임의로 접근하는 방식
 - 디스크의 물리적인 움직임이 필요하고 MPR이 불가능, 데이터의 접근 수행시간이 오래 걸림
 - 따라서 최소한의 페이지에 접근할 수 있도록 접근 범위를 줄이게 끔 튜닝해줘야 함
+- UUID는 Random Access를 유발.
 
 <br>
 
@@ -635,8 +639,9 @@ id 열로 생성된 인덱스를 활용해서 TEAM 테이블의 일부 데이터
 |카디널리티 낮다|중복도가 높다|
 
 - 사전적 의미 : 하나의 데이터 유형으로 정의되는 데이터 행의 개수 
-- 현업 : 전체 행에 대한 특젖ㅇ 중복 수피를 나타내는 지표
+- 현업 : 전체 행에 대한 특정 중복 수치를 나타내는 지표
 - 카디널리티 = 전체 데이터 건수 x 선택도
+- "유일하다"라고 생각하기
 
 <br>
 
@@ -678,13 +683,18 @@ WHERE 이름 = '홍길동';
 
 <u>▶︎ 통계 정보</u>
 
+> 튜닝을 해도 성능이 안나오면 고려할만한 옵션
+
 - 시스템 변수를 통해 통계 정보를 관리할 수 있다.
 - 테이블 통계 정보, 인덱스 통계정보, 선택적인 열 통계정보
 - 최신성 유지 및 관리가 매우 중요
+- 옵티마이저가 실행 계획을 최적화하고자 참고하는 정보
 
 <br>
 
 <u>▶︎ 히스토그램</u>
+
+> 튜닝을 해도 성능이 안나오면 고려할만한 옵션
 
 - 테이블의 열 값이 어떻게 분포되어 있는지를 확인하는 통계정보
 - 옵티마이저가 실행 계획을 최적화하고자 참고하는 정보
