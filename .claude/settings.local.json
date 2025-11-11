@@ -6,7 +6,10 @@
       "Bash(rm:*)",
       "Bash(/opt/homebrew/opt/ruby/bin/gem install:*)",
       "Bash(mkdir:*)",
-      "Bash(/opt/homebrew/opt/ruby/bin/bundle install:*)"
+      "Bash(/opt/homebrew/opt/ruby/bin/bundle install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
