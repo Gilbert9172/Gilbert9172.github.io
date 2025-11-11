@@ -175,12 +175,17 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  jekyll
+  jekyll (~> 4.3)
+  jekyll-archives
   jekyll-feed
+  jekyll-include-cache
   jekyll-paginate
   jekyll-redirect-from
+  jekyll-seo-tag
   jekyll-sitemap
-  jekyll-theme-chirpy
+  jekyll-theme-chirpy (~> 7.0)
+  tzinfo (>= 1, < 3)
+  tzinfo-data
 
 BUNDLED WITH
    2.7.2
