@@ -4,7 +4,9 @@
       "Bash(git checkout:*)",
       "Bash(bundle install:*)",
       "Bash(rm:*)",
-      "Bash(/opt/homebrew/opt/ruby/bin/gem install:*)"
+      "Bash(/opt/homebrew/opt/ruby/bin/gem install:*)",
+      "Bash(mkdir:*)",
+      "Bash(/opt/homebrew/opt/ruby/bin/bundle install:*)"
     ],
     "deny": [],
     "ask": []

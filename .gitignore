@@ -44,3 +44,5 @@ node_modules
 .jekyll-metadata
 *.gem
 .git_backup
+
+.claude/
