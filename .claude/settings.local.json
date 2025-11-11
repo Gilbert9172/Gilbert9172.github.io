@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(bundle install:*)",
+      "Bash(rm:*)",
+      "Bash(/opt/homebrew/opt/ruby/bin/gem install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

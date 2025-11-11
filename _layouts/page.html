@@ -1,12 +1,20 @@
 ---
-layout: base
+layout: default
 ---
 
-<article class="page" role="article">
-  <header style="margin-bottom:2rem">
-    <h1 class="page-title">{{ page.title }}</h1>
-    {% include message.html text=page.description %}
-  </header>
+{% include lang.html %}
 
-  {{ content }}
+<article class="px-1">
+  {% if page.layout == 'page' or page.collection == 'tabs' %}
+    {% assign tab_key = page.title | downcase %}
+    {% assign title = site.data.locales[lang].tabs[tab_key] | default: page.title %}
+    <h1 class="dynamic-title">
+      {{ title }}
+    </h1>
+    <div class="content">
+      {{ content }}
+    </div>
+  {% else %}
+    {{ content }}
+  {% endif %}
 </article>
