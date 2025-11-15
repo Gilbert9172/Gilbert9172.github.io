@@ -184,15 +184,6 @@ exclude:
   - "*.config.js"
   - "package*.json"
 
-plugins:
-  - jekyll-paginate
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-redirect-from
-  - jekyll-archives
-  - jekyll-seo-tag
-  - jekyll-include-cache
-
 jekyll-archives:
   enabled: [categories, tags]
   layouts:
