@@ -1,0 +1,5 @@
+---
+# Override only the tabs.home value to "Home"
+# This file overrides the theme's default Korean locale
+tabs:
+  home: Home
