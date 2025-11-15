@@ -9,3 +9,32 @@
 ';
 
 /* append your custom style below */
+
+/* 코드 블록 크기 고정 및 스크롤 가능하게 설정 */
+.highlight {
+  max-height: 600px; /* 원하는 높이로 조정 가능 */
+  overflow: auto;
+
+  pre {
+    margin-bottom: 0;
+  }
+}
+
+/* 코드 블록의 수평 스크롤도 부드럽게 */
+.highlight::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.highlight::-webkit-scrollbar-track {
+  background: var(--code-snippet-bg);
+}
+
+.highlight::-webkit-scrollbar-thumb {
+  background: var(--code-header-muted-color);
+  border-radius: 4px;
+}
+
+.highlight::-webkit-scrollbar-thumb:hover {
+  background: var(--code-header-icon-color);
+}
