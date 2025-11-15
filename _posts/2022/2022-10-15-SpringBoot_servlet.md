@@ -204,7 +204,7 @@ public class HelloServlet extends HttpServlet {
 
 ```
 
-<img src="/assets/img/spring/server/요청 응답 구조.png">
+<img src="/assets/img/spring/server/요청%20응답%20구조.png">
 
 요청이 들어오면 request, response 객체를 만들어서 싱글턴으로 떠 있는 helloServlet을 
 

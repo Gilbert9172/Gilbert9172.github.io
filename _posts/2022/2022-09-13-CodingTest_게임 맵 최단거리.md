@@ -59,4 +59,4 @@ categories: algorithm
 
 ***🔖 <a href="https://github.com/Gilbert9172/coding-test/blob/main/programmers/levelTwo/%EA%B2%8C%EC%9E%84%EB%A7%B5%EC%B5%9C%EB%8B%A8%EA%B1%B0%EB%A6%AC.java" target="_blank">소스 코드</a>***
 
-<img src="/assets/img/codingTest/게임 맵 최단거리.png">
+<img src="/assets/img/codingTest/게임%20맵%20최단거리.png">

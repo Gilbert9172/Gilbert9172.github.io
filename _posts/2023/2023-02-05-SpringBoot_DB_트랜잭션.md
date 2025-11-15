@@ -59,7 +59,7 @@ tags: springBoot
 
 #### <span style="background-color:black; color:white">스프링의 트랜잭션 추상화</span>
 
-<img src = "../assets/img/spring/db/트랜잭션-추상화.png">
+<img src = "../../assets/img/spring/db/트랜잭션-추상화.png">
 
 스프링의 트랜잭션 추상화의 핵심은 `PlatformTransactionManager` 인터페이스이다.
 
@@ -160,7 +160,7 @@ private Connection getConnection() throws SQLException {
 
 **[ TransactionSynchronizationManager ]**
 
-<img src = "../assets/img/spring/db/TransactionSynchronousManager.png">
+<img src = "../../assets/img/spring/db/TransactionSynchronousManager.png">
 
 스프링은 `TransactionSynchronizationManager`를 제공한다.
 

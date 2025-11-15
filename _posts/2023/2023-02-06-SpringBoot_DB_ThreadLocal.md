@@ -29,7 +29,7 @@ ThreadLocal을 사용하면 각 쓰레드마다 별도의 내부 저장소를 �
 
 인스턴스의 ThreadLocal 핃드에 접근해도 문제 없다.
 
-<img src = "../assets/img/spring/advance/ThreadLocal.png">
+<img src = "../../assets/img/spring/advance/ThreadLocal.png">
 
 위의 이미지에서 Thread-A와 Thread-B가 동시에 요청을 보내도 각각 전용 보관소가 있기 때문에
 
