@@ -1,0 +1,100 @@
+/* GitHub Activity Cards Styling */
+
+.github-section {
+  margin-top: 2rem;
+}
+
+.github-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.github-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.card-description {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.card-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.github-widget {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  display: none;
+  margin: 0 auto;
+}
+
+/* Light theme - show light images */
+.github-light {
+  display: block !important;
+}
+
+.github-dark {
+  display: none !important;
+}
+
+/* Dark theme - show dark images */
+[data-mode="dark"] .github-light {
+  display: none !important;
+}
+
+[data-mode="dark"] .github-dark {
+  display: block !important;
+}
+
+.github-chart {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .github-card {
+    padding: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-description {
+    font-size: 0.85rem;
+  }
+}
+
+/* Dark mode support - CSS variables are handled by Chirpy theme */
+@supports (--css: variables) {
+  .github-card {
+    background-color: var(--card-bg, #f8f9fa);
+    border-color: var(--card-border-color, #e9ecef);
+    color: var(--text-color, #212529);
+  }
+}
+
+/* Override dynamic-title to show normal case */
+h1.dynamic-title {
+  text-transform: none !important;
+}

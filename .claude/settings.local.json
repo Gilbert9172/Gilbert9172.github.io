@@ -9,7 +9,18 @@
       "Bash(/opt/homebrew/opt/ruby/bin/bundle install:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__microsoft-playwright-mcp__browser_navigate",
+      "mcp__microsoft-playwright-mcp__browser_wait_for",
+      "mcp__microsoft-playwright-mcp__browser_press_key",
+      "mcp__microsoft-playwright-mcp__browser_snapshot",
+      "mcp__microsoft-playwright-mcp__browser_take_screenshot",
+      "mcp__microsoft-playwright-mcp__browser_click",
+      "Bash(pkill:*)",
+      "mcp__microsoft-playwright-mcp__browser_evaluate",
+      "Bash(bundle info:*)",
+      "Bash(bundle exec jekyll:*)",
+      "mcp__microsoft-playwright-mcp__browser_close"
     ],
     "deny": [],
     "ask": []
