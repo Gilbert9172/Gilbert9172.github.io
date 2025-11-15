@@ -22,7 +22,9 @@
       "Bash(bundle exec jekyll:*)",
       "mcp__microsoft-playwright-mcp__browser_close",
       "Bash(cat:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []
