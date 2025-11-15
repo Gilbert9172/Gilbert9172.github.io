@@ -20,7 +20,9 @@
       "mcp__microsoft-playwright-mcp__browser_evaluate",
       "Bash(bundle info:*)",
       "Bash(bundle exec jekyll:*)",
-      "mcp__microsoft-playwright-mcp__browser_close"
+      "mcp__microsoft-playwright-mcp__browser_close",
+      "Bash(cat:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

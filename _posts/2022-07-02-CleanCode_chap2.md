@@ -1,8 +1,7 @@
 ---
-layout: post
 title: 제2장 - 의미 있는 이름
-categories: book
-tags: cleanCode 
+categories: [book, cleanCode]
+tag: cleanCode 
 ---
 
 ## <span style="color:gray">의도를 분명히 밝혀라!</span>
