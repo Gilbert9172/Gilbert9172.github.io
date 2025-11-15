@@ -1,0 +1,40 @@
+---
+layout: page
+---
+
+{% include lang.html %}
+
+<div id="page-tag">
+  <h1 class="ps-lg-2">
+    <i class="fa fa-tag fa-fw text-muted"></i>
+    {{ page.title }}
+    <span class="lead text-muted ps-2">
+      {%- assign posts = "" | split: "" -%}
+      {%- for post in site.posts -%}
+        {%- if post.categories contains page.category -%}
+          {%- if post.tags contains page.slug -%}
+            {%- assign posts = posts | push: post -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ posts | size }}
+    </span>
+  </h1>
+  <ul class="content ps-0">
+    {%- assign posts = "" | split: "" -%}
+    {%- for post in site.posts -%}
+      {%- if post.categories contains page.category -%}
+        {%- if post.tags contains page.slug -%}
+          {%- assign posts = posts | push: post -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- for post in posts -%}
+      <li class="d-flex justify-content-between px-md-3">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <span class="dash flex-grow-1"></span>
+        {% include datetime.html date=post.date class='text-muted small text-nowrap' lang=lang %}
+      </li>
+    {%- endfor -%}
+  </ul>
+</div>

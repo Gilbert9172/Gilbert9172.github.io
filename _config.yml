@@ -139,6 +139,12 @@ collections:
   tabs:
     output: true
     sort_by: order
+  featured_tags:
+    output: true
+    permalink: /tags/:slug/
+  featured_categories:
+    output: true
+    permalink: /categories/:slug/
 
 defaults:
   - scope:
@@ -169,6 +175,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-paginate
   - jekyll-redirect-from
+  - jekyll-archives
 
 exclude:
   - README.md
