@@ -1,5 +1,9 @@
 ---
-# Override only the tabs.home value to "Home"
+# Override tab titles from Korean to English
 # This file overrides the theme's default Korean locale
 tabs:
   home: Home
+  categories: Categories
+  tags: Tags
+  archives: Archives
+  about: About
