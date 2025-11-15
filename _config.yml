@@ -119,6 +119,8 @@ pwa:
 # The base URL of your site
 baseurl: ""
 
+# Trigger rebuild
+
 # ------------ The following options are not recommended to be modified ------------------
 
 kramdown:
