@@ -105,7 +105,7 @@ tags: [오브젝트]
 
 > 협력 (Collaboration)
 
-[collaboration](../../assets/img/book/object/chap2/collaboration.png)
+<img src = "../../assets/img/book/object/chap2/collaboration.png" alt="">
 - 객체지향 프로그램을 작성할 때는
   1. 협력의 관점에서 어떤 객체가 필요한지를 결정
   2. 객체들의 공통 상태와 행위를 구현하기 위해 클래스를 작성
@@ -161,7 +161,7 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
     abstract protected Money getDiscountAmount(Screening Screening);
 }
 ```
-[discountPolicy](../../assets/img/book/object/chap2/discountPolicy.png)
+<img src = "../../assets/img/book/object/chap2/discountPolicy.png" alt="">
 - 하나의 할인 정책은 여러 개의 할인 조건을 포함할 수 있음.
 
 <br>
@@ -170,13 +170,11 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
 
 ---
 
-<br>
-
 ### 🌀 4-1. Compile-time 의존성 vs Run-time 의존성 
 
 > Movie는 어떤 구현체를 선택할까?
 
-[dependency](../../assets/img/book/object/chap2/dependency.png)
+<img src = "../../assets/img/book/object/chap2/dependency.png" alt="">
 - 현재 Movie와 DiscountPolicy는 의존성을 가지고 있음. (Movie -> DiscountPolicy)
 - 즉, 현재 구성도만으로는 Movie가 어떤 'DiscountPolicy 구현체'를 사용할지 알 수 없음.    
 
@@ -220,4 +218,144 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
 
 ### 🌀 4-4. 다형성
 
-> 
+> 다형성에 대해서...
+
+- 다형성은
+  - 객체지향 프로그램의 compile-time 의존성과 run-time 의존성이 다를 수 있음을 기반으로 한다.
+  - 동일한 메시지를 수신했을 때 객체의 타입에 따라 다르게 응답할 수 있는 능력을 의미한다.
+- 다형성을 구현하는 방법은 매우 다양하지만 
+  - 메시지에 응답하기 위해 실행될 메서드를 컴파일 시점이 아닌 실행 시점에 결정한다는 공통점이 있다.
+    
+<br>
+
+> 지연 바인딩(lazy binding) or 동적 바인딩(dynamic binding)
+
+- 객체지향이 compile-time 의존성과 run-time 의존성을 분리하고,<br>
+  하나의 메시지를 선택적으로 서로 다른 메서드에 연결할 수 있는 이유
+- 다시 말해 **메시지와 메서드를 실행 시점에 바인딩한다**는 것이다. 
+
+<br>
+
+> 다형성이란 추상적인 개념일 뿐!
+
+- 클래스를 상속받는 것 만이 다형성을 구현할 수 있는 유일한 방법이 아님. 
+- 다른 방법들에 뭐가 있을까? 
+  - 인터페이스(Interface)
+  - 추상 클래스(Abstract Class)
+  - 구성(Composition)과 위임(Delegation)
+  - 함수형 프로그래밍의 함수 객체, 람다(Function Object, Lambda)
+
+<br>
+
+## ❐ 5. 추상화와 유연성
+
+---
+
+### 🌀 5-1. 추상화의 힘
+
+> 추상화를 사용할 때의 장점
+
+<img src = "../../assets/img/book/object/chap2/benefitsOfAbstraction.png" alt="">
+
+1. 추상화 계층만 따로 떼어놓고 보면 요구사항의 정책을 높은 수준에서 서술할 수 있다.
+   - 이런 특징은 세부사항이 없음에도, **상위 개념만으로 도메인의 중요한 개념을 설명**할 수 있게 한다.
+   - 상위 정책을 기술한다는 것은? 애플리케이션 협력 흐름을 기술한다는 것.
+2. 설계가 유연해진다.
+   - 추상화를 이용한 설계는 필요에 따라 **표현의 수준을 조정**하는 것을 가능하게 해준다.
+     - 추상화 수준을 올리면 ➔ 여러 구체적인 것들을 하나의 타입으로 다루고, 변화에 유연해짐
+     - 추상화 수준을 내리면 ➔ 개별적인 특성을 더 세밀하게(상세하게) 표현
+
+<br>
+
+### 🌀 5-2. 유연한 설계
+
+> 일관성 있던 협력 방식이 깨지는 케이스
+
+```java
+public class Movie {
+    private Money fee;
+    private DiscountPolicy discountPolicy;
+    
+    public Money calculateDiscountAmount(Screening screening) {
+        if (discountPolicy == null) {
+            return fee;
+        }
+        
+        return fee.minus(discountPolicy.calculateDiscountAmount(screening));
+    }
+}
+```
+- `discountPolicy == null` 일 때는 discountPolicy 와의 협력이 깨지게 됨.
+- discountPolicy가 결정하지 않고, Movie 객체에서 그냥 `fee`를 반환함. 
+
+<br>
+
+> 다시 일관성 있는 협력을 하게 하려면
+
+```java
+public class NoneDiscountPolicy implements DiscountPolicy {
+    @Override
+    public Money calculateDiscountAmount(Screening screening) {
+        return Money.ZERO;
+    }
+}
+```
+- DiscountPolicy가 결정을 하도록, 새로운 구현체를 추가하면 됨.
+- 여기서 중요한 포인트
+  - Movie, DiscountPolicy는 **수정하지 않았다.**
+  - 단지 새로운 DiscountPolicy 구현체(`NoneDiscountPolicy`)를 추가하여 애플리케이션의 기능을 확장했다.
+
+<br>
+
+> 결론 
+
+- 추상화는 구체적인 상황에 결합되는 것을 방지하기 때문에 유연한 설계를 가능하게 한다.
+- **유연성이 필요한 곳**에 추상화를 사용하라.
+
+<br>
+
+### 🌀 5-3. 추상 클래스와 인터페이스 트레이드 오프
+
+> 개념이 다르다면 인터페이스로 역할을 분리하라.
+
+- AmountDiscountPolicy, PercentDiscountPolicy는 “조건을 만족하면 할인 계산을 한다”라는 공통된 개념을 가진다.
+  - NoneDiscountPolicy는 개념적으로 다른 정책이다.
+  - “무조건 0원을 반환한다”라는 완전히 다른 개념
+- 기존 설계에서는 
+  - NoneDiscountPolicy가 DiscountPolicy 추상 클래스의 구현 방식에 의존하고 있었다
+  - 즉, **개념적 결합 + 잘못된 상속**
+- 따라서 개념이 다른 두 역할은 상속으로 묶이지 말아야 한다.
+- 해결책은 전략 패턴
+  - 공통된 역할 = 인터페이스(DiscountPolicy)
+  - 공통 구현 = DefaultDiscountPolicy 
+  - 변화되는 구현 = 각 정책 클래스로 구조를 재정립하는 것.
+
+<br>
+
+### 🌀 5-4. 코드 재사용
+
+> 상속의 문제점 (두 가지 관점에서 설계에 안좋은 영향을 미친다.)
+
+1. 캡슐화 위반
+   - 부모의 구현이 자식에게 노출
+2. 설계를 유연하지 못하게 만듬.
+   - 상속은 부모와 자식의 관계를 compile-time에 결정한다.
+   - 따라서, 실행 시점에 객체의 종류를 변경하는 것은 불가능
+
+<br>
+
+> 합성
+
+- 인터페이스에 정의된 메시지를 통해서만 코드를 재사용하는 방법 
+- 합성은 위에서 언급한 상속의 두 가지 문제를 모두 해결한다.
+- 상속은 클래스를 통해 강결합되어 있는데 비해, 합성은 **메시지를 통해 느슨한 결합**을 한다.
+- 따라서 코드 재사용을 위해서는 상속 보다는 합성을 선호하는 것이 좋다.
+
+<br>
+
+> 그렇다 상속을 쓰지 말라는 건 아님.
+
+- 다형성을 위해 인터페이스를 재사용하는 경우에는 상속과 합성을 조합해서 쓸 수 밖에 없음.
+- 중복되는 로직이 모든 구현체에 필요한 경우에는 상속을 쓰는 방향
+
+
