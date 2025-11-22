@@ -12,8 +12,14 @@ layout: page
 
 {% assign sort_categories = site.categories | sort %}
 
+{% assign hidden_categories = "django,deeplearning,project,linux,tdd,flask,docker,front,algorithm" | split: "," %}
+
 {% for category in sort_categories %}
 {% assign category_name = category | first %}
+
+{% if hidden_categories contains category_name %}
+{% continue %}
+{% endif %}
 {% assign posts_of_category = category | last %}
 {% assign first_post = posts_of_category | first %}
 

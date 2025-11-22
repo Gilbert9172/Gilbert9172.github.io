@@ -1,7 +1,7 @@
 ---
 title: EVM이란?
-categories: [Block Chain]
-tags: [Block Chain, EVM]
+categories: [block Chain]
+tags: [block Chain, EVM]
 ---
 
 <br>
