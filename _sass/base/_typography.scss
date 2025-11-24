@@ -53,10 +53,11 @@ img {
 }
 
 blockquote {
-  border-left: 0.125rem solid var(--blockquote-border-color);
-  padding-left: 1rem;
+  border-left: 3px solid var(--blockquote-border-color);
+  border-bottom: 3px solid var(--blockquote-border-color);
+  padding: 0.8rem 1rem 0.8rem 1.2rem;
   color: var(--blockquote-text-color);
-  margin-top: 0.5rem;
+  margin: 1.2rem 0;
 
   > p:last-child {
     margin-bottom: 0;
