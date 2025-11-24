@@ -105,7 +105,7 @@ tags: [오브젝트]
 
 > 협력 (Collaboration)
 
-<img src = "../../assets/img/book/object/chap2/collaboration.png" alt="">
+<img src = "../../../assets/img/book/object/chap2/collaboration.png" alt="">
 - 객체지향 프로그램을 작성할 때는
   1. 협력의 관점에서 어떤 객체가 필요한지를 결정
   2. 객체들의 공통 상태와 행위를 구현하기 위해 클래스를 작성
@@ -161,7 +161,7 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
     abstract protected Money getDiscountAmount(Screening Screening);
 }
 ```
-<img src = "../../assets/img/book/object/chap2/discountPolicy.png" alt="">
+<img src = "../../../assets/img/book/object/chap2/discountPolicy.png" alt="">
 - 하나의 할인 정책은 여러 개의 할인 조건을 포함할 수 있음.
 
 <br>
@@ -174,7 +174,7 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
 
 > Movie는 어떤 구현체를 선택할까?
 
-<img src = "../../assets/img/book/object/chap2/dependency.png" alt="">
+<img src = "../../../assets/img/book/object/chap2/dependency.png" alt="">
 - 현재 Movie와 DiscountPolicy는 의존성을 가지고 있음. (Movie -> DiscountPolicy)
 - 즉, 현재 구성도만으로는 Movie가 어떤 'DiscountPolicy 구현체'를 사용할지 알 수 없음.    
 
@@ -255,7 +255,7 @@ public abstract class DefaultDiscountPolicy implements DiscountPolicy {
 
 > 추상화를 사용할 때의 장점
 
-<img src = "../../assets/img/book/object/chap2/benefitsOfAbstraction.png" alt="">
+<img src = "../../../assets/img/book/object/chap2/benefitsOfAbstraction.png" alt="">
 
 1. 추상화 계층만 따로 떼어놓고 보면 요구사항의 정책을 높은 수준에서 서술할 수 있다.
    - 이런 특징은 세부사항이 없음에도, **상위 개념만으로 도메인의 중요한 개념을 설명**할 수 있게 한다.

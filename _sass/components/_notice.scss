@@ -1,0 +1,114 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/breakpoints' as bp;
+
+// Notice Box Styles for Chapter Introductions
+.notice-box {
+  position: relative;
+  padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  background-color: var(--notice-bg);
+  border-left: 4px solid var(--notice-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  // Icon container
+  &::before {
+    content: '💡';
+    position: absolute;
+    left: 1rem;
+    top: 1.25rem;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  // Content inside notice box
+  p, ul, ol {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul, ol {
+    padding-left: 1.25rem;
+
+    li {
+      margin-bottom: 0.25rem;
+      line-height: 1.6;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Remove extra margin for direct text
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  // Responsive adjustments
+  @include bp.lte(bp.get(sm)) {
+    padding: 1rem 1rem 1rem 3rem;
+
+    &::before {
+      left: 0.75rem;
+      top: 1rem;
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Variants for different notice types
+.notice-box.info {
+  --notice-bg: rgba(59, 130, 246, 0.08);
+  --notice-border: #3b82f6;
+
+  &::before {
+    content: '💡';
+  }
+}
+
+.notice-box.tip {
+  --notice-bg: rgba(16, 185, 129, 0.08);
+  --notice-border: #10b981;
+
+  &::before {
+    content: '✨';
+  }
+}
+
+.notice-box.warning {
+  --notice-bg: rgba(245, 158, 11, 0.08);
+  --notice-border: #f59e0b;
+
+  &::before {
+    content: '⚠️';
+  }
+}
+
+.notice-box.chapter {
+  --notice-bg: rgba(139, 92, 246, 0.08);
+  --notice-border: #8b5cf6;
+
+  &::before {
+    content: '📖';
+  }
+}
+
+// Default colors (fallback if CSS variables not set)
+.notice-box {
+  --notice-bg: rgba(59, 130, 246, 0.08);
+  --notice-border: #3b82f6;
+}
