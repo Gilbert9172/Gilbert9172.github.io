@@ -95,7 +95,7 @@ order: 1
     <select id="year-filter" class="form-select">
       <option value="all">전체</option>
       {% assign currentYear = site.time | date: "%Y" | plus: 0 %}
-      {% for year in (2021..2099) %}
+      {% for year in (2021..2099) reversed %}
         {% if year <= currentYear %}
           <option value="{{ year }}">{{ year }}년</option>
         {% endif %}

@@ -82,7 +82,7 @@ GRASP(General Responsibility Assignment Software Pattern) 패턴
 
 #### {% include i.html %} 2-2. 정보 전문가에게 책임을 할당하라.
 
-> GRASP 첫 번째 원칙 : INFORMATION EXPERT(정보 전문가)
+> GRASP 첫 번째 원칙 : INFORMATION EXPERT(정보 전문가) 패턴
 
 - 책임을 수행할 정보를 가지고 있는 객체에게 책임을 할당하라.
   - 정보 ≠ 데이터
@@ -92,4 +92,55 @@ GRASP(General Responsibility Assignment Software Pattern) 패턴
   - 필요한 정보를 가진 객체들로 책임이 분산되기 때문에 더 **응집력 있고, 이해하기 쉬워진다.**
   - 결과적으로 결합도가 낮아져서 간결하고 유지보수하기 쉬운 시스템을 구축할 수 있다. 
 
+<br>
 
+#### {% include i.html %} 2-3. 높은 응집도와 낮은 결합도
+
+> GRASP 두 번째 원칙 : LOW COUPLING 패턴 & HIGH COHESION 패턴
+
+- 이 원칙은 설계를 진행하면서 책임과 협력의 품질을 검토하는데 사용할 수 있는 중요한 평가 기준 
+
+<br>
+
+> LOW COUPLING 패턴
+
+- 설계의 전체적인 결합도가 낮도록 설계하라.
+- 현재의 책임 할당을 검토하거나, 여러 설계 대안들이 있을 때 **낮은 결합도를 유지할 수 있는 설계를 선택**하라.
+
+<br>
+
+> HIGH COHESION 패턴
+
+- 높은 응집도를 유지할 수 있게 책임을 할당하라
+- 현재의 책임 할당을 검토하거나, 여러 설계 대안들이 있을 때 **높은 응집도를 유지할 수 있는 설계를 선택**하라.
+
+<br>
+
+#### {% include i.html %} 2-4. 창조자에게 객체 생성을 할당하라
+
+> GRASP 세 번째 원칙 : CREATOR 패턴
+
+- 객체를 생성할 책임을 어떤 객체에게 할당할지에 대한 지침을 제공한다.
+- 이미 존재하는 객체 사이의 관계를 이용하기 때문에 **설계가 낮은 결합도를 유지**할 수 있게 한다.
+
+<br>
+
+> 예제. Reservation의 creator 'Screening'
+
+```java
+public class Screening {
+    private Movie movie;
+    private int sequence;
+    private LocalDateTime whenScreened;
+
+    public Reservation reserve(Customer customer, int audienceCount) {
+        return new Reservation(customer, this, calculateFee(audienceCount), audienceCount);
+    }
+    
+    //...
+}
+```
+- `Screening`은 
+  - 예매 정보를 생성 하는데 필요한 영화, 상영 시간, 상영 순번 등의 정보에 대한 전문가이다. 
+  - 예매 요금을 계 하는 데 필수적인 `Movie`에 알고 있다. 
+- Reservation의 creator로 `Screening`을 선택하는 것이 적절해 보인다.
