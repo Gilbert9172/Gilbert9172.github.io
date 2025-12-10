@@ -99,3 +99,153 @@ tags: [오브젝트]
   1. 객체를 생성하는 시점에 생성자를 통해 의존성을 해결
   2. 객체 생성 후 setter 메서드를 통해 의존성 해결
   3. 메서드 실행 시 인자를 이용해 의존성 해결
+
+<br>
+<br>
+
+### ❐ 2. 유연한 설계
+
+---
+
+#### {% include i.html %} 2-1. 의존성과 결합도 
+
+> Movie 코드의 문제점
+
+```java
+public class Movie {
+    private PercentDiscountPolicy percentDiscountPolicy;
+
+    public Movie(String title, Duration runningTime, Money fee,
+                 PercentDiscountPolicy percentDiscountPolicy) {
+        this.percentDiscountPolicy = percentDiscountPolicy;
+    }
+
+    public Money calculateMovieFee(Screening screening) {
+        return fee.minus(percentDiscountPolicy.calculateDiscountAmount(screening));
+    }
+}
+```
+- 의존성의 경직성: Movie는 구체적인 PercentDiscountPolicy 클래스에 직접 의존하고 있다.
+- 다른 할인 정책(AmountDiscountPolicy 등)을 사용하려면 Movie의 코드를 수정해야 한다.
+
+<br>
+
+> 해결책: 추상화를 통한 의존성 역전
+
+- 추상 클래스 또는 인터페이스 도입
+  ```java
+  public abstract class DiscountPolicy {
+      public abstract Money calculateDiscountAmount(Screening screening);
+  }
+    
+    // 또는 인터페이스
+  public interface DiscountPolicy {
+      Money calculateDiscountAmount(Screening screening);
+  }
+  ```
+  ```java
+  public class Movie {
+      private DiscountPolicy discountPolicy;  // 추상화에 의존
+
+      public Movie(String title, Duration runningTime, Money fee, DiscountPolicy discountPolicy) {
+          this.discountPolicy = discountPolicy;
+      }
+    
+      public Money calculateMovieFee(Screening screening) {
+          return fee.minus(discountPolicy.calculateDiscountAmount(screening));
+      }
+  }
+  ```
+
+<br>
+
+> 개선의 핵심
+
+- 구체적 클래스 대신 추상화에 의존
+- 구현의 유연성: DiscountPolicy 인터페이스를 구현한 모든 클래스를 사용할 수 있다.
+- 변경에 대한 폐쇄성: Movie 코드를 수정할 필요가 없다.
+
+<br>
+
+> 의존성 결합도 분석
+
+- 직접 의존성(direct dependency)
+  - 한 클래스가 다른 클래스를 직접 참조
+  - 예: `private PercentDiscountPolicy policy;`
+- 간접 의존성(indirect dependency)
+  - 의존하는 클래스가 의존하는 다른 의존성
+  - 예: Movie → PercentDiscountPolicy → PercentDiscountPolicy : Movie는 PercentDiscountPolicy에 간접 의존
+
+<br>
+
+> 의존성과 결합도
+ 
+- 대부분 동의어로 사용하지만 사실 두 용어는 서로 다른 관점에서 관계의 특성을 설명하는 용어다.
+- 의존성 : 두 요소 사이의 **관계 유무**를 설명한다.
+- 결합도 : 두 요소 사이에 존재하는 **의존성의 정도**를 상대적으로 표현한다.
+
+<br>
+
+#### {% include i.html %} 2-2. 지식이 결합을 낳는다.
+
+> 결합도의 정도
+
+- 한 요소가 자신의 의존라고 있는 다른 요소에 대해 알고 있는 정보의 양으로 결정
+- 적게 알고 있을수록 더 많은 컨텍스트에서 재사용할 수 있다.
+
+<br>
+
+#### {% include i.html %} 2-3. 추상화에 의존하라.
+
+> 추상화를 사용하면...
+
+- 대상에 대해 알아야 하는 지식의 양을 줄일 수 있기 때문에 결합도를 느슨하게 유지할 수 있다.
+
+<br>
+
+> 결합도가 느슨한 순서
+
+1. 인터페이스 의존성 : 협력하는 객체에 어떤 메시지를 수신할 수 있는지에 대한 지식만 남긴다.
+2. 추상 클래스 의존성
+3. 구체 클래스 의존성
+
+<br>
+
+> 여기서 기억해야 할 것은
+
+- 실행 컨텍스트에 대해 알아야 하는 **정보를 줄일수록 결합도가 낮아진다**는 것. 
+ 
+<br>
+
+#### {% include i.html %} 2-4. 명시적인 의존성
+
+> 명시적 의존성 (Explicit Dependency)
+
+- 문제점 :
+  - Movie 인스턴스 변수의 타입이 주상 클래스인 DiscountPolicy로 선언되어 있지만
+  - 생성자에서 구체 클래스인 AmountDiscountPolicy를 직접 인스턴스화 
+  - 이로 인해 DiscountPolicy뿐만 아니라 AmountDiscountPolicy에도 의존
+
+<br>
+
+> 숨겨진 의존성 (Hidden Dependency)
+
+- 문제점 :
+  - Movie의 생성자 매개변수를 보면 DiscountPolicy 관련 정보가 없음 
+  - 실제로는 AmountDiscountPolicy에 강하게 의존하고 있으나 이것이 숨겨져 있음 
+  - 셍상지, setter 메서드, 메서드 인자를 통해 의존성을 해결하는 방법들 제시
+
+<br>
+
+> 명시적 의존성이 왜 필요한가
+
+- 생성자의 매개변수로 DiscountPolicy를 받아 의존성을 명시적으로 표현 
+- Movie가 어떤 DiscountPolicy 구현체에 의존하는지 코드 상에서 명확하게 드러남 
+- 이를 통해 결합도를 낮추고 유연성을 높임
+
+<br>
+
+> 결론
+
+- 의존성은 코드에서 명시적으로 드러내야 하며, 숨겨진 의존성은 유지보수를 어렵게 만든다.
+
