@@ -249,3 +249,177 @@ public class Movie {
 
 - 의존성은 코드에서 명시적으로 드러내야 하며, 숨겨진 의존성은 유지보수를 어렵게 만든다.
 
+<br>
+
+#### {% include i.html %} 2-5. new는 해롭다.
+
+> 결합도 측면에서 new는 해롭다.
+
+- new 연산자를 잘못 사용하면 클래스의 결합도가 극단적으로 높아진다.
+- new 연산자를 사용하기 위해서는 구체 클래스의 이름을 직접 기술해야 한다.
+  - 따라서 new를 사용하는 추상화는 구체 클래스에 의존할 수 밖에 없기 때문에 결합도가 높아진다.
+- new 연산자를 생성하려는 구체 클래스뿐만 아니라 어떤 인자를 이용해 클래스의 생성자를<br>
+  호출해야 하는지도 알아야 한다. 따라서 new를 사용하면 클라이언트가 알아야 하는 지식이<br>
+  늘어나기 때문에 결합도가 높아진다.
+
+<br>
+
+> 설계를 유연하게 만들기 위해서는
+
+1. 사용과 생성의 책임을 분리하고,
+2. 의존성을 생성자에 명시적으로 드러내고,
+3. 구체 클래스가 아닌 추상 클래스에 의존하게 하라.
+
+<br>
+
+> 예시
+
+- 추상화 정의 및 구체 구현
+    ```java
+    // 추상 인터페이스
+    interface MessageSender {
+        void sendMessage(String message);
+    }
+    
+    // 구현체1
+    public class EmailSender implements MessageSender {
+        //...
+    }
+    
+    // 구현체2
+    public class SmsSender implements MessageSender {
+        //...
+    }
+    ```
+- NotificationService — 추상 타입에 의존 + 생성자 주입
+    ```java
+    public class NotificationService {
+        private MessageSender messageSender; // ✔ 추상 타입에 의존
+    
+        // ✔ 의존성을 생성자에서 명시적으로 드러냄
+        public NotificationService(MessageSender messageSender) {
+            this.messageSender = messageSender;
+        }
+    
+        public void sendNotification(String message) {
+            messageSender.sendMessage(message);
+        }
+    }
+    ```
+- 클라이언트에서 의존성 생성 책임을 가짐
+    ```java
+    public class Main {
+        public static void main(String[] args) {
+            // ✔ 클라이언트가 어떤 구현체를 사용할지 결정
+            MessageSender emailSender = new EmailSender();
+            NotificationService notificationService = new NotificationService(emailSender);
+    
+            notificationService.sendNotification("Hello");
+        }
+    }
+    ```
+
+<br>
+
+#### {% include i.html %} 2-6. 가끔은 생성해도 무방하다.
+
+> 클래스안에서 객체 인스턴스를 직접 생성하는 방식이 유용한 경우.
+
+- 주로 협력하는 기본 객체를 설정하고 싶은 경우
+
+<br>
+
+> 예제
+
+```java
+public class Movie {
+    public Money calculateMovieFee(Screening screening) {
+        return calculateMovieFee(screening, new AmountDiscountPolicy(...));
+    }
+    
+    public Money calculateMovieFee(
+        Screening screening, 
+        DiscountPolicy discountPolicy
+    ) {
+        return ...
+    }
+}
+```
+- 구체 클래스에 의존하게 되더라도 클래스의 사용성을 더 중요하게 여긴 경우
+- 그래도 가급적 구체 클래스에 대한 의존성을 제거할 수 있는 방법을 찾아봐라.
+
+<br>
+
+#### {% include i.html %} 2-7. 표준 클래스에 대한 의존은 해롭지 않다.
+
+> 그래도 추상화를 쓰는걸 추천
+
+- 추상적인 타입을 사용하는 것이 확장성 측면에서 유리하기 때문 
+- 즉, 의존성의 영향이 적은 경우에도 추상화에 의존하고, 의존성을 명시적으로 드러내는 것은 좋은 설계 습관이다.
+
+<br>
+
+#### {% include i.html %} 2-8. 컨텍스트 확장하기
+
+> 기존의 협력 방식을 따라라.
+
+1. 할인 정책이 없다고 discountPolicy를 null로 초기화하면?
+   - Movie 내부의 코드를 직접 수정해야 한다. (null 검증 로직 추가 필요)
+   - 따라서 **기존의 협력 방식을 따르도록** 해야함 → `NoneDiscountPolicy` 추가
+
+<br>
+
+2. 중복 적용이 가능한 경우에는?
+   - 여러개의 할인 정책을 하나로 간주하는 것!
+    ```java
+    public class OberlappedDiscountPolicy implements DiscountPolicy {
+        private final List<DiscountPolicy> discountPolicies;
+    
+        public OberlappedDiscountPolicy(DiscountPolicy... discountPolicies) {
+            this.discountPolicies = Arrays.asList(discountPolicies);
+        }
+    
+        @Override
+        public Money getDiscountAmount(Screening screening) {
+            //...       
+        }
+    }
+    ```
+
+<br>
+
+> 결과적으로
+
+- Movie가 협력해야 하는 객체를 변경하는 것만으로도 Movie를 새로운 컨텍스트에서 재사용할 수 있다.
+- 고로, Movie는 유연하고 재사용이 가능한 객체다.
+- 설계를 유연하게 만들수 있었던 이유는
+  - Movie가 DiscountPolicy라는 추상화에 의존하고,
+  - 생성자를 통해 DiscountPolicy에 대한 의존성을 명시적으로 드러냈으며,
+  - new와 같이 구체 클래스를 직접적으로 다뤄야 하는 책임을 외부로 옮겼기 때문이다.
+
+<br>
+
+#### {% include i.html %} 2-9. 조합 가능한 행동
+
+> 정리
+
+- 어떤 객체와 협력하느냐에 따라 객체의 행동이 달라지는 것은 유연하고 재사용 가능한 설계가 가진 특징이다.
+- 유연하고 재사용 가능한 설계는 응집도 높은 책임들을 가진 작은 객체들을 다양한 방식으로 연결함으로써<br>
+  애플리케이션의 기능을 쉽게 확장할 수 있다.
+- 유연하고 재사용 가능한 설계는
+  - 객체들의 조합을 통해 무엇(What)을 하는지를 표현하는 클래스들로 구성된다.
+  - 따라서 인스턴스를 생성하는 코드를 보는 것만으로도 객체가 어떤 일을 하는지 쉽게 파악할 수 있다.
+  - 다시 말해 선언적으로 객체의 행동을 정의할 수 있는 것이다.
+
+
+<div class="notice-box info" markdown="1">
+“선언적”이라는 말은
+- ‘어떻게 동작할지(how)’를 상세히 적는 게 아니라
+- ‘무엇을 사용할지(what)’ 선언하는 것에 집중한다는 의미
+</div>
+
+<br>
+
+> 훌륭한 객체지향 설계란
+
+- 객체들의 조합을 선언적으로 표현함으로써 객체들이 무엇을 하는지를 표현하는 설게
