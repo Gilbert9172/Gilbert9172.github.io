@@ -114,41 +114,48 @@ _**상속을 위한 경고**_
 
 #### {% include i.html %} 3-1. 추상화에 의존하자 
 
-> 
+> 저자가 코드 중복을 제거하기 위해 상속을 도입할 때 따르는 두 가지 원칙
 
--
-
-<br>
-
-#### {% include i.html %} 3-2. 차이를 메서드로 추출하라
-
-> 
-
--
+- 두 메서드가 유사하게 보인다면 차이점을 메서드로 추출하라.
+- 부모 클래스의 코드를 하위로 내리지 말고 자식 클래스의 코드를 상위로 올려라.
 
 <br>
 
-#### {% include i.html %} 3-3. 중복 코드를 부모 클래스로 올려라
+> 차이를 메서드로 추출하라
 
->
-
--
+- 가장 먼저 할 일 : 중복 코드 안에서 차이점을 별도의 메서드로 추출하는 것 
 
 <br>
 
-#### {% include i.html %} 3-4. 추상화가 핵심이다
+> 중복 코드를 부모 클래스로 올려라 
 
->
+<img src="../../../assets/img/book/object/chap10/10-3.png" alt="10-1">
 
--
+- 자식 클래스들 사이의 공통점을 부모 클래스로 옮김으로써 실제 코드를 기반으로 상속 계츠을 구성할 수 있다.
 
 <br>
 
-#### {% include i.html %} 3-5. 의도를 드러내는 이름 선택하기
+> 추상화가 핵심이다.
 
->
-
--
+- 부모 클래스(AbstractPhone)도 추상화에 의존한다고 할 수 있다.
+    ```java
+    public abstract class AbstractPhone {
+        private List<Call> calls = new ArrayList<>();
+        
+        public Money calculateFee() {
+            Money result = Money.ZERO;
+            for (Call call : calls) {
+                result = result.plus(calculateCallFee(call));
+            }
+            return result;
+        }
+        
+        abstract Money calculateCallFee(Call call);
+    }
+    ```
+- 상속 계층이 코드를 진화시키는 데 걸림돌이 된다면 추상화를 찾아내고 상속 계층안의 클래스들이<br> 
+  그 추상화에 의존하도록 코드를 리팩터링하라.
+- 차이점을 메서드로 추출하고 공통적인 부분은 부모 클래스로 이동하라.
 
 <br>
 <br>
@@ -157,8 +164,11 @@ _**상속을 위한 경고**_
 
 ---
 
-#### {% include i.html %} 
+#### {% include i.html %} 4-1. 차이에 의한 프로그래밍
 
-> 
+> 차이에 의한 프로그래밍(Programming by difference)이란?
 
--
+- 정의
+  - 기존 코드와 다른 부분만을 추가함으로써 애플리캐이션의 기능을 확장하는 방법
+- 목표
+  - 중복 코드를 제거하고 코드를 재사용하는 것
