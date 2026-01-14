@@ -4,12 +4,6 @@ categories: [book, 오브젝트]
 tags: [오브젝트]
 ---
 
-<div class="notice-box chapter" markdown="1">
-상속과 합성은 재사용 대상이 다르다.
-상속은 부모 클래스 안에 구현된 코드 자체를 재사용하지만 
-합성은 포함되는 객체의 퍼블릭 인터페이스를 재사용한다.
-</div>
-
 <br>
 
 ### ❐ 1. 다형성
