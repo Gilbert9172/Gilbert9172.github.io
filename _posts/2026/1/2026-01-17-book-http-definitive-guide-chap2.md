@@ -339,6 +339,7 @@ tags: [HTTP 완벽 가이드]
 <br>
 
 ### ❐ 6. URL의 미래
+
 ---
 
 #### {% include i.html %} 6-1. URL의 한계
@@ -359,7 +360,6 @@ tags: [HTTP 완벽 가이드]
 - 이는 ‘이름’으로서의 URL이 가지는 근본적인 한계다.
 
 <br>
-<br>
 
 #### {% include i.html %} 6-2. 이상적인 해결책: 이름과 위치의 분리
 
@@ -369,7 +369,6 @@ tags: [HTTP 완벽 가이드]
 - 사람의 이름처럼, 객체의 이름만 알면 위치가 바뀌어도 찾을 수 있어야 한다.
 - 객체의 이름과 위치 정보를 분리하면 이러한 문제가 해결된다.
 
-<br>
 <br>
 
 #### {% include i.html %} 6-3. URN (Uniform Resource Name)
@@ -382,7 +381,6 @@ tags: [HTTP 완벽 가이드]
 - URN은 ‘이름’에 집중한 식별자다.
 
 <br>
-<br>
 
 #### {% include i.html %} 6-4. PURL (Persistent URL)
 
@@ -392,6 +390,7 @@ tags: [HTTP 완벽 가이드]
 - 실제 리소스의 URL 목록을 관리하는 중개 서버를 둔다.
 - 클라이언트는 영구적인 URL(PURL)을 요청한다.
 - 중개 서버는 현재 리소스의 실제 URL로 클라이언트를 연결해준다.
+- [관련 정리글](https://gilbert9172.github.io/posts/cs-network-purl/)
 
 <br>
 
@@ -401,7 +400,6 @@ tags: [HTTP 완벽 가이드]
 - 2단계: PURL 서버가 실제 리소스 URL을 반환한다.
 - 3단계: 클라이언트가 실제 URL로 리소스를 가져온다.
 
-<br>
 <br>
 
 #### {% include i.html %} 6-5. 지금이 아니면, 언제?
