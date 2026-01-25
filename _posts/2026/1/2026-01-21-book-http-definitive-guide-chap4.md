@@ -659,3 +659,105 @@ tags: [HTTP 완벽 가이드]
     - 적은 수의 병렬 커넥션만 유지하고
     - 해당 커넥션을 지속적으로 재사용한다.
 - 이것이 현대 웹 애플리케이션에서 일반적으로 사용하는 방식이다.
+
+<br>
+
+#### {% include i.html %} 5-2. HTTP/1.0의 Keep-Alive 커넥션
+
+> HTTP/1.0 Keep-Alive의 배경
+
+- 많은 HTTP/1.0 브라우저와 서버는 **실험적으로 keep-alive 커넥션**을 지원하도록 확장되었다(1996년경).
+- 이는 HTTP/1.0의 기본 동작(요청마다 커넥션 종료)으로 인한 성능 저하를 완화하기 위한 시도였다.
+- 초기 keep-alive 설계에는 **상호 운용성 및 설계상의 문제**가 있었다.
+- 이러한 문제는 이후 **HTTP/1.1에서 공식적으로 수정·정비**되었다.
+- 그럼에도 불구하고, 아직도 일부 클라이언트와 서버는 HTTP/1.0 keep-alive를 사용한다.
+
+<br>
+
+> 성능상의 이점
+
+- 여러 HTTP 트랜잭션을 처리할 때:
+    - 매번 새 커넥션을 생성·종료하는 방식보다
+    - **하나의 지속 커넥션**으로 처리하는 방식이 훨씬 빠르다.
+- 커넥션을 맺고 끊는 데 필요한 작업이 제거되어 **전체 처리 시간이 단축**된다.
+
+<br>
+
+#### {% include i.html %} 5-3. Keep-Alive 동작
+
+> HTTP/1.0 Keep-Alive의 기본 동작 방식
+
+- keep-alive는 최종적으로 HTTP/1.1 명세에서는 제외되었지만,<br>
+  브라우저–서버 간 관행적으로 널리 사용되어 왔다.
+- 따라서 HTTP 애플리케이션은 keep-alive 요청을 처리할 수 있어야 한다.
+
+<br>
+
+> 요청과 응답의 헤더 규칙
+
+- HTTP/1.0에서 keep-alive 커넥션을 사용하려면:
+    - 클라이언트는 요청 메시지에 `Connection: Keep-Alive` 헤더를 포함해야 한다.
+- 서버가 이 커넥션을 계속 유지하고 싶다면:
+    - 응답 메시지에도 `Connection: Keep-Alive` 헤더를 포함해 응답한다.
+- 만약 응답에 `Connection: Keep-Alive` 헤더가 없다면:
+    - 클라이언트는 서버가 keep-alive를 지원하지 않으며
+    - 응답 전송 후 **커넥션이 종료될 것**이라고 가정한다.
+
+<br>
+
+#### {% include i.html %} 5-4. Keep-Alive 옵션
+
+> Keep-Alive 커넥션의 동작을 제어하기 위한 선택적 옵션
+
+- Keep-Alive 헤더는 **커넥션 유지를 요청**할 뿐, 이를 강제하지는 않는다.
+- 클라이언트나 서버는 언제든지 keep-alive 커넥션을 종료할 수 있다.
+- keep-alive 커넥션에서 처리할 **트랜잭션 수를 제한**할 수도 있다.
+- keep-alive의 동작은 `Keep-Alive` 헤더에 포함된 **콤마(,)로 구분된 옵션들**로 제어된다.
+- `timeout` 옵션은 커넥션을 **얼마 동안 유지할지**를 의미하지만, 실제 유지 시간을 보장하지는 않는다.
+- `max` 옵션은 하나의 커넥션으로 **최대 몇 개의 HTTP 트랜잭션을 처리할지**를 의미한다.
+- Keep-Alive 헤더는 진단이나 디버깅 목적의 **임의 속성(name=value)** 도 허용한다.
+- Keep-Alive 옵션은 반드시 `Connection: Keep-Alive` 헤더가 있을 때만 의미를 가진다.
+
+<br>
+
+#### {% include i.html %} 5-5. Keep-Alive 커넥션 제한과 규칙
+
+> Keep-Alive 커넥션을 안전하게 사용하기 위해 확인해야 할 제약 사항과 동작 규칙
+
+- Keep-Alive는 **HTTP/1.0의 기본 동작이 아니다**.
+  - 사용하려면 반드시 `Connection: Keep-Alive` 요청 헤더를 보내야 한다.
+- 커넥션을 계속 유지하려면 **모든 요청 메시지에** `Connection: Keep-Alive` 헤더를 포함해야 한다.  
+  → 누락되면 서버는 응답 후 커넥션을 종료할 수 있다.
+- 클라이언트는 **응답에 `Connection: Keep-Alive` 헤더가 없을 경우**, 서버가 커넥션을 종료할 것이라고 가정해야 한다.
+- 커넥션을 유지하려면 **엔터티 본문의 길이를 정확히 알아야 한다**.  
+  → 이를 위해 다음 중 하나가 필요하다.
+    - 정확한 `Content-Length`
+    - `multipart` 미디어 타입
+    - `chunked transfer encoding`
+- Keep-Alive 커넥션에서 **잘못된 Content-Length를 보내는 것은 위험**하다.  
+  → 메시지 경계를 정확히 구분할 수 없어 다음 요청이 깨질 수 있다.
+- 프락시와 게이트웨이는 **Connection 헤더 규칙을 엄격히 준수**해야 한다.  
+  → 전달 또는 캐시 전에 `Connection` 헤더와 그에 명시된 모든 헤더 필드를 제거해야 한다.
+- Keep-Alive 커넥션은 **Connection 헤더를 이해하지 못하는 프락시(dumb proxy)** 와 함께 사용하면 안 된다.  
+  → 현실적으로 이를 완전히 피하기는 어렵다.
+- 기술적으로 HTTP/1.0 기반 장비에서 전달된 **모든 Connection 헤더는 무시하는 것이 안전**하다.  
+  → 오래된 프락시로 인해 커넥션이 멈추는(hang) 문제를 방지하기 위함이다.
+- 클라이언트는 **응답을 모두 받기 전에 커넥션이 끊어질 가능성**을 항상 고려해야 하며,  
+  문제가 없다면 요청을 **다시 전송할 수 있도록 준비**되어 있어야 한다.
+
+<br>
+
+#### {% include i.html %} 5-6. Keep-Alive와 멍청한 프락시
+
+<div class="notice-box chapter" markdown="1">
+- [티스토리 블로그 정리 내용](https://gilbert9172.tistory.com/43#%E2%9D%92%20Http%20Connection-1:~:text=2%2D1.%20HTTP/1.0%20keep%2Dalive)
+</div>
+
+<br>
+
+#### {% include i.html %} 5-7. Proxy-Connection 살펴 보기 
+
+<div class="notice-box chapter" markdown="1">
+- [티스토리 블로그 정리 내용](https://gilbert9172.tistory.com/43#%E2%9D%92%20Http%20Connection-1:~:text=%EA%B7%B8%EB%9E%98%EC%84%9C%20%EC%9D%B4%20%EB%AC%B8%EC%A0%9C%EB%A5%BC%20%ED%95%B4%EA%B2%B0%ED%95%98%EA%B8%B0%20%EC%9C%84%ED%95%B4%20Intelligent%20Proxy%EA%B0%80%20%EB%82%98%EC%99%94%EB%8B%A4.)
+</div>
+
