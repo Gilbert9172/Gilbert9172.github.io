@@ -39,8 +39,38 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     }
   }
 
+  @include bp.lg {
+    @include mx.slide;
+
+    [sidebar-collapsed] & {
+      transform: translateX(-#{v.$sidebar-width});
+    }
+  }
+
   @include bp.xxxl {
     width: v.$sidebar-width-large;
+
+    [sidebar-collapsed] & {
+      transform: translateX(-#{v.$sidebar-width-large});
+    }
+  }
+
+  #sidebar-collapse-btn {
+    display: none;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: var(--sidebar-btn-color);
+    z-index: 1;
+    font-size: 0.9rem;
+
+    &:hover {
+      color: var(--sidebar-active-color);
+    }
+
+    @include bp.lg {
+      display: block;
+    }
   }
 
   %sidebar-link-hover {
@@ -253,6 +283,34 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
   #main-wrapper {
     @include bp.lt(bp.get(lg)) {
       transform: translateX(v.$sidebar-width);
+    }
+  }
+}
+
+#sidebar-expand-btn {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 100;
+  color: var(--text-muted-color);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  border-left: none;
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.9rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    color: var(--link-color);
+    background-color: var(--sidebar-hover-bg);
+  }
+
+  @include bp.lg {
+    [sidebar-collapsed] & {
+      display: block;
     }
   }
 }

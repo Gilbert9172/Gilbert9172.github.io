@@ -76,7 +76,14 @@
   }
 }
 
-#sidebar-trigger,
+#sidebar-trigger {
+  display: none;
+
+  @include bp.lt(bp.get(lg)) {
+    display: block;
+  }
+}
+
 #search-trigger {
   display: none;
 

@@ -424,10 +424,19 @@ mjx-container {
 
   @include bp.lg {
     margin-left: v.$sidebar-width;
+    transition: margin-left 0.4s ease;
+
+    [sidebar-collapsed] & {
+      margin-left: 0;
+    }
   }
 
   @include bp.xxxl {
     margin-left: v.$sidebar-width-large;
+
+    [sidebar-collapsed] & {
+      margin-left: 0;
+    }
   }
 
   > .container {
