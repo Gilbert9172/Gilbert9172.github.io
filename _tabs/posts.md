@@ -7,29 +7,37 @@ order: 1
 {% assign posts = site.posts | where_exp: 'item', 'item.hidden != true' %}
 
 <style>
-  #year-filter {
+  .post-filter {
     background-color: var(--button-bg);
     color: var(--text-color);
     border: 1px solid var(--btn-border-color);
     border-radius: 0.375rem;
     padding: 0.375rem 0.75rem;
-    font-size: 1rem;
+    font-size: 0.875rem;
+    width: 5.5rem;
     transition: border-color 0.15s ease-in-out;
   }
 
-  #year-filter:hover {
+  .post-filter:hover {
     border-color: var(--input-focus-border-color);
   }
 
-  #year-filter:focus {
+  .post-filter:focus {
     color: var(--text-color);
     border-color: var(--input-focus-border-color);
     outline: 0;
   }
 
-  #year-filter option {
+  .post-filter option {
     background-color: var(--button-bg);
     color: var(--text-color);
+  }
+
+  @media (max-width: 400px) {
+    .post-filter {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+    }
   }
 
   /* Theme-integrated empty state panel */
@@ -88,26 +96,38 @@ order: 1
   }
 </style>
 
-<!-- Year Filter -->
-<div class="mb-4 px-xl-1 d-flex justify-content-between align-items-center">
-  <div></div>
-  <div style="min-width: 250px;">
-    <select id="year-filter" class="form-select">
-      <option value="all">전체</option>
-      {% assign currentYear = site.time | date: "%Y" | plus: 0 %}
-      {% for year in (2021..2099) reversed %}
-        {% if year <= currentYear %}
-          <option value="{{ year }}">{{ year }}년</option>
-        {% endif %}
-      {% endfor %}
-    </select>
-  </div>
+<!-- Filters -->
+<div class="mb-4 px-xl-1 d-flex justify-content-end align-items-center flex-wrap gap-2">
+  <select id="year-filter" class="form-select post-filter">
+    <option value="all">전체</option>
+    {% assign currentYear = site.time | date: "%Y" | plus: 0 %}
+    {% for year in (2021..2099) reversed %}
+      {% if year <= currentYear %}
+        <option value="{{ year }}">{{ year }}년</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+  <select id="month-filter" class="form-select post-filter">
+    <option value="all">전체</option>
+    <option value="01">1월</option>
+    <option value="02">2월</option>
+    <option value="03">3월</option>
+    <option value="04">4월</option>
+    <option value="05">5월</option>
+    <option value="06">6월</option>
+    <option value="07">7월</option>
+    <option value="08">8월</option>
+    <option value="09">9월</option>
+    <option value="10">10월</option>
+    <option value="11">11월</option>
+    <option value="12">12월</option>
+  </select>
 </div>
 
 <!-- Empty state panel -->
 <div id="empty-panel" class="empty-state-panel px-xl-1">
   <p class="empty-state-text">
-    <strong>해당 년도의 글은 티스토리 블로그에 있습니다.</strong>
+    <strong id="empty-message">해당 년도의 글은 티스토리 블로그에 있습니다.</strong>
   </p>
   <a href="https://gilbert9172.tistory.com/" target="_blank" rel="noopener noreferrer" class="empty-state-link">
     티스토리 블로그 방문 <i class="fas fa-arrow-right"></i>
@@ -116,7 +136,7 @@ order: 1
 
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
-    <article class="card-wrapper card" data-post-index="{{ forloop.index0 }}" data-year="{{ post.date | date: '%Y' }}">
+    <article class="card-wrapper card" data-post-index="{{ forloop.index0 }}" data-year="{{ post.date | date: '%Y' }}" data-month="{{ post.date | date: '%m' }}">
       <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
         <div class="col-12">
           <div class="card-body d-flex flex-column">
@@ -164,23 +184,44 @@ order: 1
 <script>
 (function() {
   const POSTS_PER_PAGE = 10;
+  const MONTH_NAMES = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
   let currentPage = 1;
   let selectedYear = 'all';
+  let selectedMonth = 'all';
 
   const allPosts = document.querySelectorAll('[data-post-index]');
   const prevBtn = document.getElementById('prev-btn');
   const nextBtn = document.getElementById('next-btn');
   const pageNumbersContainer = document.getElementById('page-numbers');
   const yearFilter = document.getElementById('year-filter');
+  const monthFilter = document.getElementById('month-filter');
+  const emptyMessage = document.getElementById('empty-message');
+  const tistoryLink = document.querySelector('#empty-panel .empty-state-link');
 
   let visiblePosts = Array.from(allPosts);
   let totalPages = Math.ceil(visiblePosts.length / POSTS_PER_PAGE);
 
   function getVisiblePosts() {
     return Array.from(allPosts).filter(post => {
-      if (selectedYear === 'all') return true;
-      return post.dataset.year === selectedYear;
+      const yearMatch = selectedYear === 'all' || post.dataset.year === selectedYear;
+      const monthMatch = selectedMonth === 'all' || post.dataset.month === selectedMonth;
+      return yearMatch && monthMatch;
     });
+  }
+
+  function updateEmptyMessage() {
+    const monthName = selectedMonth !== 'all' ? MONTH_NAMES[parseInt(selectedMonth, 10)] : '';
+
+    if (selectedYear !== 'all' && selectedMonth !== 'all') {
+      emptyMessage.textContent = selectedYear + '년 ' + monthName + '의 글이 없습니다.';
+      tistoryLink.style.display = 'none';
+    } else if (selectedYear !== 'all') {
+      emptyMessage.textContent = selectedYear + '년의 글은 티스토리 블로그에 있습니다.';
+      tistoryLink.style.display = '';
+    } else if (selectedMonth !== 'all') {
+      emptyMessage.textContent = monthName + '의 글이 없습니다.';
+      tistoryLink.style.display = 'none';
+    }
   }
 
   function showPage(page) {
@@ -195,6 +236,7 @@ order: 1
     const paginationNav = document.getElementById('pagination-nav');
 
     if (visiblePosts.length === 0) {
+      updateEmptyMessage();
       emptyPanel.classList.add('visible');
       paginationNav.style.display = 'none';
     } else {
@@ -266,6 +308,15 @@ order: 1
 
   yearFilter.addEventListener('change', (e) => {
     selectedYear = e.target.value;
+    selectedMonth = 'all';
+    monthFilter.value = 'all';
+    currentPage = 1;
+    showPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  monthFilter.addEventListener('change', (e) => {
+    selectedMonth = e.target.value;
     currentPage = 1;
     showPage(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
