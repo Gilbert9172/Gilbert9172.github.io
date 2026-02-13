@@ -1,6 +1,6 @@
 ---
 title: EVM이란?
-categories: [block Chain]
+categories: [블록체인]
 tags: [block Chain, EVM]
 ---
 
