@@ -1,1 +1,107 @@
-<!-- A placeholder to allow defining custom metadata -->
+<!-- Toggle Box: right slide-in panel -->
+<div class="toggle-box-overlay" id="toggle-box-overlay"></div>
+<div class="toggle-box-panel" id="toggle-box-panel">
+  <div class="toggle-box-resize-handle" id="toggle-box-resize-handle"></div>
+  <div class="toggle-box-panel-header">
+    <span class="panel-title" id="toggle-box-panel-title"></span>
+    <button class="panel-close" id="toggle-box-panel-close" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div class="toggle-box-panel-body" id="toggle-box-panel-body"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var overlay = document.getElementById('toggle-box-overlay');
+    var panel = document.getElementById('toggle-box-panel');
+    var panelTitle = document.getElementById('toggle-box-panel-title');
+    var panelBody = document.getElementById('toggle-box-panel-body');
+    var panelClose = document.getElementById('toggle-box-panel-close');
+    var resizeHandle = document.getElementById('toggle-box-resize-handle');
+
+    // --- Resize logic ---
+    var isResizing = false;
+
+    resizeHandle.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      isResizing = true;
+      panel.classList.add('resizing');
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      var newWidth = window.innerWidth - e.clientX;
+      var minW = 280;
+      var maxW = window.innerWidth * 0.9;
+      if (newWidth < minW) newWidth = minW;
+      if (newWidth > maxW) newWidth = maxW;
+      panel.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (!isResizing) return;
+      isResizing = false;
+      panel.classList.remove('resizing');
+    });
+
+    function openPanel(title, contentEl) {
+      panelTitle.textContent = title;
+      panelBody.innerHTML = '';
+      var clone = contentEl.cloneNode(true);
+      clone.style.display = '';
+      panelBody.appendChild(clone);
+      overlay.classList.add('open');
+      panel.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePanel() {
+      overlay.classList.remove('open');
+      panel.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    overlay.addEventListener('click', closePanel);
+    panelClose.addEventListener('click', closePanel);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePanel();
+    });
+
+    document.querySelectorAll('.toggle-box').forEach(function (box) {
+      var title = box.getAttribute('title') || 'Toggle';
+      var type = box.getAttribute('type') || 'panel';
+      box.removeAttribute('title');
+      box.removeAttribute('type');
+
+      var isInline = type === 'inline';
+      if (isInline) box.classList.add('toggle-box--inline');
+
+      // Build header
+      var header = document.createElement('div');
+      header.className = 'toggle-box-header';
+      header.innerHTML =
+        '<span class="toggle-box-title">' + title + '</span>' +
+        '<span class="toggle-box-icon"><i class="fa-solid fa-chevron-right"></i></span>';
+
+      // Wrap original content
+      var content = document.createElement('div');
+      content.className = isInline ? 'toggle-box-content' : '';
+      if (!isInline) content.style.display = 'none';
+      while (box.firstChild) {
+        content.appendChild(box.firstChild);
+      }
+
+      box.appendChild(header);
+      box.appendChild(content);
+
+      header.addEventListener('click', function () {
+        if (isInline) {
+          box.classList.toggle('open');
+        } else {
+          openPanel(title, content);
+        }
+      });
+    });
+  });
+</script>

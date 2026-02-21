@@ -1,21 +1,24 @@
+/* --- Toggle box trigger button --- */
+
 .toggle-box {
   margin: 1rem 0;
-  border: 1px solid var(--main-border-color, #e9ecef);
+  border: 1px solid var(--btn-border-color);
   border-radius: 0.375rem;
+  overflow: hidden;
 
   .toggle-box-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 1rem;
     cursor: pointer;
     user-select: none;
-    background-color: var(--btn-backtotop-color, #f8f9fa);
-    border-radius: 0.375rem;
+    background-color: var(--sidebar-bg);
+    color: var(--heading-color);
     transition: background-color 0.2s;
 
     &:hover {
-      opacity: 0.85;
+      background-color: var(--sidebar-hover-bg);
     }
 
     .toggle-box-title {
@@ -24,24 +27,149 @@
     }
 
     .toggle-box-icon {
+      color: var(--text-muted-color);
       transition: transform 0.25s ease;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
   }
 
-  .toggle-box-content {
-    display: none;
-    padding: 0.8rem 1rem;
-    border-top: 1px solid var(--main-border-color, #e9ecef);
+  /* --- Panel type (default): button only --- */
+  &:not(.toggle-box--inline) {
+    display: inline-block;
   }
+
+  /* --- Inline type: expand content below --- */
+  &.toggle-box--inline {
+    .toggle-box-content {
+      display: none;
+      padding: 0.8rem 1rem;
+      border-top: 1px solid var(--btn-border-color);
+      background-color: var(--main-bg);
+      color: var(--text-color);
+    }
+
+    &.open {
+      .toggle-box-header .toggle-box-icon {
+        transform: rotate(90deg);
+      }
+
+      .toggle-box-content {
+        display: block;
+      }
+    }
+  }
+}
+
+/* --- Slide-in panel (right side) --- */
+
+.toggle-box-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  background-color: rgb(0 0 0 / 40%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
 
   &.open {
-    .toggle-box-header .toggle-box-icon {
-      transform: rotate(90deg);
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.toggle-box-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2000;
+  width: min(420px, 85vw);
+  min-width: 280px;
+  max-width: 90vw;
+  height: 100vh;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  box-shadow: -4px 0 24px rgb(0 0 0 / 15%);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  &.resizing {
+    transition: none;
+    user-select: none;
+  }
+
+  .toggle-box-resize-handle {
+    position: absolute;
+    top: 0;
+    left: -3px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 1;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 4px;
+      height: 40px;
+      border-radius: 2px;
+      background-color: var(--btn-border-color);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
-    .toggle-box-content {
-      display: block;
+    &:hover::after {
+      opacity: 1;
     }
+  }
+
+  .toggle-box-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--btn-border-color);
+    background-color: var(--sidebar-bg);
+
+    .panel-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--heading-color);
+    }
+
+    .panel-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border: none;
+      border-radius: 0.375rem;
+      background: transparent;
+      color: var(--text-muted-color);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s;
+
+      &:hover {
+        background-color: var(--sidebar-hover-bg);
+        color: var(--heading-color);
+      }
+    }
+  }
+
+  .toggle-box-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    line-height: 1.75;
   }
 }
