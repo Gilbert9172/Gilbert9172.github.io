@@ -1,5 +1,5 @@
 ---
-title: 6장. [HTTP - 아키텍쳐] 
+title: 6장. [HTTP - 아키텍쳐] 프락시
 categories: [book, HTTP 완벽 가이드]
 tags: [HTTP 완벽 가이드]
 ---
