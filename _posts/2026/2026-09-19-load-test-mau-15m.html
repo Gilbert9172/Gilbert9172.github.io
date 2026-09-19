@@ -1,0 +1,390 @@
+---
+layout: post
+title: MAU 1500만 부하 실험 랩
+description: 단일 머신에서 1,500만 MAU를 가정한 부하 테스트 구조와 실험 계획
+categories: [Performance]
+tags: [load-test, k6, nginx, mysql, redis, prometheus, grafana]
+toc: false
+---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
+
+.load-test-post{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}.load-test-post{scroll-padding-top:env(safe-area-inset-top,0px)}.load-test-post{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}.load-test-post img{max-width:100%}.load-test-post [hidden]:not([hidden=until-found i]){display:none!important}
+
+  .load-test-post{
+    --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F9FB;
+    --line:#D3DAE3; --line-soft:#E4E9EF;
+    --ink:#16202C; --muted:#5A6878;
+    --flow:#A8431A; --probe:#0E6E63;
+    --up:#2C7A4B; --down:#A82A22;
+    --flow-wash:#FAEEE8; --probe-wash:#E6F2F0; --down-wash:#FAEBE9;
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-mode="light"]) .load-test-post{
+      --paper:#10161D; --surface:#171F28; --surface-2:#1C2531;
+      --line:#2F3C49; --line-soft:#232E39;
+      --ink:#E4EAF0; --muted:#95A4B5;
+      --flow:#F0955F; --probe:#57C3B5;
+      --up:#5BBE85; --down:#F0796C;
+      --flow-wash:#2A1D16; --probe-wash:#132724; --down-wash:#2A1715;
+    }
+  }
+  html[data-mode="dark"] .load-test-post{
+    --paper:#10161D; --surface:#171F28; --surface-2:#1C2531;
+    --line:#2F3C49; --line-soft:#232E39;
+    --ink:#E4EAF0; --muted:#95A4B5;
+    --flow:#F0955F; --probe:#57C3B5;
+    --up:#5BBE85; --down:#F0796C;
+    --flow-wash:#2A1D16; --probe-wash:#132724; --down-wash:#2A1715;
+  }
+
+  .load-test-post{
+    background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;
+    font-size:14.5px; line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+  .load-test-post .wrap{ max-width:1080px; margin:0 auto; padding-inline:20px; padding-block:40px 64px; }
+  .load-test-post .mono{ font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace; }
+
+  .load-test-post .eyebrow{
+    font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 14px;
+  }
+  .load-test-post h1{
+    font-size:clamp(27px,5.2vw,40px); line-height:1.18; font-weight:700;
+    letter-spacing:-.02em; text-wrap:balance; margin:0 0 14px;
+  }
+  .load-test-post .lede{ max-width:60ch; color:var(--muted); margin:0; font-size:15.5px; }
+
+  .load-test-post .targets{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line-soft); border:1px solid var(--line-soft);
+    margin:32px 0 0; border-radius:4px; overflow:hidden;
+  }
+  .load-test-post .targets div{ background:var(--surface); padding:14px 16px; }
+  .load-test-post .targets dt{
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:10.5px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;
+  }
+  .load-test-post .targets dd{
+    margin:0; font-size:21px; font-weight:600; letter-spacing:-.01em;
+    font-variant-numeric:tabular-nums;
+  }
+  .load-test-post .targets dd span{ font-size:12px; font-weight:400; color:var(--muted); margin-left:3px; }
+
+  .load-test-post .note{
+    margin:32px 0 0; padding:16px 18px;
+    border:1px solid var(--line); border-left:3px solid var(--down);
+    background:var(--down-wash); border-radius:3px;
+  }
+  .load-test-post .note h2{ font-size:14.5px; margin:0 0 8px; font-weight:600; letter-spacing:0; }
+  .load-test-post .note p{ margin:0 0 8px; font-size:13.5px; line-height:1.6; }
+  .load-test-post .note p:last-child{ margin-bottom:0; }
+  .load-test-post .note code{ font-family:'IBM Plex Mono',Menlo,monospace; font-size:12.5px; }
+  .load-test-post .note.ok{ border-left-color:var(--up); background:var(--surface-2); }
+
+  .load-test-post section{ margin-top:56px; }
+  .load-test-post h2{
+    font-size:19px; font-weight:600; letter-spacing:-.01em; margin:0 0 6px;
+  }
+  .load-test-post .sub{ color:var(--muted); font-size:13.5px; margin:0 0 20px; max-width:64ch; }
+
+  .load-test-post figure{ margin:0; }
+  .load-test-post .canvas{
+    overflow-x:auto; background:var(--surface);
+    border:1px solid var(--line); border-radius:4px; padding:8px;
+  }
+  .load-test-post .canvas svg{ display:block; min-width:880px; width:100%; height:auto; }
+  .load-test-post .legend{
+    display:flex; flex-wrap:wrap; gap:18px; margin-top:14px;
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:11.5px; color:var(--muted);
+  }
+  .load-test-post .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .load-test-post .legend i{ width:22px; height:0; border-top:2px solid var(--flow); display:inline-block; }
+  .load-test-post .legend i.dash{ border-top:2px dashed var(--probe); }
+  .load-test-post figcaption{ margin-top:12px; color:var(--muted); font-size:13px; max-width:70ch; }
+
+  .load-test-post .tablewrap{ overflow-x:auto; border:1px solid var(--line); border-radius:4px; background:var(--surface); }
+  .load-test-post table{ border-collapse:collapse; width:100%; min-width:560px; font-size:13.5px; }
+  .load-test-post th,.load-test-post td{ text-align:left; padding:10px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+  .load-test-post thead th{
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:10.5px; font-weight:500;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+    background:var(--surface-2); border-bottom:1px solid var(--line);
+  }
+  .load-test-post tbody tr:last-child td{ border-bottom:0; }
+  .load-test-post td.num{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .load-test-post td.path, .load-test-post td.var{ font-family:'IBM Plex Mono',Menlo,monospace; font-size:12.5px; white-space:nowrap; }
+
+  .load-test-post .chip{
+    display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:11.5px;
+  }
+  .load-test-post .chip::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .load-test-post .chip.up{ color:var(--up); }
+  .load-test-post .chip.down{ color:var(--down); }
+
+  .load-test-post .hyp{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line-soft);
+        border:1px solid var(--line-soft); border-radius:4px; overflow:hidden; }
+  .load-test-post .hyp li{ background:var(--surface); padding:12px 16px; display:flex; gap:12px; align-items:baseline; }
+  .load-test-post ol.hyp{ list-style:none; margin:0; padding:0; counter-reset:h; }
+  .load-test-post .hyp li b{
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:11.5px; color:var(--flow);
+    font-weight:500; flex:0 0 auto;
+  }
+  .load-test-post .hyp li p{ margin:0; font-size:13.5px; }
+  .load-test-post .hyp li p em{ display:block; font-style:normal; color:var(--muted); font-size:11.5px;
+                font-family:'IBM Plex Mono',Menlo,monospace; margin-top:2px; }
+
+  .load-test-post pre{
+    margin:0; padding:16px 18px; background:var(--surface); border:1px solid var(--line);
+    border-radius:4px; overflow-x:auto; font-family:'IBM Plex Mono',Menlo,monospace;
+    font-size:12.5px; line-height:1.85; color:var(--ink);
+  }
+  .load-test-post pre b{ color:var(--flow); font-weight:500; }
+  .load-test-post pre i{ color:var(--muted); font-style:normal; }
+
+  .load-test-post footer{
+    margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
+    display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between;
+    font-family:'IBM Plex Mono',Menlo,monospace; font-size:11.5px; color:var(--muted);
+  }
+  .load-test-post footer a{ color:var(--flow); }
+  .load-test-post a:focus-visible, .load-test-post .canvas:focus-visible{ outline:2px solid var(--flow); outline-offset:2px; }
+
+  @media (max-width:720px){
+    .load-test-post .targets{ grid-template-columns:repeat(2,1fr); }
+    .load-test-post .hyp{ grid-template-columns:1fr; }
+  }
+
+</style>
+
+<div class="load-test-post">
+<div class="wrap">
+  <header>
+    <p class="eyebrow">load-test-mau-15m · 1단계 단일 머신</p>
+    <p class="lede"><code class="mono">make up</code> 한 번에 컨테이너 10개가 뜬다. 요청은 k6에서 출발해 nginx·앱 3대를 지나 MySQL과 Redis에서 멈추고, 그 동안의 수치는 별도 경로로 Prometheus에 모인다. 아래는 그 두 경로의 구조다.</p>
+
+    <dl class="targets">
+      <div><dt>설계 목표</dt><dd>16,000<span>RPS</span></dd></div>
+      <div><dt>피크 DB</dt><dd>9,600<span>QPS</span></dd></div>
+      <div><dt>피크 Redis</dt><dd>38,000<span>QPS</span></dd></div>
+      <div><dt>M1 Pro 예상 상한</dt><dd>5~8k<span>RPS</span></dd></div>
+    </dl>
+  </header>
+
+  <div class="note ok">
+    <h2>첫 기동에서 앱 3대가 죽었다 — healthcheck를 TCP로 고쳤다</h2>
+    <p>MySQL이 TCP를 받기 시작한 건 <code>06:07:16</code>인데 app1~3은 <code>06:07:06</code>에 붙으러 갔다가 <code>Connection refused</code>로 종료됐다. 시드(곡 100만 행)를 돌리는 동안 MySQL은 임시 서버를 <code>--skip-networking</code>으로 띄우는데, healthcheck가 유닉스 소켓으로 묻는 <code>mysqladmin ping -h localhost</code>라 그 임시 서버에서 먼저 통과해버렸다. <code>depends_on: service_healthy</code>가 10초 일찍 풀린 것이다.</p>
+    <p>지금은 <code>-h 127.0.0.1 --protocol=tcp</code>로 묻고 <code>start_period: 180s</code>를 둔다. 실제로 연결을 받을 수 있는 시점까지 기다린다. 재기동 후 컨테이너 10개 전부 Up, API 5개 모두 2xx, Prometheus 타깃 5개 모두 up.</p>
+  </div>
+
+  <section>
+    <h2>구조</h2>
+    <p class="sub">굵은 선은 사용자 요청이 실제로 타는 경로, 점선은 지표가 흐르는 경로다. 두 경로는 같은 머신 위에 있지만 서로 다른 포트로 분리되어 있다.</p>
+
+    <figure>
+      <div class="canvas">
+        <svg viewBox="0 0 1000 850" role="img" aria-label="k6 부하가 LAN을 건너 nginx로 들어오고, nginx가 앱 3대로 분산하며, 앱 3대는 MySQL과 Redis를 함께 쓴다. 지표는 앱의 actuator 엔드포인트와 MySQL·Redis exporter에서 Prometheus로 모여 Grafana로 간다." xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ahFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--flow)"/>
+            </marker>
+            <marker id="ahProbe" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--probe)"/>
+            </marker>
+          </defs>
+
+          <g fill="var(--surface)" stroke="var(--line)" stroke-width="1">
+            <rect x="390" y="30" width="220" height="66" rx="6"/>
+            <rect x="278" y="160" width="444" height="66" rx="6"/>
+            <rect x="278" y="272" width="140" height="82" rx="6"/>
+            <rect x="430" y="272" width="140" height="82" rx="6"/>
+            <rect x="582" y="272" width="140" height="82" rx="6"/>
+            <rect x="278" y="422" width="216" height="104" rx="6"/>
+            <rect x="506" y="422" width="216" height="104" rx="6"/>
+            <rect x="278" y="582" width="216" height="52" rx="6"/>
+            <rect x="506" y="582" width="216" height="52" rx="6"/>
+            <rect x="390" y="678" width="220" height="60" rx="6"/>
+            <rect x="390" y="768" width="220" height="60" rx="6"/>
+          </g>
+
+          <g font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="14" font-weight="600" fill="var(--ink)" text-anchor="middle">
+            <text x="500" y="55">k6</text>
+            <text x="500" y="186">nginx 1.27-alpine · :8080 → :80</text>
+            <text x="348" y="297">app1</text>
+            <text x="500" y="297">app2</text>
+            <text x="652" y="297">app3</text>
+            <text x="386" y="449">MySQL 8.4 · :3306</text>
+            <text x="614" y="449">Redis 7 · :6379</text>
+            <text x="500" y="705">Prometheus · :9090</text>
+            <text x="500" y="795">Grafana 11.1 · :3000</text>
+          </g>
+          <g font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="12" font-weight="600" fill="var(--ink)" text-anchor="middle">
+            <text x="386" y="606">mysqld-exporter</text>
+            <text x="614" y="606">redis-exporter</text>
+          </g>
+
+          <g font-family="'IBM Plex Mono',Menlo,monospace" font-size="11" fill="var(--muted)" text-anchor="middle">
+            <text x="500" y="73">MacBook Air M1 · 부하 생성기</text>
+            <text x="500" y="89">ramp · mixed · single</text>
+            <text x="500" y="204">least_conn · keepalive 256 · read_timeout 5s</text>
+            <text x="500" y="220">proxy_next_upstream error / timeout / 502 / 503</text>
+            <text x="348" y="316">Spring Boot 3.4</text><text x="348" y="332">Xmx512m · G1GC</text><text x="348" y="348">2 vCPU · 768M</text>
+            <text x="500" y="316">Spring Boot 3.4</text><text x="500" y="332">Xmx512m · G1GC</text><text x="500" y="348">2 vCPU · 768M</text>
+            <text x="652" y="316">Spring Boot 3.4</text><text x="652" y="332">Xmx512m · G1GC</text><text x="652" y="348">2 vCPU · 768M</text>
+            <text x="386" y="471">innodb_buffer_pool 2G</text>
+            <text x="386" y="487">max_connections 500</text>
+            <text x="386" y="503">song 100만 · artist 1만</text>
+            <text x="386" y="519">slow_query_log &gt; 100ms</text>
+            <text x="614" y="471">maxmemory 512mb</text>
+            <text x="614" y="487">allkeys-lru</text>
+            <text x="614" y="503">chart:top100 · TTL 60s</text>
+            <text x="614" y="519">cache-aside · 가설 2</text>
+            <text x="386" y="624">:9104</text>
+            <text x="614" y="624">:9121</text>
+            <text x="500" y="725">scrape_interval 5s</text>
+            <text x="500" y="815">익명 접속 · 대시보드 프로비저닝</text>
+          </g>
+
+          <line x1="60" y1="128" x2="940" y2="128" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 5"/>
+          <text x="940" y="121" text-anchor="end" font-family="'IBM Plex Mono',Menlo,monospace" font-size="11" fill="var(--muted)">LAN 경계 · 부하 생성기는 다른 머신</text>
+          <line x1="60" y1="558" x2="940" y2="558" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 5"/>
+          <text x="60" y="551" font-family="'IBM Plex Mono',Menlo,monospace" font-size="11" fill="var(--muted)">관측 · Prometheus가 5초마다 끌어간다</text>
+
+          <g stroke="var(--flow)" stroke-width="1.6" fill="none">
+            <line x1="500" y1="96" x2="500" y2="154" marker-end="url(#ahFlow)"/>
+            <line x1="500" y1="226" x2="500" y2="250"/>
+            <line x1="348" y1="250" x2="652" y2="250"/>
+            <line x1="348" y1="250" x2="348" y2="272" marker-end="url(#ahFlow)"/>
+            <line x1="500" y1="250" x2="500" y2="272" marker-end="url(#ahFlow)"/>
+            <line x1="652" y1="250" x2="652" y2="272" marker-end="url(#ahFlow)"/>
+            <line x1="348" y1="354" x2="348" y2="386"/>
+            <line x1="500" y1="354" x2="500" y2="386"/>
+            <line x1="652" y1="354" x2="652" y2="386"/>
+            <line x1="348" y1="386" x2="652" y2="386"/>
+            <line x1="386" y1="386" x2="386" y2="422" marker-end="url(#ahFlow)"/>
+            <line x1="614" y1="386" x2="614" y2="422" marker-end="url(#ahFlow)"/>
+          </g>
+          <g font-family="'IBM Plex Mono',Menlo,monospace" font-size="10.5" fill="var(--flow)">
+            <text x="510" y="146">HTTP :8080</text>
+            <text x="378" y="410" text-anchor="end">JDBC · HikariCP 20</text>
+            <text x="622" y="410">GET/SET chart:top100</text>
+          </g>
+
+          <g stroke="var(--probe)" stroke-width="1.4" fill="none" stroke-dasharray="4 4">
+            <polyline points="278,313 170,313 170,708 386,708" marker-end="url(#ahProbe)"/>
+            <line x1="386" y1="526" x2="386" y2="582" marker-end="url(#ahProbe)"/>
+            <line x1="614" y1="526" x2="614" y2="582" marker-end="url(#ahProbe)"/>
+            <line x1="386" y1="634" x2="440" y2="678" marker-end="url(#ahProbe)"/>
+            <line x1="614" y1="634" x2="560" y2="678" marker-end="url(#ahProbe)"/>
+            <line x1="500" y1="738" x2="500" y2="768" marker-end="url(#ahProbe)"/>
+          </g>
+          <g font-family="'IBM Plex Mono',Menlo,monospace" font-size="10.5" fill="var(--probe)">
+            <text x="178" y="364">scrape 5s</text>
+            <text x="178" y="380">/actuator/prometheus</text>
+            <text x="510" y="758">query</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i></i> 요청 경로 (nginx → 앱 → 데이터)</span>
+        <span><i class="dash"></i> 지표 수집 (exporter·actuator → Prometheus)</span>
+      </div>
+      <figcaption>앱 3대는 모두 같은 MySQL 한 대와 Redis 한 대를 본다. 수평으로 늘어나는 건 앱뿐이라, 부하를 올리면 병목은 아래쪽 두 박스로 내려간다 — 실험 10개 중 7개가 그 지점을 노린다.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>요청이 지나는 길</h2>
+    <p class="sub">API는 다섯 개고, <code class="mono">k6/mixed.js</code>가 이 비율대로 섞어 쏜다. 곡 ID는 균등이 아니라 파레토다 — 50%가 상위 100곡, 30%가 상위 1만곡에 몰린다. 핫 키와 핫 로우를 만들어내는 건 이 분포다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>API</th><th>믹스</th><th>지나는 곳</th><th>노리는 병목</th></tr></thead>
+        <tbody>
+          <tr><td class="path">GET /api/songs</td><td class="num">30%</td><td>MySQL — fetch join 또는 지연 로딩</td><td>가설 4 · N+1</td></tr>
+          <tr><td class="path">GET /api/songs/{id}</td><td class="num">25%</td><td>MySQL 단건 조회</td><td>가설 3 · 커넥션 풀</td></tr>
+          <tr><td class="path">GET /api/chart/top100</td><td class="num">30%</td><td>Redis 히트, 미스면 MySQL top100</td><td>가설 2 · 캐시 스탬피드</td></tr>
+          <tr><td class="path">POST /api/plays</td><td class="num">10%</td><td>play_log INSERT (동기)</td><td>가설 6 · 쓰기 처리량</td></tr>
+          <tr><td class="path">POST /api/songs/{id}/like</td><td class="num">5%</td><td>song.like_count 직접 UPDATE</td><td>가설 5 · 핫 로우 락</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>지금 떠 있는 컨테이너</h2>
+    <p class="sub">2026-09-19 06:20 UTC 기준. healthcheck 수정 후 재기동한 상태다. 호스트로 열린 포트만 표기했고, exporter 두 대는 compose 네트워크 안에서만 Prometheus에 노출된다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>서비스</th><th>이미지</th><th>포트</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="path">app1</td><td>로컬 빌드 · temurin 21-jre</td><td class="path">내부 8080</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">app2</td><td>로컬 빌드 · temurin 21-jre</td><td class="path">내부 8080</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">app3</td><td>로컬 빌드 · temurin 21-jre</td><td class="path">내부 8080</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">nginx</td><td>nginx:1.27-alpine</td><td class="path">8080 → 80</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">mysql</td><td>mysql:8.4</td><td class="path">3306</td><td><span class="chip up">Up (healthy)</span></td></tr>
+          <tr><td class="path">redis</td><td>redis:7-alpine</td><td class="path">6379</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">prometheus</td><td>prom/prometheus:v2.53.0</td><td class="path">9090</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">grafana</td><td>grafana/grafana:11.1.0</td><td class="path">3000</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">mysql-exporter</td><td>prom/mysqld-exporter:v0.15.1</td><td class="path">내부 9104</td><td><span class="chip up">Up</span></td></tr>
+          <tr><td class="path">redis-exporter</td><td>oliver006/redis_exporter:v1.62.0</td><td class="path">내부 9121</td><td><span class="chip up">Up</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>실험 스위치</h2>
+    <p class="sub">코드를 고치지 않고 환경변수로 조건을 바꾼다. <code class="mono">docker compose up -d</code> 전에 export 하거나 <code class="mono">.env</code>에 둔다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>변수</th><th>기본값</th><th>바꾸면</th></tr></thead>
+        <tbody>
+          <tr><td class="var">DB_POOL_SIZE</td><td class="path">20</td><td>10으로 낮춰 커넥션 풀 고갈 재현 (가설 3)</td></tr>
+          <tr><td class="var">CHART_TTL_SECONDS</td><td class="path">60</td><td>TTL 만료 순간 DB로 몰리는 폭을 조절 (가설 2)</td></tr>
+          <tr><td class="var">SERVER_SHUTDOWN</td><td class="path">immediate</td><td>graceful과 비교해 배포 중 에러율 측정 (가설 9)</td></tr>
+          <tr><td class="var">TOMCAT_MAX_THREADS</td><td class="path">200</td><td>스레드 수와 p99의 관계</td></tr>
+          <tr><td class="var">JAVA_OPTS</td><td class="path">-Xmx512m G1GC</td><td>힙·수집기를 바꿔 GC와 p99 관찰 (가설 7)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>가설 10개</h2>
+    <p class="sub">위 구조를 정해진 순서로 밀어붙이는 실험 목록. 1~9는 이 단일 머신에서, 10은 클라우드로 올라간 뒤에 한다.</p>
+    <ol class="hyp">
+      <li><b>01</b><p>베이스라인 — 수치가 흔들리기 시작하는 지점 찾기<em>ramp.js · 500 → 16,000 RPS</em></p></li>
+      <li><b>02</b><p>캐시 스탬피드 — TTL 만료 순간 전원이 DB로<em>single.js API=chart</em></p></li>
+      <li><b>03</b><p>커넥션 풀 고갈<em>mixed.js + DB_POOL_SIZE=10</em></p></li>
+      <li><b>04</b><p>N+1 — 지연 로딩 경로 대 fetch join<em>single.js API=list N_PLUS_ONE=true</em></p></li>
+      <li><b>05</b><p>핫 로우 락 경합 — 한 곡에 좋아요가 몰릴 때<em>single.js API=like HOT_RATIO=0.5</em></p></li>
+      <li><b>06</b><p>쓰기 병목 — 동기 INSERT의 한계<em>single.js API=play TARGET_RPS=1600</em></p></li>
+      <li><b>07</b><p>GC와 p99<em>mixed.js + JAVA_OPTS</em></p></li>
+      <li><b>08</b><p>인스턴스 장애 — 3대 중 1대가 죽을 때<em>mixed.js + docker compose kill app2</em></p></li>
+      <li><b>09</b><p>무중단 배포 — immediate 대 graceful<em>mixed.js + SERVER_SHUTDOWN</em></p></li>
+      <li><b>10</b><p>수평 확장 — 앱 2 → 4 → 8대<em>클라우드 단계</em></p></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>돌리는 법</h2>
+    <pre><b>make up</b>          <i># bootJar → docker compose up -d --build</i>
+<b>make seed-check</b>  <i># 시드 확인 (첫 기동 후 1~2분, 곡 100만 행)</i>
+<b>make k6-ramp</b>     <i># 가설 1 베이스라인</i>
+<b>make k6-mixed</b> RPS=2000 DURATION=3m
+
+<i># 부하는 다른 머신에서 쏜다</i>
+k6 run -e BASE_URL=http://&lt;M1 Pro IP&gt;:8080 k6/mixed.js</pre>
+  </section>
+
+  <footer>
+    <span>Grafana :3000 · Prometheus :9090 · 앱 :8080</span>
+    <span><a href="https://github.com/Gilbert9172/load-test-mau-15m">github.com/Gilbert9172/load-test-mau-15m</a></span>
+  </footer>
+</div>
+</div>
