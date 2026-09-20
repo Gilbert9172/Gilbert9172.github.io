@@ -1,0 +1,34 @@
+---
+layout: post
+title: HTML 원본과 넓은 화면
+description: 글별로 본문 서식과 HTML 자동 변환을 끄는 예제입니다.
+date: 2026-09-20 09:00:00 +0900
+wide: true
+toc: false
+prose: false
+refactor: false
+---
+<style>
+  .raw-demo { padding: 24px; border: 1px solid #719984; border-radius: 8px; margin-top: 32px; }
+  .raw-demo h2 { margin: 0 0 16px; font-size: 24px; }
+  .raw-demo p { line-height: 1.8; }
+  .raw-demo button { font: inherit; padding: 8px 16px; color: #fff; background: #28634d; border: 0; border-radius: 4px; }
+  .raw-demo table { width: 100%; margin-top: 20px; }
+  .raw-demo td, .raw-demo th { padding: 12px; border-bottom: 1px solid #719984; }
+</style>
+<section class="raw-demo">
+  <h2 id="original-heading">이 영역은 작성한 HTML 그대로입니다.</h2>
+  <p>이 페이지에는 이미지·표·제목의 HTML 자동 변환을 적용하지 않습니다. 글별로 <code>wide</code>, <code>prose</code>, <code>refactor</code>를 선택할 수 있습니다.</p>
+  <button type="button" id="raw-counter">클릭 횟수: 0</button>
+  <table id="original-table">
+    <tr><th>작성 방식</th><th>표시</th></tr>
+    <tr><td>직접 작성한 HTML</td><td>원본 구조 유지</td></tr>
+  </table>
+</section>
+<script>
+  (() => {
+    let count = 0;
+    const button = document.getElementById('raw-counter');
+    button.addEventListener('click', () => { button.textContent = `클릭 횟수: ${++count}`; });
+  })();
+</script>

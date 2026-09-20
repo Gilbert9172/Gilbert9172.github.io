@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>요청이 전달되는 과정</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 26px; background: #f2f5ee; color: #273d33; font: 15px/1.7 -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; }
+    .label { margin: 0 0 10px; font-size: 11px; letter-spacing: .14em; color: #4c6758; }
+    h1 { margin: 0 0 22px; font-size: 21px; letter-spacing: -.04em; }
+    ol { display: flex; gap: 10px; padding: 0; list-style: none; }
+    li { flex: 1; padding: 18px 8px; text-align: center; border: 1px solid #b8c8b8; border-radius: 5px; transition: background .2s; }
+    li[aria-current='step'] { color: #fff; background: #28634d; border-color: #28634d; }
+    #explanation { min-height: 3.4em; font-size: 14px; }
+    button { border: 1px solid #28634d; border-radius: 4px; padding: 10px 16px; background: #28634d; color: white; font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 2px solid #28634d; outline-offset: 3px; }
+    button.secondary { color: #28634d; background: transparent; margin-left: 8px; }
+    @media (max-width: 400px) { body { padding: 18px; } li { font-size: 13px; } }
+    @media (prefers-reduced-motion: reduce) { li { transition: none; } }
+  </style>
+</head>
+<body>
+  <p class="label">INTERACTIVE NOTE / 01</p>
+  <h1>하나의 요청이 도착하기까지</h1>
+  <ol aria-label="요청 처리 단계">
+    <li aria-current="step">클라이언트</li>
+    <li>서버</li>
+    <li>데이터베이스</li>
+  </ol>
+  <p id="explanation" aria-live="polite">1 / 3 — 클라이언트가 필요한 데이터를 서버에 요청합니다.</p>
+  <button id="next" type="button">다음 단계 →</button>
+  <button id="reset" type="button" class="secondary">처음으로</button>
+  <script>
+    const steps = [...document.querySelectorAll('li')];
+    const descriptions = [
+      '클라이언트가 필요한 데이터를 서버에 요청합니다.',
+      '서버가 요청을 해석하고 필요한 데이터를 조회합니다.',
+      '데이터베이스가 조회 결과를 서버에 돌려줍니다.'
+    ];
+    let current = 0;
+    function render() {
+      steps.forEach((step, index) => {
+        if (index === current) step.setAttribute('aria-current', 'step');
+        else step.removeAttribute('aria-current');
+      });
+      document.getElementById('explanation').textContent = `${current + 1} / 3 — ${descriptions[current]}`;
+      document.getElementById('next').textContent = current === 2 ? '다시 살펴보기 ↻' : '다음 단계 →';
+    }
+    document.getElementById('next').addEventListener('click', () => { current = (current + 1) % steps.length; render(); });
+    document.getElementById('reset').addEventListener('click', () => { current = 0; render(); });
+  </script>
+</body>
+</html>

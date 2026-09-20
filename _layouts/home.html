@@ -4,50 +4,32 @@ layout: default
 
 {% include lang.html %}
 
-{% assign all_pinned = site.posts | where: 'pin', 'true' %}
+{% assign visible_posts = site.posts | where_exp: 'item', 'item.hidden != true' %}
+{% assign all_pinned = visible_posts | where: 'pin', true %}
 {% assign all_normal = site.posts | where_exp: 'item', 'item.pin != true and item.hidden != true' %}
+{% assign posts = all_pinned | concat: all_normal | slice: 0, 8 %}
+  <header class="journal-intro">
+    <p class="journal-eyebrow">GILBERT / ENGINEERING JOURNAL</p>
+    <h1>{{ site.journal.headline | default: '이해하고, 만들고, 기록합니다.' }}</h1>
+    <p class="journal-description">{{ site.journal.description | default: '개발하며 마주친 질문과 직접 실험하며 배운 것들.<br>다시 꺼내 읽고 싶은 기록을 모읍니다.' }}</p>
+    <a class="journal-index-link" href="{{ '/archives/' | relative_url }}">모든 기록 살펴보기 <span aria-hidden="true">↗</span></a>
+  </header>
+  <nav class="journal-topics" aria-label="주제별 글 탐색">
+    <span>관심 있는 주제부터</span>
+    {% assign topics = site.categories | sort %}
+    {% for topic in topics limit: 5 %}
+      <a href="{{ '/categories/' | relative_url }}{{ topic[0] | slugify | url_encode }}/">{{ topic[0] | escape }} <small>{{ topic[1].size }}</small></a>
+    {% endfor %}
+    <a href="{{ '/categories/' | relative_url }}">전체 주제 <span aria-hidden="true">↗</span></a>
+  </nav>
 
-{% assign posts = '' | split: '' %}
-
-<!-- Get pinned posts on current page -->
-
-{% assign visible_start = paginator.page | minus: 1 | times: paginator.per_page %}
-{% assign visible_end = visible_start | plus: paginator.per_page %}
-
-{% if all_pinned.size > visible_start %}
-  {% if all_pinned.size > visible_end %}
-    {% assign pinned_size = paginator.per_page %}
-  {% else %}
-    {% assign pinned_size = all_pinned.size | minus: visible_start %}
-  {% endif %}
-
-  {% for i in (visible_start..all_pinned.size) limit: pinned_size %}
-    {% assign posts = posts | push: all_pinned[i] %}
-  {% endfor %}
-{% else %}
-  {% assign pinned_size = 0 %}
-{% endif %}
-
-<!-- Get normal posts on current page -->
-
-{% assign normal_size = paginator.posts | size | minus: pinned_size %}
-
-{% if normal_size > 0 %}
-  {% if pinned_size > 0 %}
-    {% assign normal_start = 0 %}
-  {% else %}
-    {% assign normal_start = visible_start | minus: all_pinned.size %}
-  {% endif %}
-
-  {% assign normal_end = normal_start | plus: normal_size | minus: 1 %}
-
-  {% for i in (normal_start..normal_end) %}
-    {% assign posts = posts | push: all_normal[i] %}
-  {% endfor %}
-{% endif %}
-
+<div class="journal-section-heading">
+  <h2>최근의 기록</h2>
+  <span>{{ visible_posts.size }}개의 기록</span>
+</div>
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
+    {% assign lqip_attr = '' %}
     <article class="card-wrapper card">
       <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
         {% assign card_body_col = '12' %}
@@ -94,7 +76,7 @@ layout: default
 
         <div class="col-md-{{ card_body_col }}">
           <div class="card-body d-flex flex-column">
-            <h1 class="card-title my-2 mt-md-0">{{ post.title }}</h1>
+            <h2 class="card-title my-2 mt-md-0">{{ post.title }}</h2>
 
             <div class="card-text content mt-0 mb-3">
               <p>{% include post-summary.html %}</p>
@@ -135,6 +117,4 @@ layout: default
 </div>
 <!-- #post-list -->
 
-{% if paginator.total_pages > 1 %}
-  {% include post-paginator.html %}
-{% endif %}
+<p class="journal-all-posts"><a href="{{ '/posts/' | relative_url }}">전체 글과 지난 기록 보기 <span aria-hidden="true">→</span></a></p>

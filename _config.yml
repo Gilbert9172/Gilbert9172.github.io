@@ -16,6 +16,10 @@ title: Gilbert
 
 tagline: 개발자 블로그
 
+journal:
+  headline: 이해하고, 만들고, 기록합니다.
+  description: '개발하며 마주친 질문과 직접 실험하며 배운 것들.<br>다시 꺼내 읽고 싶은 기록을 모읍니다.'
+
 description: >-
   개발 관련 내용을 기록하는 블로그입니다.
 

@@ -13,8 +13,11 @@ script_includes:
 
 {% include toc-status.html %}
 
-<article class="px-1" data-toc="{{ enable_toc }}">
+<article class="reading-article px-1" data-toc="{{ enable_toc }}">
   <header>
+    {% if page.categories.size > 0 %}
+      <div class="reading-category">{{ page.categories | join: ' / ' | escape }}</div>
+    {% endif %}
     <h1 data-toc-skip>{{ page.title }}</h1>
     {% if page.description %}
       <p class="post-desc fw-light mb-4">{{ page.description }}</p>
@@ -121,7 +124,7 @@ script_includes:
     </dialog>
   {% endif %}
 
-  <div class="content">
+  <div class="content{% unless page.prose == false %} reading-content{% endunless %}">
     {{ content }}
   </div>
 

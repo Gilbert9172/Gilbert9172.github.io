@@ -1,0 +1,17 @@
+{% comment %}
+  A complete HTML document keeps its own CSS and scripts inside an iframe.
+  Usage: {% include embed/html.html src="/assets/embeds/example.html" title="실험" height="480" %}
+{% endcomment %}
+<figure class="html-embed">
+  <iframe
+    src="{{ include.src | relative_url | escape }}"
+    title="{{ include.title | default: '인터랙티브 예제' | escape }}"
+    height="{{ include.height | default: 480 | escape }}"
+    loading="lazy"
+    allowfullscreen
+  ></iframe>
+  <figcaption>
+    <span>{{ include.title | default: '인터랙티브 예제' | escape }}</span>
+    <a href="{{ include.src | relative_url | escape }}" target="_blank" rel="noopener">새 창에서 보기 ↗</a>
+  </figcaption>
+</figure>

@@ -1,0 +1,7 @@
+# Only loaded by `npm run dev`. Preview pages never enter the production build.
+collections:
+  preview:
+    output: true
+    permalink: /preview/:name/
+pwa:
+  enabled: false

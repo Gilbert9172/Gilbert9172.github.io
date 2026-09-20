@@ -12,11 +12,21 @@ layout: compress
   {% capture prefer_mode %}data-mode="{{ site.theme_mode }}"{% endcapture %}
 {% endif %}
 
+{% assign has_panel = false %}
+{% if layout.panel_includes.size > 0 and page.no_panel != true and page.wide != true %}
+  {% assign has_panel = true %}
+  {% if page.layout == 'post' %}
+    {% include toc-status.html %}
+    {% assign has_panel = enable_toc %}
+  {% endif %}
+{% endif %}
+
 <!-- `site.alt_lang` can specify a language different from the UI -->
 <html lang="{{ page.lang | default: site.alt_lang | default: site.lang }}" {{ prefer_mode }}>
   {% include head.html %}
 
-  <body>
+  <body class="layout-{{ page.layout | escape }}{% unless has_panel %} without-panel{% endunless %}{% if page.wide %} reading-wide{% endif %}">
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
     {% include sidebar.html lang=lang %}
 
     <button type="button" id="sidebar-expand-btn" class="btn btn-link" aria-label="Expand Sidebar">
@@ -28,8 +38,10 @@ layout: compress
         {% include topbar.html lang=lang %}
 
         <div class="row flex-grow-1">
-          <main aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4">
-            {% if layout.layout == 'default' %}
+          <main id="main-content" tabindex="-1" aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4">
+            {% if page.refactor == false %}
+              {{ content }}
+            {% elsif layout.layout == 'default' %}
               {% include refactor-content.html content=content lang=lang %}
             {% else %}
               {{ content }}
@@ -37,19 +49,14 @@ layout: compress
           </main>
 
           <!-- panel -->
+          {% if has_panel %}
           <aside aria-label="Panel" id="panel-wrapper" class="col-xl-3 ps-2 text-muted">
-            {% unless page.layout == 'post' or page.no_panel %}
-              <div class="access">
-                {% include_cached update-list.html lang=lang %}
-                {% include_cached trending-tags.html lang=lang %}
-              </div>
-            {% endunless %}
-
             {% for _include in layout.panel_includes %}
               {% assign _include_path = _include | append: '.html' %}
               {% include {{ _include_path }} lang=lang %}
             {% endfor %}
           </aside>
+          {% endif %}
         </div>
 
         <div class="row">
