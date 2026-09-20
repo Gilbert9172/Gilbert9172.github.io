@@ -1,8 +1,9 @@
 <!-- The Side Bar -->
 
-<aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
-  <button type="button" id="sidebar-collapse-btn" class="btn btn-link" aria-label="Collapse Sidebar">
-    <i class="fas fa-chevron-left"></i>
+<aside aria-label="사이트 메뉴" id="sidebar" class="d-flex flex-column align-items-end" tabindex="-1">
+  <button type="button" id="sidebar-collapse-btn" class="sidebar-control" aria-label="메뉴 접기" aria-controls="sidebar" aria-expanded="true" title="메뉴 접기">
+    {% include sidebar-icon.html close=true %}
+    <span class="sidebar-close-label">접기</span>
   </button>
   <header class="profile-wrapper">
     <a href="{{ '/' | relative_url }}" id="avatar" class="rounded-circle">
@@ -45,8 +46,8 @@
 
   <div class="sidebar-bottom d-flex flex-wrap  align-items-center w-100">
     {% unless site.theme_mode %}
-      <button type="button" class="btn btn-link nav-link" aria-label="Switch Mode" id="mode-toggle">
-        <i class="fas fa-adjust"></i>
+      <button type="button" class="btn btn-link nav-link" data-theme-toggle aria-label="다크·라이트 모드 전환" title="다크·라이트 모드 전환" id="mode-toggle">
+        <i class="fas fa-adjust" aria-hidden="true"></i>
       </button>
 
       {% if site.data.contact.size > 0 %}

@@ -4,14 +4,15 @@ swcache: true
 ---
 
 [
-  {% for post in site.posts %}
+  {% assign searchable_posts = site.posts | where_exp: 'post', 'post.hidden != true' %}
+  {% for post in searchable_posts %}
   {
     "title": {{ post.title | jsonify }},
     "url": {{ post.url | relative_url | jsonify }},
     "categories": {{ post.categories | join: ', ' | jsonify }},
     "tags": {{ post.tags | join: ', ' | jsonify }},
     "date": {{ post.date | jsonify }},
-    {% capture content -%}{% include post-summary.html full_text=true %}{%- endcapture -%}
+    {% assign content = post.content | reading_text %}
     "content": {{ content | jsonify }}
   }{% unless forloop.last %},{% endunless %}
   {% endfor %}

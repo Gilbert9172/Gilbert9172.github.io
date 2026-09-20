@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TCP 4-Way Handshake 리마인드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9edf1;
+  --surface:#ffffff;
+  --surface2:#f3f6f9;
+  --line:#ccd5dd;
+  --line2:#e2e8ee;
+  --text:#121a21;
+  --muted:#5d6d7b;
+  --act:#1d4ed8;
+  --pas:#0d7a6f;
+  --warn:#b45309;
+  --danger:#b3261e;
+  --ok:#15803d;
+  --shadow:0 1px 2px rgba(18,26,33,.07);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419;--surface:#161d24;--surface2:#1b242c;--line:#2b363f;--line2:#232d36;
+    --text:#e6ecf1;--muted:#8b9daa;--act:#7aa2ff;--pas:#4fd1c5;--warn:#f0b429;
+    --danger:#ff8b7e;--ok:#5ddc9a;--shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419;--surface:#161d24;--surface2:#1b242c;--line:#2b363f;--line2:#232d36;
+  --text:#e6ecf1;--muted:#8b9daa;--act:#7aa2ff;--pas:#4fd1c5;--warn:#f0b429;
+  --danger:#ff8b7e;--ok:#5ddc9a;--shadow:none;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:"Gothic A1",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  font-size:15.5px;line-height:1.75;word-break:keep-all;
+}
+.wrap{max-width:800px;margin:0 auto;padding:0 17px 76px}
+.mono,code{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+header{padding:42px 0 26px}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin:0 0 14px}
+h1{font-size:clamp(25px,6.6vw,36px);line-height:1.25;margin:0 0 14px;font-weight:700;letter-spacing:-.03em}
+.sub{color:var(--muted);margin:0;max-width:60ch;font-size:15px}
+.flowline{font-family:"JetBrains Mono",monospace;font-size:12.5px;margin-top:20px;padding:12px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);overflow-x:auto;white-space:nowrap;box-shadow:var(--shadow)}
+.flowline b:nth-of-type(odd){color:var(--act)}
+.flowline b:nth-of-type(even){color:var(--pas)}
+
+section{padding:36px 0 2px;border-top:1px solid var(--line);margin-top:34px}
+h2{font-size:20.5px;font-weight:700;margin:0 0 8px;letter-spacing:-.02em}
+h3{font-size:16px;font-weight:600;margin:26px 0 8px}
+p{margin:0 0 13px}
+.lead{color:var(--muted);margin:0 0 20px;max-width:64ch}
+ul{margin:0 0 14px;padding-left:19px}li{margin-bottom:7px}li::marker{color:var(--muted)}
+.s{font-family:"JetBrains Mono",monospace;font-size:.9em;font-weight:500;padding:1px 5px;border-radius:4px;background:var(--surface2);border:1px solid var(--line2)}
+.s.a{color:var(--act)}.s.p{color:var(--pas)}
+a{color:var(--act)}
+
+/* player */
+.player{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+.heads{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.head{padding:13px 13px 12px;min-width:0}
+.head:first-child{border-right:1px solid var(--line)}
+.head .who{font-size:13px;font-weight:600;display:flex;gap:7px;align-items:center}
+.bar{width:3px;height:14px;border-radius:2px;flex:none}
+.head.a .bar{background:var(--act)}.head.p .bar{background:var(--pas)}
+.head .role{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);margin-top:1px;line-height:1.5}
+.state{margin-top:11px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(12px,3.4vw,15px);letter-spacing:-.02em;padding:9px 8px;border-radius:7px;text-align:center;border:1px solid var(--line);background:var(--surface2);transition:.25s}
+.head.a .state{color:var(--act)}.head.p .state{color:var(--pas)}
+.state.changed{animation:flash .55s ease}
+@keyframes flash{0%{transform:translateY(-3px);opacity:.3}100%{transform:none;opacity:1}}
+.state.closed{color:var(--muted)!important;opacity:.6}
+.substate{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:5px;min-height:15px}
+
+.tape{padding:14px 13px 4px}
+.pkt{display:grid;grid-template-columns:22px 1fr;gap:9px;padding:11px 0;opacity:.3;transition:opacity .28s}
+.pkt+.pkt{border-top:1px dashed var(--line2)}
+.pkt.done{opacity:.55}.pkt.active{opacity:1}
+.num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);padding-top:3px}
+.pkt.active .num{color:var(--text);font-weight:700}
+.seg{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pkt.a2p .seg{color:var(--act)}.pkt.p2a .seg{color:var(--pas)}
+.track{height:14px;border-radius:3px;background:var(--surface2);border:1px solid var(--line2);position:relative;overflow:hidden;margin:7px 0}
+.track::after{content:"";position:absolute;top:0;bottom:0;width:38%;background:currentColor;opacity:0;border-radius:3px}
+.pkt.a2p .track{color:var(--act)}.pkt.p2a .track{color:var(--pas)}
+.pkt.active .track::after{opacity:.35;animation:runR .85s ease forwards}
+.pkt.p2a.active .track::after{animation-name:runL}
+@keyframes runR{from{left:-40%}to{left:102%}}
+@keyframes runL{from{left:102%}to{left:-40%}}
+.exp{font-size:13.5px;color:var(--muted);line-height:1.65}
+.pkt.active .exp{color:var(--text)}
+
+.lane{padding:11px 13px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;gap:9px;align-items:flex-start;background:var(--surface2)}
+.lane .ic{font-family:"JetBrains Mono",monospace;font-weight:700;flex:none;color:var(--warn)}
+.ctrl{display:flex;gap:8px;padding:12px 13px;border-top:1px solid var(--line);flex-wrap:wrap;align-items:center}
+button{font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;transition:.15s}
+button:hover:not(:disabled){border-color:var(--act)}
+button:focus-visible{outline:2px solid var(--act);outline-offset:2px}
+button.go{background:var(--act);border-color:var(--act);color:#fff}
+:root[data-theme="dark"] button.go,:root:not([data-theme="light"]) button.go{color:#0d1620}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) button.go{color:#fff}}
+button:disabled{opacity:.42;cursor:not-allowed}
+.cnt{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
+.insight{border:1px solid var(--line);border-left:3px solid var(--act);border-radius:9px;padding:13px 14px;background:var(--surface);font-size:13.5px;line-height:1.7;color:var(--muted);margin:14px 0 0;box-shadow:var(--shadow)}
+.insight b{color:var(--text)}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:14px 0 18px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:500px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.mono{font-family:"JetBrains Mono",monospace;font-size:12px;white-space:nowrap}
+
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);margin-bottom:11px;box-shadow:var(--shadow)}
+.card.bad{border-left:3px solid var(--danger)}
+.card.warnb{border-left:3px solid var(--warn)}
+.card h4{margin:0 0 6px;font-size:15px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.card h4 .st{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--danger)}
+.card.warnb h4 .st{color:var(--warn)}
+.card p{margin:0 0 9px;font-size:13.5px;color:var(--muted);line-height:1.68}
+.card .fix{font-size:13px;color:var(--text);border-top:1px dashed var(--line);padding-top:9px;margin:0}
+.card .fix b{color:var(--ok)}
+pre{margin:9px 0 0;padding:10px 11px;background:var(--surface2);border:1px solid var(--line2);border-radius:7px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;line-height:1.65;color:var(--text)}
+
+details.q{border:1px solid var(--line);border-radius:9px;background:var(--surface);margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow)}
+details.q summary{padding:12px 14px;cursor:pointer;font-weight:600;font-size:14.5px;list-style:none;display:flex;gap:9px}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary::before{content:"→";font-family:"JetBrains Mono",monospace;color:var(--act);flex:none}
+details.q[open] summary{border-bottom:1px solid var(--line2)}
+details.q .ans{padding:12px 14px;font-size:13.5px;color:var(--muted);line-height:1.72}
+details.q .ans b{color:var(--text)}
+footer{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">TCP / RFC 9293</p>
+  <h1>연결을 끊는 데<br>왜 네 번이 필요한가</h1>
+  <p class="sub">TCP는 양방향이 독립된 두 개의 통로다. 그래서 종료도 방향마다 따로 한다. FIN 하나와 그에 대한 ACK 하나가 한 쌍, 그 쌍이 두 번 반복되어 네 개의 세그먼트가 오간다.</p>
+  <div class="flowline">ESTABLISHED → <b>FIN</b> → <b>ACK</b> → <span style="color:var(--muted)">(half-close 구간)</span> → <b>FIN</b> → <b>ACK</b> → TIME_WAIT(2MSL) → CLOSED</div>
+</header>
+
+<section style="border-top:0;margin-top:0">
+  <h2>단계별로 따라가기</h2>
+  <p class="lead">먼저 <code class="s">close()</code>를 호출한 쪽을 능동 종료자, 받는 쪽을 수동 종료자라고 부른다. 양쪽 상태가 어떻게 갈라지는지가 핵심이다.</p>
+
+  <div class="player">
+    <div class="heads">
+      <div class="head a">
+        <div class="who"><span class="bar"></span>능동 종료자</div>
+        <div class="role">Active close · 먼저 close()</div>
+        <div class="state" id="stA">ESTABLISHED</div>
+        <div class="substate" id="subA"></div>
+      </div>
+      <div class="head p">
+        <div class="who"><span class="bar"></span>수동 종료자</div>
+        <div class="role">Passive close</div>
+        <div class="state" id="stB">ESTABLISHED</div>
+        <div class="substate" id="subB"></div>
+      </div>
+    </div>
+
+    <div class="tape" id="tape"></div>
+
+    <div class="lane" id="lane"><span class="ic">i</span><span id="laneText">양방향 모두 데이터 송수신 가능. 아직 아무도 종료를 요청하지 않았다.</span></div>
+
+    <div class="ctrl">
+      <button id="prev">이전</button>
+      <button id="next" class="go">시작하기</button>
+      <button id="reset">처음으로</button>
+      <span class="cnt" id="cnt">0 / 5</span>
+    </div>
+  </div>
+
+  <div class="insight" id="insight"><b>시작 상태.</b> 양쪽 다 <code class="s">ESTABLISHED</code>. TCP의 두 통로(A→B, B→A)는 서로 독립적이어서, 한쪽을 닫아도 반대쪽은 살아 있을 수 있다. 이 성질을 <b>half-close</b>라고 하며, 종료가 3번이 아니라 4번인 이유가 전부 여기서 나온다.</div>
+</section>
+
+<section>
+  <h2>왜 3-way로 합칠 수 없나</h2>
+  <p class="lead">연결 수립 때는 서버가 SYN과 ACK를 한 세그먼트로 합쳐 3번에 끝낸다. 종료에서 2번째 ACK와 3번째 FIN을 합치지 못하는 이유는 하나다.</p>
+  <p>2번째 ACK는 커널(TCP 스택)이 FIN을 받자마자 즉시 보낸다. 반면 3번째 FIN은 <b>애플리케이션이 직접 <code class="s">close()</code>를 호출해야</b> 나간다. 수동 종료자 입장에서는 상대가 "더 보낼 게 없다"고 알려 왔을 뿐, 자기가 보낼 데이터는 아직 남아 있을 수 있다. 그 사이에 응답을 마저 보낼 수 있어야 하므로 두 세그먼트를 묶을 수 없다.</p>
+  <p>다만 보낼 데이터가 없고 애플리케이션이 곧바로 close를 호출하면, 커널의 지연 ACK(delayed ACK)와 FIN이 실제로 한 세그먼트에 실려 <b>패킷 캡처에는 3개만 보이기도 한다.</b> 상태 전이는 여전히 4단계 그대로다.</p>
+
+  <div class="tbl">
+    <table>
+      <tr><th>구분</th><th>연결 수립</th><th>연결 종료</th></tr>
+      <tr><td>세그먼트 수</td><td class="mono">3 (SYN, SYN+ACK, ACK)</td><td class="mono">4 (FIN, ACK, FIN, ACK)</td></tr>
+      <tr><td>합칠 수 있나</td><td>가능 — 둘 다 커널이 처리</td><td>불가 — FIN은 앱의 close() 시점에 의존</td></tr>
+      <tr><td>비대칭 종료</td><td>해당 없음</td><td>half-close로 한 방향만 닫기 가능</td></tr>
+      <tr><td>마지막에 남는 상태</td><td class="mono">ESTABLISHED</td><td class="mono">TIME_WAIT (능동 종료자)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>종료 관련 상태 정리</h2>
+  <p class="lead">TCP 상태 11개 중 종료에 관여하는 것들. <code class="s">netstat</code>이나 <code class="s">ss</code>에서 실제로 보게 되는 이름들이다.</p>
+  <div class="tbl">
+    <table>
+      <tr><th>상태</th><th>누가</th><th>의미</th><th>여기 머무르는 이유</th></tr>
+      <tr><td class="mono" style="color:var(--act)">FIN_WAIT_1</td><td>능동</td><td>FIN을 보냈고 ACK를 기다림</td><td>상대가 살아 있으면 금방 벗어남</td></tr>
+      <tr><td class="mono" style="color:var(--act)">FIN_WAIT_2</td><td>능동</td><td>ACK는 받았고 상대의 FIN을 기다림</td><td>상대 앱이 close()를 안 부르는 중</td></tr>
+      <tr><td class="mono" style="color:var(--pas)">CLOSE_WAIT</td><td>수동</td><td>상대 FIN을 받았고 내 close()를 기다림</td><td><b>내 애플리케이션이 close를 안 함</b></td></tr>
+      <tr><td class="mono" style="color:var(--pas)">LAST_ACK</td><td>수동</td><td>내 FIN을 보냈고 마지막 ACK를 기다림</td><td>정상이면 순식간</td></tr>
+      <tr><td class="mono" style="color:var(--act)">TIME_WAIT</td><td>능동</td><td>2MSL 동안 소켓을 붙잡고 대기</td><td>규격상 의도된 대기</td></tr>
+      <tr><td class="mono">CLOSING</td><td>양쪽</td><td>동시 종료 시 거쳐 가는 상태</td><td>양쪽이 동시에 FIN을 보낸 경우</td></tr>
+      <tr><td class="mono">CLOSED</td><td>—</td><td>소켓 소멸</td><td>—</td></tr>
+    </table>
+  </div>
+  <p>읽는 요령: <b>CLOSE_WAIT가 쌓여 있으면 그 서버의 코드 문제</b>, <b>FIN_WAIT_2가 쌓여 있으면 상대편 코드 문제</b>, <b>TIME_WAIT가 쌓여 있으면 대개 정상이지만 양이 많으면 설계 문제</b>다.</p>
+</section>
+
+<section>
+  <h2>TIME_WAIT은 왜 존재하나</h2>
+  <p class="lead">네 번째 ACK를 보낸 쪽은 바로 사라지지 않고 2MSL(Maximum Segment Lifetime의 두 배, 리눅스는 보통 60초 고정)만큼 기다린다. 이유는 두 가지다.</p>
+  <ul>
+    <li><b>마지막 ACK가 유실될 수 있다.</b> 그러면 수동 종료자는 <code class="s">LAST_ACK</code>에서 FIN을 재전송한다. 능동 종료자가 이미 사라졌다면 이 FIN에 <code class="s">RST</code>로 응답하게 되고, 상대는 정상 종료가 아닌 오류로 연결을 마감한다. TIME_WAIT에 머물러 있어야 재전송된 FIN에 ACK를 다시 보내 줄 수 있다.</li>
+    <li><b>망을 떠도는 지연 세그먼트를 소멸시킨다.</b> 같은 4-tuple(출발지 IP·포트, 목적지 IP·포트)로 새 연결이 즉시 생기면, 이전 연결의 늦게 도착한 세그먼트가 새 연결의 데이터로 잘못 받아들여질 수 있다. 2MSL은 그런 세그먼트가 네트워크에서 확실히 사라질 만큼의 시간이다.</li>
+  </ul>
+  <div class="card warnb">
+    <h4><span class="st">문제</span>TIME_WAIT 폭증과 포트 고갈</h4>
+    <p>짧은 연결을 초당 수천 개씩 맺고 끊는 구조에서, 먼저 close하는 쪽에 TIME_WAIT 소켓이 60초씩 쌓인다. 클라이언트 쪽이면 로컬 포트 범위(기본 32768~60999)가 고갈되어 새 연결이 실패하고, 서버 쪽이면 메모리와 커넥션 테이블을 잠식한다.</p>
+    <p class="fix"><b>먼저 볼 것</b> 누가 먼저 close하는지 바꾸는 게 근본 해결이다. HTTP keep-alive나 커넥션 풀로 연결을 재사용하면 종료 횟수 자체가 줄어든다. 그다음이 <code class="s">SO_REUSEADDR</code>(재바인딩 허용), <code class="s">net.ipv4.tcp_tw_reuse</code>(타임스탬프 기반 안전 재사용), 로컬 포트 범위 확대다. <code class="s">tcp_tw_recycle</code>은 NAT 환경에서 연결이 깨지는 부작용으로 커널에서 제거됐으니 쓰지 않는다.</p>
+  </div>
+</section>
+
+<section>
+  <h2>실무에서 마주치는 고장들</h2>
+
+  <div class="card bad">
+    <h4><span class="st">CLOSE_WAIT</span>이 계속 쌓인다</h4>
+    <p>가장 흔하고, 가장 확실한 애플리케이션 버그 신호다. 상대가 FIN을 보냈는데 내 코드가 소켓을 닫지 않았다는 뜻이다. read()가 0을 반환(EOF)했는데 그 분기에서 close를 빠뜨렸거나, 예외 경로에서 자원 해제가 누락됐거나, 커넥션 풀이 죽은 커넥션을 회수하지 않는 경우다. 파일 디스크립터가 고갈되면서 "Too many open files"로 터진다.</p>
+    <p class="fix"><b>해결</b> try-with-resources / defer / with 문으로 close를 강제하고, 커넥션 풀에 idle timeout과 validation을 설정한다. 커널 설정으로는 절대 못 고친다.</p>
+    <pre>ss -tan state close-wait | wc -l
+lsof -p &lt;pid&gt; | grep CLOSE_WAIT</pre>
+  </div>
+
+  <div class="card bad">
+    <h4><span class="st">FIN_WAIT_2</span>에서 안 빠져나온다</h4>
+    <p>내 FIN은 ACK를 받았는데 상대가 자기 FIN을 안 보내는 상태. 즉 상대쪽이 CLOSE_WAIT에 걸려 있다. 리눅스는 <code class="s">net.ipv4.tcp_fin_timeout</code>(기본 60초) 뒤에 고아 소켓을 정리하지만, 근본 원인은 상대 서버에 있다.</p>
+    <p class="fix"><b>해결</b> 상대편 애플리케이션 수정이 정답. 임시로는 타임아웃을 줄이고, 애플리케이션 레벨 idle timeout을 둔다.</p>
+  </div>
+
+  <div class="card warnb">
+    <h4><span class="st">RST</span>로 끊기는 경우</h4>
+    <p>4-way는 정상 종료다. 반면 RST는 즉시 단절이며, 버퍼에 남은 데이터가 버려지고 TIME_WAIT도 생기지 않는다. 발생 상황은 이렇다. 닫힌 포트로 접속을 시도했을 때, 이미 닫힌 소켓에 데이터가 도착했을 때, <code class="s">SO_LINGER</code>를 타임아웃 0으로 설정하고 close했을 때, 수신 버퍼에 읽지 않은 데이터가 남은 채 close했을 때. 애플리케이션에서는 "Connection reset by peer"로 보인다.</p>
+    <p class="fix"><b>구분법</b> 패킷 캡처에서 <code class="s">tcp.flags.reset == 1</code>로 필터링. 정상 종료 흐름에 RST가 섞여 있다면 어느 쪽이 먼저 보냈는지부터 확인한다.</p>
+  </div>
+</section>
+
+<section>
+  <h2>알아 두면 좋은 변형</h2>
+
+  <h3>Half-close — 한 방향만 닫기</h3>
+  <p><code class="s">close()</code>는 양방향을 다 닫지만, <code class="s">shutdown(fd, SHUT_WR)</code>는 <b>쓰기 방향만 닫고 읽기는 열어 둔다.</b> 상대에게 FIN을 보내 "요청은 여기까지"라고 알린 뒤, 응답은 끝까지 받아 읽는 패턴이다. 고전적으로 <code class="s">rsh</code>나 파이프 기반 프로토콜이 이 방식을 쓰고, HTTP/1.0의 <code class="s">Connection: close</code> 응답 수신도 비슷한 그림이다.</p>
+
+  <h3>동시 종료 — simultaneous close</h3>
+  <p>양쪽이 거의 동시에 close를 호출하면 FIN이 서로 엇갈린다. 이때는 두 쪽 모두 <code class="s">FIN_WAIT_1</code> → <code class="s">CLOSING</code> → <code class="s">TIME_WAIT</code>를 거친다. CLOSE_WAIT과 LAST_ACK은 나타나지 않는다. 드물지만 상태 다이어그램에 CLOSING이 왜 있는지 설명해 주는 경로다.</p>
+
+  <h3>TCP Keepalive는 종료가 아니다</h3>
+  <p>케이블이 뽑히거나 상대 장비가 꺼지면 FIN이 아예 오지 않고, 내 소켓은 ESTABLISHED인 채 영원히 남는다. keepalive는 이런 <b>죽은 연결을 탐지</b>하는 별개의 장치다. 리눅스 기본값은 2시간 뒤 첫 프로브라 너무 느려서, 실무에서는 애플리케이션 레벨 heartbeat나 소켓 옵션 튜닝(<code class="s">TCP_KEEPIDLE</code>, <code class="s">TCP_KEEPINTVL</code>, <code class="s">TCP_KEEPCNT</code>)을 쓴다.</p>
+</section>
+
+<section>
+  <h2>스스로 확인</h2>
+
+  <details class="q"><summary>왜 수립은 3번인데 종료는 4번인가?</summary>
+  <div class="ans">수립 시 SYN과 ACK는 둘 다 커널이 즉시 처리하므로 한 세그먼트에 합칠 수 있다. 종료 시 2번째 ACK는 커널이 즉시 보내지만 3번째 FIN은 <b>애플리케이션의 close() 호출 시점</b>에 달려 있다. 그 사이에 남은 데이터를 마저 보낼 수 있어야 하므로 합칠 수 없다.</div></details>
+
+  <details class="q"><summary>TIME_WAIT은 왜 하필 능동 종료자 쪽에만 생기나?</summary>
+  <div class="ans">마지막 ACK를 보내는 쪽이 능동 종료자이기 때문이다. 그 ACK가 유실되면 상대는 FIN을 재전송하는데, 그때 응답해 줄 주체가 남아 있어야 한다. 그래서 <b>먼저 close를 호출한 쪽이 뒷정리 비용을 떠안는다.</b> 서버가 먼저 끊는 설계라면 TIME_WAIT 부담도 서버가 진다.</div></details>
+
+  <details class="q"><summary>CLOSE_WAIT이 1000개 쌓였다. 커널 파라미터로 줄일 수 있나?</summary>
+  <div class="ans">없다. CLOSE_WAIT에는 타임아웃이 없다. 이 상태는 <b>커널이 애플리케이션의 close()를 기다리는 중</b>이므로, 앱이 부르지 않으면 프로세스가 죽을 때까지 남는다. 코드에서 소켓 해제 누락을 찾는 것 외에 방법이 없다.</div></details>
+
+  <details class="q"><summary>half-close 구간에서 데이터를 보내면 어떻게 되나?</summary>
+  <div class="ans">방향에 따라 다르다. <b>수동 종료자 → 능동 종료자 방향은 정상 전송된다.</b> 그 통로는 아직 닫히지 않았기 때문이다. 반대로 능동 종료자가 FIN을 보낸 뒤 또 데이터를 보내려 하면 에러가 나고, 만약 도착하더라도 상대는 RST로 응답한다.</div></details>
+
+  <details class="q"><summary>FIN에도 시퀀스 번호가 소비되나?</summary>
+  <div class="ans">그렇다. FIN은 1바이트를 소비한다. 그래서 상대의 ACK 번호가 <span class="mono">FIN의 seq + 1</span>이 된다. SYN도 마찬가지다. 데이터가 하나도 없어도 ACK 번호가 1씩 올라가는 이유가 이것이다.</div></details>
+
+  <details class="q"><summary>"Connection reset by peer"와 정상 종료의 차이는?</summary>
+  <div class="ans">전자는 <b>RST</b>, 후자는 <b>FIN</b>이다. FIN은 "보낼 데이터를 다 보냈다"는 예고라서 이미 보낸 데이터의 전달이 보장되지만, RST는 즉시 폐기라 송수신 버퍼에 남은 데이터가 유실된다. 로그에 reset이 보인다면 정상 종료 경로가 아니라 강제 단절 원인(타임아웃, LB 유휴 연결 정리, SO_LINGER 0 등)을 찾아야 한다.</div></details>
+</section>
+
+<footer>직접 확인하려면 Wireshark에서 <span class="mono">tcp.flags.fin == 1 || tcp.flags.reset == 1</span> 필터를 걸고, 동시에 <span class="mono">watch -n1 'ss -tan | sort | uniq -c'</span>로 상태 분포 변화를 보면 세그먼트와 상태 전이가 짝지어 보인다.</footer>
+
+</div>
+
+<script>
+(function(){
+  var PKTS = [
+    { n:"1", dir:"a2p", seg:'FIN, ACK &nbsp;<span style="opacity:.6">seq=u</span>',
+      exp:"능동 종료자가 close()를 호출했다. 더 보낼 데이터가 없다는 예고를 FIN으로 보낸다." },
+    { n:"2", dir:"p2a", seg:'ACK &nbsp;<span style="opacity:.6">ack=u+1</span>',
+      exp:"수동 종료자의 커널이 즉시 응답한다. 애플리케이션은 아직 아무것도 하지 않았다." },
+    { n:"3", dir:"p2a", seg:'FIN, ACK &nbsp;<span style="opacity:.6">seq=v</span>',
+      exp:"수동 종료자의 애플리케이션이 드디어 close()를 호출했다. 이제야 반대 방향도 닫힌다." },
+    { n:"4", dir:"a2p", seg:'ACK &nbsp;<span style="opacity:.6">ack=v+1</span>',
+      exp:"마지막 확인. 이 ACK가 상대에게 닿으면 수동 종료자의 소켓은 사라진다." }
+  ];
+
+  var STEPS = [
+    { a:"ESTABLISHED", b:"ESTABLISHED", sa:"", sb:"",
+      lane:"양방향 모두 데이터 송수신 가능. 아직 아무도 종료를 요청하지 않았다.",
+      ins:"<b>시작 상태.</b> 양쪽 다 <code class='s'>ESTABLISHED</code>. TCP의 두 통로(A→B, B→A)는 서로 독립적이어서, 한쪽을 닫아도 반대쪽은 살아 있을 수 있다. 이 성질을 <b>half-close</b>라고 하며, 종료가 3번이 아니라 4번인 이유가 전부 여기서 나온다." },
+    { a:"FIN_WAIT_1", b:"CLOSE_WAIT", sa:"FIN 보냄, ACK 대기", sb:"앱의 close() 대기",
+      lane:"A→B 방향 쓰기 닫힘. B→A 방향은 그대로 열려 있음.",
+      ins:"<b>1번 세그먼트 이후.</b> 수동 종료자는 곧바로 <code class='s'>CLOSE_WAIT</code>으로 간다. 이름 그대로 <b>자기 애플리케이션이 close()를 불러 주기를 기다리는</b> 상태다. 여기서 앱이 close를 영영 부르지 않는 것이 실무에서 가장 흔한 소켓 누수다." },
+    { a:"FIN_WAIT_2", b:"CLOSE_WAIT", sa:"상대 FIN 대기", sb:"앱의 close() 대기",
+      lane:"half-close 구간 — B는 아직 A에게 데이터를 보낼 수 있다. 응답을 마저 전송하는 시간.",
+      ins:"<b>2번 세그먼트 이후.</b> 여기가 <b>half-close 구간</b>이다. B는 남은 응답을 계속 보낼 수 있고 A는 받아 읽을 수 있다. 이 구간이 존재해야 하므로 2번 ACK와 3번 FIN을 하나로 합칠 수 없다. B가 오래 머물면 A는 <code class='s'>FIN_WAIT_2</code>에 갇힌다." },
+    { a:"TIME_WAIT", b:"LAST_ACK", sa:"2MSL 타이머 시작", sb:"마지막 ACK 대기",
+      lane:"양방향 모두 쓰기 닫힘. 남은 일은 확인 응답뿐.",
+      ins:"<b>3번 세그먼트 이후.</b> 수동 종료자의 앱이 close()를 호출해 FIN이 나갔다. A는 이 FIN을 받는 순간 <code class='s'>TIME_WAIT</code>으로 전이하며 2MSL 타이머를 건다. B는 <code class='s'>LAST_ACK</code>에서 마지막 확인만 기다린다." },
+    { a:"TIME_WAIT", b:"CLOSED", sa:"2MSL 대기 중 (보통 60초)", sb:"소켓 소멸",
+      lane:"수동 종료자는 해제 완료. 능동 종료자만 소켓과 포트를 붙잡고 남아 있다.",
+      ins:"<b>4번 세그먼트 이후.</b> B는 즉시 사라지지만 A는 남는다. 이 ACK가 도중에 유실되면 B가 FIN을 재전송할 텐데, 그때 응답해 줄 주체가 필요하기 때문이다. <b>먼저 close를 호출한 쪽이 뒷정리 비용을 부담한다</b>는 것이 TCP 종료의 핵심 비대칭이다." },
+    { a:"CLOSED", b:"CLOSED", sa:"2MSL 경과, 포트 반환", sb:"",
+      lane:"연결 종료. 같은 4-tuple을 이제 안전하게 재사용할 수 있다.",
+      ins:"<b>2MSL 경과.</b> 늦게 도착할 수 있는 이전 연결의 세그먼트가 네트워크에서 모두 소멸했다고 볼 수 있는 시점이다. 이제 같은 IP·포트 조합으로 새 연결을 맺어도 옛 데이터가 섞여 들어올 위험이 없다. 짧은 연결을 대량으로 맺고 끊는 서비스라면 이 60초가 포트 고갈로 이어진다." }
+  ];
+
+  var step = 0;
+  var tape = document.getElementById("tape");
+  var stA = document.getElementById("stA"), stB = document.getElementById("stB");
+  var subA = document.getElementById("subA"), subB = document.getElementById("subB");
+  var laneText = document.getElementById("laneText");
+  var insight = document.getElementById("insight");
+  var cnt = document.getElementById("cnt");
+  var prev = document.getElementById("prev"), next = document.getElementById("next"), reset = document.getElementById("reset");
+
+  PKTS.forEach(function(p,i){
+    var el = document.createElement("div");
+    el.className = "pkt " + p.dir;
+    el.id = "p" + i;
+    var dirLabel = p.dir === "a2p" ? "능동 → 수동" : "수동 → 능동";
+    el.innerHTML = '<div class="num">' + p.n + '</div><div>' +
+      '<div class="seg">' + p.seg + '<span style="color:var(--muted);font-size:11px;font-weight:400">' + dirLabel + '</span></div>' +
+      '<div class="track"></div>' +
+      '<div class="exp">' + p.exp + '</div></div>';
+    tape.appendChild(el);
+  });
+
+  function render(prevStep){
+    var s = STEPS[step], ps = prevStep === null ? null : STEPS[prevStep];
+    for (var i=0;i<PKTS.length;i++){
+      var el = document.getElementById("p"+i);
+      el.className = "pkt " + PKTS[i].dir + (i+1===step ? " active" : (i+1<step ? " done" : ""));
+    }
+    setState(stA, s.a, ps && ps.a !== s.a);
+    setState(stB, s.b, ps && ps.b !== s.b);
+    subA.textContent = s.sa; subB.textContent = s.sb;
+    laneText.textContent = s.lane;
+    insight.innerHTML = s.ins;
+    cnt.textContent = step + " / 5";
+    prev.disabled = step === 0;
+    next.disabled = step === 5;
+    next.textContent = step === 0 ? "시작하기" : (step === 4 ? "2MSL 경과" : (step === 5 ? "종료됨" : "다음 단계"));
+  }
+  function setState(el, val, changed){
+    el.textContent = val;
+    el.classList.toggle("closed", val === "CLOSED");
+    if (changed){ el.classList.remove("changed"); void el.offsetWidth; el.classList.add("changed"); }
+  }
+  function go(n){ var p = step; step = Math.max(0, Math.min(5, n)); render(p); }
+
+  next.addEventListener("click", function(){ go(step+1); });
+  prev.addEventListener("click", function(){ go(step-1); });
+  reset.addEventListener("click", function(){ go(0); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "ArrowRight") go(step+1);
+    if (e.key === "ArrowLeft") go(step-1);
+  });
+  render(null);
+})();
+</script>
+</body>
+</html>

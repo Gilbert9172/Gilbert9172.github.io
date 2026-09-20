@@ -1,4 +1,5 @@
 import { basic, initTopbar, initSidebar } from './modules/layouts';
+import { initReadingTables } from './modules/components/reading-tables';
 
 import {
   loadImg,
@@ -10,6 +11,7 @@ import {
 } from './modules/components';
 
 loadImg();
+initReadingTables();
 initToc();
 imgPopup();
 initSidebar();

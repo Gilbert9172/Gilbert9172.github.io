@@ -28,6 +28,10 @@
       searchResultTemplate: '{{ result_elem | strip_newlines }}',
       noResultsText: '{{ not_found }}',
       templateMiddleware: function(prop, value, template) {
+        const escapeHTML = (text) => String(text).replace(/[&<>"']/g, character => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+        value = escapeHTML(prop === 'content' && value.length > 260 ? value.slice(0, 260) + '…' : value);
         if (prop === 'categories') {
           if (value === '') {
             return `${value}`;
@@ -43,6 +47,7 @@
             return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
           }
         }
+        return value;
       }
     });
   });

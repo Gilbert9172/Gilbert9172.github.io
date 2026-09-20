@@ -16,9 +16,11 @@ layout: default
   </header>
   <nav class="journal-topics" aria-label="주제별 글 탐색">
     <span>관심 있는 주제부터</span>
-    {% assign topics = site.categories | sort %}
-    {% for topic in topics limit: 5 %}
-      <a href="{{ '/categories/' | relative_url }}{{ topic[0] | slugify | url_encode }}/">{{ topic[0] | escape }} <small>{{ topic[1].size }}</small></a>
+    {% for topic in site.data.journal-topics %}
+      {% assign topic_posts = site.categories[topic.category] | where_exp: 'item', 'item.hidden != true' %}
+      {% if topic_posts.size > 0 %}
+        <a href="{{ '/categories/' | relative_url }}{{ topic.category | slugify | url_encode }}/">{{ topic.label | escape }} <small>{{ topic_posts.size }}</small></a>
+      {% endif %}
     {% endfor %}
     <a href="{{ '/categories/' | relative_url }}">전체 주제 <span aria-hidden="true">↗</span></a>
   </nav>

@@ -1,34 +1,16 @@
-<!-- Navigation buttons at the bottom of the post. -->
-
-<nav class="post-navigation d-flex justify-content-between" aria-label="Post Navigation">
-  {% assign previous = site.data.locales[include.lang].post.button.previous %}
-  {% assign next = site.data.locales[include.lang].post.button.next %}
-
-  {% if page.previous.url %}
-    <a
-      href="{{ site.baseurl }}{{ page.previous.url }}"
-      class="btn btn-outline-primary"
-      aria-label="{{ previous }}"
-    >
-      <p>{{ page.previous.title }}</p>
-    </a>
-  {% else %}
-    <div class="btn btn-outline-primary disabled" aria-label="{{ previous }}">
-      <p>-</p>
-    </div>
-  {% endif %}
-
-  {% if page.next.url %}
-    <a
-      href="{{ site.baseurl }}{{page.next.url}}"
-      class="btn btn-outline-primary"
-      aria-label="{{ next }}"
-    >
-      <p>{{ page.next.title }}</p>
-    </a>
-  {% else %}
-    <div class="btn btn-outline-primary disabled" aria-label="{{ next }}">
-      <p>-</p>
-    </div>
-  {% endif %}
-</nav>
+{% if page.previous.url or page.next.url %}
+  <nav class="reading-navigation" aria-label="이전 글과 다음 글">
+    {% if page.previous.url %}
+      <a href="{{ page.previous.url | relative_url }}" rel="prev">
+        <span>← {{ site.data.locales[include.lang].post.button.previous }}</span>
+        <strong>{{ page.previous.title | escape }}</strong>
+      </a>
+    {% endif %}
+    {% if page.next.url %}
+      <a href="{{ page.next.url | relative_url }}" rel="next">
+        <span>{{ site.data.locales[include.lang].post.button.next }} →</span>
+        <strong>{{ page.next.title | escape }}</strong>
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

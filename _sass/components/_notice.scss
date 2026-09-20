@@ -1,55 +1,64 @@
-@use '../abstracts/variables' as v;
-@use '../abstracts/breakpoints' as bp;
-
-// Notice Box Styles for Chapter Introductions
+/* Existing notice-box markup, with a quiet label instead of decorative icons. */
 .notice-box {
-  position: relative;
-  padding: 1.25rem 1.25rem 1.25rem 3.5rem;
-  margin: 1.5rem 0;
-  border-radius: 8px;
-  background-color: var(--notice-bg);
-  border-left: 4px solid var(--notice-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
+  --notice-label: '참고';
+  --notice-label-bg: var(--journal-accent-bg);
+  --notice-label-color: var(--link-color);
+  --notice-bg: var(--journal-surface);
+  --notice-border: var(--main-border-color);
 
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
+  margin-block: 1.8rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--notice-border);
+  border-radius: 12px;
+  background: var(--notice-bg);
+  color: var(--text-color);
+  box-shadow: none;
+  font-size: 0.95em;
+  line-height: 1.85;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 
-  // Icon container
   &::before {
-    content: '💡';
-    position: absolute;
-    left: 1rem;
-    top: 1.25rem;
-    font-size: 1.5rem;
-    line-height: 1;
+    content: var(--notice-label);
+    display: table;
+    margin-bottom: 0.85rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 5px;
+    background: var(--notice-label-bg);
+    color: var(--notice-label-color);
+    font-size: 0.72rem;
+    font-weight: 650;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
   }
 
-  // Content inside notice box
-  p, ul, ol {
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-
-    &:last-child {
-      margin-bottom: 0;
-    }
+  &.tip {
+    --notice-label: '팁';
+    --notice-bg: var(--notice-tip-surface);
+    --notice-border: var(--notice-tip-border);
+    --notice-label-bg: var(--notice-tip-label-bg);
+    --notice-label-color: var(--notice-tip-label-color);
   }
 
-  ul, ol {
-    padding-left: 1.25rem;
-
-    li {
-      margin-bottom: 0.25rem;
-      line-height: 1.6;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
+  &.warning {
+    --notice-label: '주의';
+    --notice-bg: var(--notice-warning-surface);
+    --notice-border: var(--notice-warning-border);
+    --notice-label-bg: var(--journal-warning-bg);
+    --notice-label-color: var(--journal-warning-color);
   }
 
-  // Remove extra margin for direct text
+  &.chapter {
+    --notice-label: '개요';
+    --notice-bg: var(--notice-chapter-surface);
+    --notice-label-bg: var(--notice-chapter-label-bg);
+    --notice-label-color: var(--notice-chapter-label-color);
+  }
+
+  &[data-title]:not([data-title=''])::before {
+    content: attr(data-title);
+  }
+
   > :first-child {
     margin-top: 0;
   }
@@ -58,57 +67,37 @@
     margin-bottom: 0;
   }
 
-  // Responsive adjustments
-  @include bp.lte(bp.get(sm)) {
-    padding: 1rem 1rem 1rem 3rem;
+  p, ul, ol {
+    margin-bottom: 0.9rem;
+    color: inherit;
+  }
 
-    &::before {
-      left: 0.75rem;
-      top: 1rem;
-      font-size: 1.25rem;
+  ul, ol {
+    padding-left: 1.2rem;
+  }
+
+  li {
+    padding-left: 0.2rem;
+    margin-bottom: 0.6rem;
+    line-height: inherit;
+
+    &::marker {
+      color: var(--text-muted-color);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    > ul, > ol {
+      margin-block: 0.6rem 0;
     }
   }
 }
 
-// Variants for different notice types
-.notice-box.info {
-  --notice-bg: rgba(59, 130, 246, 0.08);
-  --notice-border: #3b82f6;
-
-  &::before {
-    content: '💡';
+@media (width <= 767px) {
+  .notice-box {
+    padding: 1rem 1.1rem;
+    border-radius: 10px;
   }
-}
-
-.notice-box.tip {
-  --notice-bg: rgba(16, 185, 129, 0.08);
-  --notice-border: #10b981;
-
-  &::before {
-    content: '✨';
-  }
-}
-
-.notice-box.warning {
-  --notice-bg: rgba(245, 158, 11, 0.08);
-  --notice-border: #f59e0b;
-
-  &::before {
-    content: '⚠️';
-  }
-}
-
-.notice-box.chapter {
-  --notice-bg: rgba(139, 92, 246, 0.08);
-  --notice-border: #8b5cf6;
-
-  &::before {
-    content: '📖';
-  }
-}
-
-// Default colors (fallback if CSS variables not set)
-.notice-box {
-  --notice-bg: rgba(59, 130, 246, 0.08);
-  --notice-border: #3b82f6;
 }

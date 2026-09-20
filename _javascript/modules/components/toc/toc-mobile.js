@@ -56,28 +56,28 @@ export class TocMobile {
   }
 
   static get popupOpened() {
-    return $popup.open;
+    return Boolean($popup?.open);
   }
 
   static showPopup() {
     this.lockScroll(true);
     $popup.showModal();
     const activeItem = $popup.querySelector('li.is-active-li');
-    activeItem.scrollIntoView({ block: 'center' });
+    activeItem?.scrollIntoView({ block: 'center' });
   }
 
   static hidePopup() {
-    $popup.toggleAttribute(CLOSING);
-
-    $popup.addEventListener(
-      'animationend',
-      () => {
-        $popup.toggleAttribute(CLOSING);
-        $popup.close();
-      },
-      { once: true }
-    );
-
+    if (!$popup?.open || $popup.hasAttribute(CLOSING)) return;
+    $popup.setAttribute(CLOSING, '');
+    const finish = () => {
+      clearTimeout(fallback);
+      $popup.removeEventListener('animationend', finish);
+      $popup.removeAttribute(CLOSING);
+      $popup.close();
+    };
+    const fallback = setTimeout(finish, 350);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) finish();
+    else $popup.addEventListener('animationend', finish, { once: true });
     this.lockScroll(false);
   }
 

@@ -427,7 +427,7 @@ mjx-container {
     transition: margin-left 0.4s ease;
 
     [sidebar-collapsed] & {
-      margin-left: 0;
+      margin-left: v.$sidebar-rail-width;
     }
   }
 
@@ -435,7 +435,7 @@ mjx-container {
     margin-left: v.$sidebar-width-large;
 
     [sidebar-collapsed] & {
-      margin-left: 0;
+      margin-left: v.$sidebar-rail-width;
     }
   }
 

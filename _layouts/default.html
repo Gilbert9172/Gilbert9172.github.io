@@ -29,9 +29,16 @@ layout: compress
     <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
     {% include sidebar.html lang=lang %}
 
-    <button type="button" id="sidebar-expand-btn" class="btn btn-link" aria-label="Expand Sidebar">
-      <i class="fas fa-chevron-right"></i>
-    </button>
+    <div class="sidebar-rail">
+      <button type="button" id="sidebar-expand-btn" class="sidebar-control" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false" title="메뉴 열기">
+        {% include sidebar-icon.html %}
+      </button>
+      {% unless site.theme_mode %}
+        <button type="button" id="rail-mode-toggle" class="sidebar-control" data-theme-toggle aria-label="다크·라이트 모드 전환" title="다크·라이트 모드 전환">
+          <i class="fas fa-adjust" aria-hidden="true"></i>
+        </button>
+      {% endunless %}
+    </div>
 
     <div id="main-wrapper" class="d-flex justify-content-center">
       <div class="container d-flex flex-column px-xxl-5">

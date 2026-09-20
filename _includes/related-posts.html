@@ -71,22 +71,15 @@
 
 {% if relate_posts.size > 0 %}
   <aside id="related-posts" aria-labelledby="related-label">
-    <h3 class="mb-4" id="related-label">
+    <h3 id="related-label">
       {{- site.data.locales[include.lang].post.relate_posts -}}
     </h3>
-    <nav class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+    <nav class="reading-related-list" aria-labelledby="related-label">
       {% for post in relate_posts %}
-        <article class="col">
-          <a href="{{ post.url | relative_url }}" class="post-preview card h-100">
-            <div class="card-body">
-              {% include datetime.html date=post.date lang=include.lang %}
-              <h4 class="pt-0 my-2">{{ post.title }}</h4>
-              <div class="text-muted">
-                <p>{% include post-summary.html %}</p>
-              </div>
-            </div>
-          </a>
-        </article>
+        <a href="{{ post.url | relative_url }}">
+          <span class="reading-related-title">{{ post.title | escape }}</span>
+          {% include datetime.html date=post.date lang=include.lang %}
+        </a>
       {% endfor %}
     </nav>
   </aside>

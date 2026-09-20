@@ -8,6 +8,8 @@
     title="{{ include.title | default: '인터랙티브 예제' | escape }}"
     height="{{ include.height | default: 480 | escape }}"
     loading="lazy"
+    {% if include.resize %}data-auto-resize{% endif %}
+    {% if include.sync_theme %}data-sync-theme{% endif %}
     allowfullscreen
   ></iframe>
   <figcaption>
@@ -15,3 +17,6 @@
     <a href="{{ include.src | relative_url | escape }}" target="_blank" rel="noopener">새 창에서 보기 ↗</a>
   </figcaption>
 </figure>
+{% if include.resize or include.sync_theme %}
+  <script src="{{ '/assets/js/html-embed.js' | relative_url }}" defer></script>
+{% endif %}

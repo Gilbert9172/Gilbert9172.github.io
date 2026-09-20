@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 다시 읽고 싶은 기록을 위한 작은 실험
+subtitle: 문장과 시각 자료가 함께하는 개발 노트
 description: 문장과 코드, 이미지와 직접 움직여 보는 예제가 함께 놓이는 읽기 화면입니다.
 date: 2026-09-20 09:00:00 +0900
 categories: [Theme Preview]
@@ -54,6 +55,13 @@ _기존 블로그의 이미지를 새 본문 안에 배치한 예시입니다._
 {% include embed/html.html src="/assets/embeds/request-flow.html" title="요청이 전달되는 과정 — 직접 단계 넘겨보기" height="380" %}
 
 ## 필요한 설명은 펼쳐보기
+
+본문의 `inline code`와 **강조**, [링크](/posts/)도 같은 색감으로 정리합니다.
+
+- 중요한 개념을 먼저 정리합니다.
+- 코드를 실행하며 결과를 확인합니다.
+  - 중첩 목록은 생각의 단계를 구분합니다.
+- 시간이 지나 다시 읽을 질문을 남깁니다.
 
 <details>
 <summary>작성 방식과 설정 살펴보기</summary>

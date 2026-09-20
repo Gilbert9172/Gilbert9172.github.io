@@ -29,6 +29,17 @@
   --toc-highlight: #435f98;
   --journal-accent-bg: #e7ecf6;
   --journal-surface: #edf0f7;
+  --journal-warning-bg: #efe5d7;
+  --journal-warning-color: #78501f;
+  --notice-warning-surface: #f4f0e9;
+  --notice-warning-border: #e4d9c9;
+  --notice-tip-surface: #edf2f0;
+  --notice-tip-border: #d7e2db;
+  --notice-tip-label-bg: #dde9e1;
+  --notice-tip-label-color: #39634c;
+  --notice-chapter-surface: #f0f1f4;
+  --notice-chapter-label-bg: #e2e5ec;
+  --notice-chapter-label-color: #596375;
 }
 
 @mixin ink {
@@ -58,6 +69,17 @@
   --toc-highlight: #a6bcf0;
   --journal-accent-bg: #2a3143;
   --journal-surface: #242832;
+  --journal-warning-bg: #393025;
+  --journal-warning-color: #e3bd88;
+  --notice-warning-surface: #2c2823;
+  --notice-warning-border: #4b4030;
+  --notice-tip-surface: #232b29;
+  --notice-tip-border: #35453c;
+  --notice-tip-label-bg: #2d4035;
+  --notice-tip-label-color: #a6c7b0;
+  --notice-chapter-surface: #26282e;
+  --notice-chapter-label-bg: #32363f;
+  --notice-chapter-label-color: #a0a6b5;
 }
 
 html:not([data-mode]), html[data-mode='light'] {
@@ -298,140 +320,6 @@ body {
   }
 }
 
-.reading-article {
-  max-width: 800px;
-  margin-inline: auto;
-
-  > header {
-    padding-top: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--main-border-color);
-
-    > h1 {
-      font-size: clamp(1.85rem, 3vw, 2.6rem);
-      font-weight: 750;
-      line-height: 1.4;
-      letter-spacing: -0.05em;
-      margin: 0.8rem 0 1.3rem;
-      word-break: keep-all;
-      overflow-wrap: anywhere;
-    }
-
-    .post-desc {
-      font-size: 1.05rem;
-      font-weight: 400 !important;
-      line-height: 1.85;
-      color: var(--text-muted-color);
-    }
-
-    .post-meta {
-      font-size: 0.78rem;
-      line-height: 2;
-    }
-  }
-}
-
-/* Direct-child rules leave author-built HTML widgets in charge of their own layout. */
-.reading-content {
-  font-size: 1.08rem;
-  line-height: 1.95;
-  margin-top: 2.4rem;
-  overflow-wrap: anywhere;
-
-  > p, > ul, > ol {
-    margin-bottom: 1.6rem;
-  }
-
-  > h2 {
-    font-size: 1.55rem;
-    line-height: 1.5;
-    margin: 3.8rem 0 1.4rem;
-    letter-spacing: -0.035em;
-  }
-
-  > h3 {
-    font-size: 1.22rem;
-    line-height: 1.6;
-    margin: 2.6rem 0 1rem;
-  }
-
-  > blockquote:not([class]) {
-    padding: 1.1rem 1.4rem;
-    background: var(--journal-surface);
-    border-bottom: 0;
-    border-left-width: 3px;
-    border-radius: 0 6px 6px 0;
-  }
-
-  > hr {
-    margin-block: 3rem;
-  }
-
-  > .table-wrapper {
-    margin-block: 2rem;
-    font-size: 0.9rem;
-  }
-
-  > .table-wrapper > table {
-    min-width: 100%;
-  }
-
-  > .highlighter-rouge {
-    margin-block: 2rem;
-    border-radius: 6px;
-  }
-
-  > p > img, > figure > img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin-inline: auto;
-    border-radius: 6px;
-  }
-
-  > video, > p > video {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-block: 2rem;
-    border-radius: 6px;
-  }
-
-  > iframe, > p > iframe {
-    width: 100%;
-    max-width: 100%;
-    border: 1px solid var(--main-border-color);
-    border-radius: 6px;
-  }
-
-  > figure {
-    margin-block: 2rem;
-  }
-
-  figcaption {
-    font-size: 0.8rem;
-    line-height: 1.6;
-    color: var(--text-muted-color);
-    margin-top: 0.7rem;
-  }
-
-  > details {
-    margin-block: 1.6rem;
-    padding: 1rem 1.2rem;
-    border: 1px solid var(--main-border-color);
-    border-radius: 6px;
-  }
-
-  > details > summary {
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-  }
-
-  > details[open] > summary {
-    margin-bottom: 1rem;
-  }
-}
 
 .html-embed {
   margin-block: 2rem;
@@ -492,15 +380,6 @@ body {
 
   .journal-intro h1 {
     font-size: 2rem;
-  }
-
-  .reading-article > header {
-    padding-top: 2rem;
-  }
-
-  .reading-content {
-    font-size: 1rem;
-    line-height: 1.9;
   }
 
   #post-list .preview-img {

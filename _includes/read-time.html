@@ -1,6 +1,6 @@
 <!-- Calculate the post's reading time, and display the word count in tooltip -->
 
-{% assign words = include.content | strip_html | number_of_words: 'auto' %}
+{% assign words = include.content | reading_text | number_of_words: 'auto' %}
 
 <!-- words per minute -->
 
@@ -13,6 +13,10 @@
   {% assign read_time = min_time %}
 {% endunless %}
 
+{% if page.read_time and page.read_time != false %}
+  {% assign read_time = page.read_time | plus: 0 | at_least: 1 %}
+{% endif %}
+
 {% capture read_prompt %}
   {{- site.data.locales[include.lang].post.read_time.prompt -}}
 {% endcapture %}
@@ -24,6 +28,9 @@
   data-bs-placement="bottom"
   title="{{ words }} {{ site.data.locales[include.lang].post.words }}"
 >
+  {% if include.lang == 'ko-KR' %}
+    약 {{ read_time }}분
+  {% else %}
   <em>
     {{- read_time -}}
     {{ ' ' }}
@@ -34,4 +41,5 @@
     {%- unless _prompt_words > 1 -%}{{ ' ' }}{%- endunless -%}
     {{ read_prompt }}
   {%- endif -%}
+  {% endif %}
 </span>

@@ -1,0 +1,53 @@
+{% assign reading_series = nil %}
+{% for entry in site.data.series %}
+  {% assign matches_series = false %}
+  {% if page.series %}
+    {% if page.series == entry[0] %}{% assign matches_series = true %}{% endif %}
+  {% elsif page.categories contains entry[1].category %}
+    {% assign matches_series = true %}
+  {% endif %}
+  {% if matches_series %}
+    {% assign reading_series = entry[1] %}
+    {% assign series_key = entry[0] %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+{% if reading_series and page.series != false %}
+  {% assign series_posts = site.posts | where_exp: 'item', 'item.hidden != true' | sort: 'date' %}
+  {% assign members = '' | split: '' %}
+  {% for item in series_posts %}
+    {% assign matches_series = false %}
+    {% if item.series %}
+      {% if item.series == series_key %}{% assign matches_series = true %}{% endif %}
+    {% elsif item.categories contains reading_series.category %}
+      {% assign matches_series = true %}
+    {% endif %}
+    {% if matches_series %}
+      {% unless item.series == false %}{% assign members = members | push: item %}{% endunless %}
+    {% endif %}
+  {% endfor %}
+  {% assign current_index = -1 %}
+  {% for item in members %}
+    {% if item.url == page.url %}{% assign current_index = forloop.index0 %}{% endif %}
+  {% endfor %}
+  {% if current_index >= 0 %}
+    {% assign previous_index = current_index | minus: 1 %}
+    {% assign next_index = current_index | plus: 1 %}
+    <section class="reading-series" aria-label="시리즈 탐색">
+      <details>
+        <summary><span>{{ reading_series.title | escape }}</span><small>{{ next_index }} / {{ members.size }}편 · 목차</small></summary>
+        <ol>
+          {% for item in members %}
+            <li><a href="{{ item.url | relative_url }}"{% if item.url == page.url %} aria-current="page"{% endif %}>{{ item.title | escape }}</a></li>
+          {% endfor %}
+        </ol>
+      </details>
+      {% if members.size > 1 %}
+        <nav aria-label="같은 시리즈 이전 편과 다음 편">
+          {% if current_index > 0 %}<a href="{{ members[previous_index].url | relative_url }}" rel="prev">← 이전 편 <span>{{ members[previous_index].title | escape }}</span></a>{% endif %}
+          {% if next_index < members.size %}<a href="{{ members[next_index].url | relative_url }}" rel="next">다음 편 → <span>{{ members[next_index].title | escape }}</span></a>{% endif %}
+        </nav>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endif %}
