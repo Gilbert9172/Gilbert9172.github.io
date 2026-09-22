@@ -16,7 +16,6 @@ const hints = document.getElementById('search-hints');
 // CSS class names
 const LOADED = 'd-block';
 const UNLOADED = 'd-none';
-const FOCUS = 'input-focus';
 const FLEX = 'd-flex';
 
 /* Actions in mobile screens (Sidebar hidden) */
@@ -27,6 +26,7 @@ class MobileSearchBar {
     btnSearchTrigger.classList.add(UNLOADED);
     search.classList.add(FLEX);
     btnCancel.classList.add(LOADED);
+    btnSearchTrigger.setAttribute('aria-expanded', 'true');
   }
 
   static off() {
@@ -35,6 +35,7 @@ class MobileSearchBar {
     btnSbTrigger.classList.remove(UNLOADED);
     topbarTitle.classList.remove(UNLOADED);
     btnSearchTrigger.classList.remove(UNLOADED);
+    btnSearchTrigger.setAttribute('aria-expanded', 'false');
   }
 }
 
@@ -63,7 +64,7 @@ class ResultSwitch {
       content.forEach((el) => {
         el.classList.remove(UNLOADED);
       });
-      input.textContent = '';
+      input.value = '';
       this.resultVisible = false;
     }
   }
@@ -74,23 +75,56 @@ function isMobileView() {
 }
 
 export function displaySearch() {
-  btnSearchTrigger.addEventListener('click', () => {
-    MobileSearchBar.on();
-    ResultSwitch.on();
+  const desktop = window.matchMedia('(min-width: 850px)');
+  const shortcut = document.getElementById('search-shortcut');
+  if (shortcut) {
+    shortcut.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  }
+  let returnFocus = null;
+
+  function openSearch() {
+    if (document.activeElement !== input) returnFocus = document.activeElement;
+    if (!desktop.matches) {
+      MobileSearchBar.on();
+      ResultSwitch.on();
+    }
     input.focus();
-  });
+  }
 
-  btnCancel.addEventListener('click', () => {
+  function closeSearch() {
+    const wasMobile = isMobileView();
     MobileSearchBar.off();
+    input.value = '';
     ResultSwitch.off();
-  });
+    input.blur();
+    const target = wasMobile ? btnSearchTrigger : returnFocus;
+    if (target?.isConnected && !target.closest('[inert]')) {
+      target.focus({ preventScroll: true });
+    }
+  }
 
-  input.addEventListener('focus', () => {
-    search.classList.add(FOCUS);
+  btnSearchTrigger.addEventListener('click', openSearch);
+  btnCancel.addEventListener('click', closeSearch);
+  document.addEventListener('keydown', (event) => {
+    // Do not steal focus from the mobile drawer or a native modal dialog.
+    if (document.body.hasAttribute('sidebar-display') || document.querySelector('dialog[open]')) return;
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !event.altKey) {
+      event.preventDefault();
+      openSearch();
+      input.select();
+    } else if (event.key === 'Escape' && (document.activeElement === input || isMobileView() || ResultSwitch.resultVisible)) {
+      event.preventDefault();
+      closeSearch();
+    }
   });
-
-  input.addEventListener('focusout', () => {
-    search.classList.remove(FOCUS);
+  desktop.addEventListener('change', () => {
+    if (desktop.matches) {
+      MobileSearchBar.off();
+      if (!input.value) ResultSwitch.off();
+    } else if (document.activeElement === input || ResultSwitch.resultVisible) {
+      MobileSearchBar.on();
+      ResultSwitch.on();
+    }
   });
 
   input.addEventListener('input', () => {

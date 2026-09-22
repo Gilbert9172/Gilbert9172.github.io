@@ -6,6 +6,7 @@
 #topbar-wrapper {
   height: v.$topbar-height;
   background-color: var(--topbar-bg);
+  border-bottom: 1px solid var(--main-border-color);
 
   @include bp.lt(bp.get(lg)) {
     @include mx.slide(top 0.2s ease);
@@ -17,34 +18,61 @@
 #topbar {
   @extend %btn-color;
 
+  gap: 1.25rem;
+  padding-inline: 1rem;
+
   #breadcrumb {
-    font-size: 1rem;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8rem;
     color: var(--text-muted-color);
-    padding-left: 0.5rem;
+
+    ol {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      min-width: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+
+      &:not(:last-child)::after {
+        content: '/';
+        margin-inline: 0.7rem;
+        color: var(--main-border-color);
+      }
+
+      &:last-child {
+        display: block;
+        flex-shrink: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .breadcrumb-brand {
+      font-weight: 650;
+      color: var(--heading-color);
+      letter-spacing: -0.025em;
+    }
+
+    a {
+      color: inherit;
+      border-bottom: 0;
+    }
 
     a:hover {
       @extend %link-hover;
     }
 
-    span {
-      &:not(:last-child) {
-        &::after {
-          content: '›';
-          padding: 0 0.3rem;
-        }
-      }
-    }
-
     @include bp.lt(bp.get(lg)) {
       display: none;
-    }
-
-    @include bp.between(bp.get(lg), calc(#{bp.get(xl)} - 1px)) {
-      width: 65%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: keep-all;
-      white-space: nowrap;
     }
   }
 
@@ -54,18 +82,22 @@
 
   @include bp.lt(bp.get(lg)) {
     max-width: 100%;
+    gap: 0.5rem;
+    padding-inline: 0.5rem;
   }
 }
 
 #topbar-title {
   display: none;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  font-family: sans-serif;
-  color: var(--topbar-text-color);
+  color: var(--heading-color);
   text-align: center;
-  width: 70%;
-  word-break: keep-all;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   @include bp.lt(bp.get(lg)) {
     display: block;
@@ -80,7 +112,7 @@
   display: none;
 
   @include bp.lt(bp.get(lg)) {
-    display: block;
+    display: inline-flex;
   }
 }
 
@@ -88,6 +120,6 @@
   display: none;
 
   @include bp.lt(bp.get(lg)) {
-    display: block;
+    display: inline-flex;
   }
 }

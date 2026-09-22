@@ -140,6 +140,7 @@ refactor: false  # 이미지 팝업·표 래핑·제목 앵커 등 테마의 HTM
 
 - 공통 색상·홈·사이드바·임베드 스타일: `_sass/_renewal.scss`
 - 사이드바 열기·닫기: `_sass/layout/_sidebar.scss`, `_javascript/modules/layouts/sidebar.js`
+- 상단 탐색·검색: `_includes/topbar.html`, `_sass/layout/_topbar.scss`, `_sass/pages/_search.scss`, `_javascript/modules/components/search-display.js`
 - 포스팅 전용 UI(제목·본문·코드·표·목차·하단): `_sass/_reading.scss`
 - 알림 박스: `_sass/components/_notice.scss`
 - 글 목록·분류·탐색 화면: `_sass/_browsing.scss`
@@ -151,5 +152,7 @@ refactor: false  # 이미지 팝업·표 래핑·제목 앵커 등 테마의 HTM
 일상적인 글 작성에는 Node 빌드나 테마 파일 수정이 필요 없습니다.
 
 사이드바는 데스크톱에서 접은 상태를 브라우저에 기억하며, 왼쪽 상단 버튼으로 다시 열 수 있습니다. 850px 미만에서는 본문 위에 메뉴를 펼치고 닫기 버튼·바깥 영역·Esc로 닫습니다. 모바일 메뉴 상태는 데스크톱의 접기 설정을 바꾸지 않습니다. 사이드바 JavaScript를 수정했다면 `npm run build:js`로 배포용 파일도 갱신하세요.
+
+상단 검색은 `⌘K` 또는 `Ctrl+K`로 바로 입력할 수 있고, `Esc`로 검색을 닫아 본문으로 돌아갑니다. 모바일에서는 돋보기 버튼으로 열고 닫기 버튼을 사용합니다.
 
 일반 Markdown과 HTML의 문단·제목·표·코드는 공통 포스팅 UI를 따릅니다. 새 본문 서식은 본문 바로 아래의 요소를 중심으로 적용하므로, 자체 디자인이 있는 위젯은 고유한 래퍼로 감싸세요. 완성형 아티팩트는 iframe을 사용하고, 새 본문 서식 자체가 필요 없는 글은 `prose: false`로 제외할 수 있습니다. 기존 글의 내용과 URL을 바꿀 필요는 없습니다.
