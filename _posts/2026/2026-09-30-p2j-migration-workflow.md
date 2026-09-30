@@ -21,6 +21,36 @@ wide: true
 
 각 단계는 독립된 스킬입니다. 스킬을 순서대로 실행하고, 결과를 확인해 다음 단계로 넘기는 **오케스트레이션은 사람이 맡습니다.**
 
+## 스킬 소개
+
+### p2j-discovery · 도메인 분석
+
+- **단위:** 도메인 하나
+- `run-scans.sh`로 필수 스캔 6개를 만들고, 스캔 결과를 PHP 원본으로 검증해 `{domain}-discovery.md`를 작성합니다.
+- `{domain}-map.md`에 진입점별 PHP 파일, 유형, 프로젝트, 테이블, `_lib` 호출을 채우고, 다른 도메인을 부르는 경계 표도 함께 남깁니다.
+- 이 map이 없으면 뒤 단계가 모두 멈추므로, 도메인마다 가장 먼저 실행합니다.
+
+### p2j-scaffold · 뼈대 생성
+
+- **단위:** 도메인 × 대상 프로젝트
+- 로직 없이 뼈대만 만듭니다. Entity, Enum과 Converter, Repository, Controller 또는 Job stub, DTO, Service stub입니다.
+- stub 메서드마다 PHP 소스 경로와 호출하는 `_lib` 함수를 주석으로 남깁니다. 이 주석이 port의 입력이 됩니다.
+- 컴파일이 통과하면 map의 Java 진입과 Java service 칸을 채웁니다.
+
+### p2j-port · 초벌 이관
+
+- **단위:** PHP 파일 하나 (map의 한 행)
+- map의 Java 칸이 가리키는 stub에 PHP 흐름을 그대로 옮깁니다.
+- 막힌 지점은 `TODO(p2j)`, 원본 버그는 `TODO(p2j-bug)`, 옮겨 둔 안티패턴은 `TODO(p2j-refactor)`로 표시합니다.
+- 다른 도메인 호출은 map 경계 표대로 처리합니다. 이 프로젝트에 구현이 있으면 직접 호출하고, 없으면 Port로 끊은 뒤 경계 표의 처리 칸에 기록합니다.
+
+### p2j-migrate · TDD 검증·개선
+
+- **단위:** endpoint 하나
+- PHP 원본에서 기대값을 도출해 happy · error · edge 테스트를 설계하고, 사람에게 확인받습니다.
+- 바로 통과하는 characterization 테스트는 묶어서 돌리고, 실패하거나 TODO가 있는 케이스만 RED → GREEN → REFACTOR를 거칩니다.
+- 모두 통과하면 work 목록에 완료표시(✓2차)를 남깁니다. 남은 TODO와 원본과 다르게 고칠 지점은 사람이 판단합니다.
+
 ## 단계를 잇는 map 문서
 
 단계 사이의 입력은 `discovery/{domain}-map.md` 하나입니다. 이 문서에는 다음 내용이 들어갑니다.
