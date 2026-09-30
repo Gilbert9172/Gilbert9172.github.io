@@ -1,0 +1,76 @@
+/* Optional components for interactive notes; prose uses the normal post UI. */
+.learning-flow {
+  margin-block: 1.8rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 10px;
+  background: var(--journal-surface);
+  color: var(--text-muted-color);
+  font-family: var(--bs-font-monospace);
+  font-size: 0.85rem;
+  line-height: 2;
+  overflow-wrap: anywhere;
+
+  b {
+    color: var(--link-color);
+    font-weight: 650;
+  }
+}
+
+.learning-simulation {
+  margin-block: 1.8rem;
+  color: var(--text-color);
+  font-family: inherit;
+  line-height: 1.8;
+
+  > .notice-box {
+    margin-bottom: 0;
+  }
+}
+
+.learning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--main-border-color);
+
+  button {
+    min-height: 2.75rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 8px;
+    background: var(--main-bg);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.go {
+      background: var(--journal-accent-bg);
+      color: var(--link-color);
+      border-color: var(--link-underline-color);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--link-color);
+    }
+  }
+}
+
+@media (width <= 480px) {
+  .learning-actions {
+    padding: 0.85rem;
+
+    button {
+      padding-inline: 0.65rem;
+    }
+  }
+}

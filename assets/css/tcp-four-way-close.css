@@ -1,0 +1,219 @@
+/* TCP-specific layout. Colors and typography come from the blog theme. */
+#tcp-close-note {
+  --act: var(--link-color);
+  --pas: var(--notice-tip-label-color);
+
+  .player {
+    overflow: hidden;
+    border: 1px solid var(--main-border-color);
+    border-radius: 12px;
+    background: var(--main-bg);
+  }
+
+  .heads {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-bottom: 1px solid var(--main-border-color);
+    background: var(--journal-surface);
+  }
+
+  .head {
+    min-width: 0;
+    padding: 1.25rem;
+  }
+
+  .head + .head {
+    border-left: 1px solid var(--main-border-color);
+  }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--heading-color);
+    font-size: 0.9rem;
+    font-weight: 650;
+  }
+
+  .bar {
+    width: 3px;
+    height: 1rem;
+    border-radius: 2px;
+    background: var(--act);
+  }
+
+  .p .bar {
+    background: var(--pas);
+  }
+
+  .role, .substate, .packet-meta {
+    color: var(--text-muted-color);
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+
+  .state {
+    margin-top: 1rem;
+    color: var(--act);
+    font-family: var(--bs-font-monospace);
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+
+  .p .state {
+    color: var(--pas);
+  }
+
+  .state.closed {
+    color: var(--text-muted-color);
+  }
+
+  .state.changed {
+    animation: tcp-close-state 250ms ease;
+  }
+
+  .substate {
+    min-height: 1.7em;
+    margin-top: 0.25rem;
+  }
+
+  .tape {
+    padding: 0.5rem 1.25rem;
+  }
+
+  .pkt {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 1rem 0;
+    color: var(--text-muted-color);
+  }
+
+  .pkt + .pkt {
+    border-top: 1px solid var(--main-border-color);
+  }
+
+  .num {
+    color: var(--text-muted-color);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pkt.active .num {
+    color: var(--link-color);
+    font-weight: 700;
+  }
+
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .track {
+    position: relative;
+    height: 0.3rem;
+    margin-block: 0.65rem;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--journal-surface);
+  }
+
+  .a2p .seg, .a2p .track {
+    color: var(--act);
+  }
+
+  .p2a .seg, .p2a .track {
+    color: var(--pas);
+  }
+
+  .track::after {
+    position: absolute;
+    inset-block: 0;
+    width: 38%;
+    border-radius: inherit;
+    background: currentcolor;
+    content: '';
+    opacity: 0;
+  }
+
+  .pkt.active .track::after {
+    opacity: 0.7;
+    animation: tcp-close-send 850ms ease forwards;
+  }
+
+  .p2a.active .track::after {
+    animation-direction: reverse;
+  }
+
+  .pkt.done .track::after {
+    width: 100%;
+    opacity: 0.3;
+  }
+
+  .exp {
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .pkt.active .exp {
+    color: var(--text-color);
+  }
+
+  .lane {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--main-border-color);
+    background: var(--journal-surface);
+    color: var(--text-muted-color);
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+
+  .ic {
+    color: var(--link-color);
+    font-weight: 650;
+  }
+
+  .cnt {
+    margin-left: auto;
+    color: var(--text-muted-color);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes tcp-close-state {
+  from { transform: translateY(-3px); }
+  to { transform: none; }
+}
+
+@keyframes tcp-close-send {
+  from { left: -40%; }
+  to { left: 102%; }
+}
+
+@media (width <= 480px) {
+  #tcp-close-note .head { padding: 1rem 0.75rem; }
+  #tcp-close-note .tape { padding-inline: 0.75rem; }
+  #tcp-close-note .lane { padding: 0.85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #tcp-close-note .state.changed,
+  #tcp-close-note .pkt.active .track::after {
+    animation: none;
+  }
+
+  #tcp-close-note .pkt.active .track::after {
+    inset-inline-start: 0;
+    width: 100%;
+  }
+}

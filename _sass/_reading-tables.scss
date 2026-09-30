@@ -1,0 +1,212 @@
+/* The article and expanded view share the same readable table treatment. */
+@mixin reading-table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+
+  thead, tbody tr {
+    border: 0;
+  }
+
+  tbody tr:nth-child(n) {
+    background: var(--card-bg);
+  }
+
+  th, td {
+    min-width: 8rem;
+    padding: 1rem 1.1rem;
+    border: 0;
+    border-bottom: 1px solid var(--main-border-color);
+    background: var(--card-bg);
+    font-size: inherit;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  th {
+    background: var(--journal-surface);
+    color: var(--heading-color);
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  th:first-child, td:first-child {
+    min-width: 7rem;
+    color: var(--heading-color);
+    font-weight: 600;
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  code {
+    font-size: 0.9em;
+    white-space: nowrap;
+    word-break: normal;
+  }
+
+  caption {
+    padding: 0.85rem 1.1rem;
+    color: var(--text-muted-color);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  @media (hover: hover) {
+    tbody tr:hover > * {
+      background: var(--journal-surface);
+    }
+  }
+
+  @media (width <= 767px) {
+    th, td {
+      padding: 0.85rem 0.9rem;
+    }
+  }
+}
+
+.reading-content > .table-wrapper,
+.reading-content :where(.notice-box, details) > .table-wrapper {
+  margin-block: 1.8rem;
+  overflow: auto;
+  border: 1px solid var(--main-border-color);
+  border-radius: 12px;
+  background: var(--card-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--link-underline-color) var(--journal-surface);
+  overscroll-behavior-x: contain;
+
+  > table {
+    @include reading-table;
+  }
+
+}
+
+.reading-table-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 1.8rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--main-border-color);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: var(--card-bg);
+  color: var(--text-muted-color);
+  font-size: 0.8rem;
+  line-height: 1.6;
+
+  + .table-wrapper {
+    margin-top: 0;
+    border-radius: 0 0 12px 12px;
+  }
+}
+
+.table-wrapper:focus-visible {
+  outline-offset: 3px;
+}
+
+.reading-table-tools button, .reading-table-dialog button {
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 7px;
+  background: var(--journal-surface);
+  color: var(--link-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  &:hover {
+    border-color: var(--link-color);
+  }
+}
+
+.table-modal-open {
+  overflow: hidden;
+}
+
+.reading-table-dialog {
+  width: calc(100vw - 2rem);
+  max-width: 1200px;
+  max-height: 88dvh;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--main-border-color);
+  border-radius: 14px;
+  background: var(--card-bg);
+  color: var(--text-color);
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: rgb(10 15 25 / 65%);
+  }
+
+  > header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--main-border-color);
+
+    h2 {
+      margin: 0;
+      color: var(--heading-color);
+      font-size: 1rem;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .reading-table-scroll {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+
+    &:focus-visible {
+      outline-offset: -3px;
+    }
+  }
+
+  table {
+    @include reading-table;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+}
+
+@media (width <= 767px) {
+  .reading-table-dialog {
+    width: calc(100vw - 1rem);
+    max-height: 92dvh;
+    max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1rem));
+
+    > header {
+      padding: 0.75rem;
+    }
+  }
+
+  .reading-table-tools {
+    padding-inline: 0.85rem;
+  }
+}

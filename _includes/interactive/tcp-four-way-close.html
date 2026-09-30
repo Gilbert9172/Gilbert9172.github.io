@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="{{ '/assets/css/tcp-four-way-close.css' | relative_url }}">
+<div id="tcp-close-note" class="learning-simulation">
+<div class="player" tabindex="0" role="group" aria-label="TCP 연결 종료 시뮬레이션. 좌우 방향키로 단계를 이동할 수 있습니다.">
+    <div class="heads">
+      <div class="head a">
+        <div class="who"><span class="bar"></span>능동 종료자</div>
+        <div class="role">Active close · 먼저 close()</div>
+        <div class="state" id="stA">ESTABLISHED</div>
+        <div class="substate" id="subA"></div>
+      </div>
+      <div class="head p">
+        <div class="who"><span class="bar"></span>수동 종료자</div>
+        <div class="role">Passive close</div>
+        <div class="state" id="stB">ESTABLISHED</div>
+        <div class="substate" id="subB"></div>
+      </div>
+    </div>
+
+    <div class="tape" id="tape"></div>
+
+    <div class="lane" id="lane"><span class="ic">i</span><span id="laneText">양방향 모두 데이터 송수신 가능. 아직 아무도 종료를 요청하지 않았다.</span></div>
+
+    <div class="learning-actions">
+      <button type="button" id="prev">이전</button>
+      <button type="button" id="next" class="go">시작하기</button>
+      <button type="button" id="reset">처음으로</button>
+      <span class="cnt" id="cnt">0 / 5</span>
+    </div>
+  </div>
+<div class="notice-box" id="insight" data-title="단계 해설" aria-live="polite"><b>시작 상태.</b> 양쪽 다 <code class="highlighter-rouge">ESTABLISHED</code>. TCP의 두 통로(A→B, B→A)는 서로 독립적이어서, 한쪽을 닫아도 반대쪽은 살아 있을 수 있다. 이 성질을 <b>half-close</b>라고 하며, 종료가 3번이 아니라 4번인 이유가 전부 여기서 나온다.</div>
+</div>
+<script src="{{ '/assets/js/tcp-four-way-close.js' | relative_url }}" defer></script>

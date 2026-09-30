@@ -34,15 +34,15 @@ export function initReadingTables() {
       || `${heading ? heading.textContent.trim() + ' · ' : ''}표 ${index + 1}`;
     const tools = document.createElement('div');
     tools.className = 'reading-table-tools';
-    tools.hidden = true;
-    const hint = document.createElement('span');
-    hint.textContent = '좌우로 스크롤해서 볼 수 있습니다 ↔';
+    const count = document.createElement('span');
+    const rows = [...table.rows].filter(row => row.querySelector('td')).length;
+    count.textContent = `${rows}개 항목`;
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = '넓게 보기';
+    button.textContent = '넓게 보기 ↗';
     button.setAttribute('aria-label', `${label} 넓게 보기`);
     button.setAttribute('aria-haspopup', 'dialog');
-    tools.append(hint, button);
+    tools.append(count, button);
     wrapper.before(tools);
     button.addEventListener('click', () => {
       opener = button;
@@ -53,10 +53,10 @@ export function initReadingTables() {
       title.textContent = label;
       dialog.showModal();
       document.body.classList.add('table-modal-open');
+      scroller.scrollTo(0, 0);
     });
     const update = () => {
       const overflowing = wrapper.clientWidth > 0 && wrapper.scrollWidth > wrapper.clientWidth + 2;
-      tools.hidden = !overflowing;
       if (overflowing) {
         wrapper.tabIndex = 0;
         wrapper.setAttribute('role', 'region');

@@ -1,4 +1,4 @@
-/* Existing notice-box markup, with a quiet label instead of decorative icons. */
+/* Labels sit inside the top-right padding and share the first heading's row. */
 .notice-box {
   --notice-label: '참고';
   --notice-label-bg: var(--journal-accent-bg);
@@ -6,6 +6,7 @@
   --notice-bg: var(--journal-surface);
   --notice-border: var(--main-border-color);
 
+  display: flow-root;
   margin-block: 1.8rem;
   padding: 1.25rem 1.4rem;
   border: 1px solid var(--notice-border);
@@ -20,7 +21,10 @@
 
   &::before {
     content: var(--notice-label);
-    display: table;
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
     margin-bottom: 0.85rem;
     padding: 0.15rem 0.55rem;
     border-radius: 5px;
@@ -57,6 +61,19 @@
 
   &[data-title]:not([data-title=''])::before {
     content: attr(data-title);
+  }
+
+  /* A float keeps long headings in the text flow without an absolute overlay. */
+  &:has(> :is(h1, h2, h3, h4, h5, h6):first-child) {
+    &::before {
+      float: right;
+      max-width: 40%;
+      margin-left: 1rem;
+    }
+
+    > :nth-child(2) {
+      clear: both;
+    }
   }
 
   > :first-child {
