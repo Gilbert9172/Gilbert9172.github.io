@@ -1,0 +1,1168 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>P2J 이관 워크플로</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #f3f4f1; --surface: #ffffff; --ink: #191d1b; --muted: #5d6561;
+    --line: #d5dad6; --line-strong: #a3aba6; --lane: #f7f8f6; --human-lane: #fbefe8;
+    --hook-lane: #f3effa;
+    --ai: #2c5a86; --ai-ink: #1d3f60; --ai-fill: #e3ebf3;
+    --orch: #2c5a86; --orch-ink: #ffffff;
+    --human: #d4561f; --human-ink: #ffffff;
+    --hook: #6a45a8; --hook-ink: #4a2d7a; --hook-fill: #ebe3f7;
+    --check: #3c4541;
+    --pass: #2a7a4e; --pass-fill: #e2f1e8;
+    --fail: #c0372f; --fail-fill: #f8e3e1;
+    --doc-fill: #efede7; --focus: #2c5a86;
+    --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #101312; --surface: #171b19; --ink: #e4e8e5; --muted: #99a29d;
+      --line: #2e3532; --line-strong: #56605b; --lane: #141816; --human-lane: #241913;
+      --hook-lane: #1a1624;
+      --ai: #82abd6; --ai-ink: #b9d2ec; --ai-fill: #1a2531; --orch: #82abd6; --orch-ink: #0d1824;
+      --human: #ef7a44; --human-ink: #1b0d06;
+      --hook: #b596e8; --hook-ink: #d7c6f5; --hook-fill: #261d37;
+      --check: #c7cfca;
+      --pass: #5dbd86; --pass-fill: #16281e; --fail: #ee6a61; --fail-fill: #2e1715;
+      --doc-fill: #212624; --focus: #82abd6;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #101312; --surface: #171b19; --ink: #e4e8e5; --muted: #99a29d;
+    --line: #2e3532; --line-strong: #56605b; --lane: #141816; --human-lane: #241913;
+    --hook-lane: #1a1624;
+    --ai: #82abd6; --ai-ink: #b9d2ec; --ai-fill: #1a2531; --orch: #82abd6; --orch-ink: #0d1824;
+    --human: #ef7a44; --human-ink: #1b0d06;
+    --hook: #b596e8; --hook-ink: #d7c6f5; --hook-fill: #261d37;
+    --check: #c7cfca;
+    --pass: #5dbd86; --pass-fill: #16281e; --fail: #ee6a61; --fail-fill: #2e1715;
+    --doc-fill: #212624; --focus: #82abd6;
+  }
+
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--sans);
+    font-size: 15px; line-height: 1.6;
+    padding-inline: clamp(16px, 4vw, 48px); padding-block: 24px 32px;
+  }
+  .case { max-width: 1240px; margin: 0 auto; display: grid; gap: 20px; }
+
+  .phases { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+  .phase-tab {
+    flex: 1 1 200px; display: grid; gap: 2px; text-align: left; font-family: var(--sans);
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 14px; cursor: pointer;
+  }
+  .phase-tab .pn { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+  .phase-tab .pt { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .phase-tab .ps { font-size: 12.5px; }
+  .phase-tab:hover { border-color: var(--line-strong); }
+  .phase-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .phase-tab[aria-selected="true"] { border-color: var(--ink); box-shadow: inset 0 -3px 0 var(--ink); }
+
+  .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+  .controls { display: flex; align-items: center; gap: 6px; }
+  .controls button {
+    font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px;
+    padding: 5px 12px; cursor: pointer;
+  }
+  .controls button:hover { border-color: var(--ink); }
+  .controls button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .controls button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); min-width: 84px; }
+  .counter { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .stage-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  @media (min-width: 1080px) { .stage-grid { grid-template-columns: minmax(0, 1fr) 300px; } }
+  .stage { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+  .scroll { overflow-x: auto; }
+  .scroll svg { display: block; width: 100%; min-width: 920px; height: auto; }
+
+  .panel {
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: baseline;
+    border-top: 1px solid var(--line); padding: 16px 20px 18px; min-height: 120px;
+  }
+  .panel-num { grid-row: span 3; font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .panel-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; }
+  .kind { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 1px 7px; border-radius: 3px; border: 1px solid currentColor; }
+  .kind.human { color: var(--human); }
+  .kind.orch, .kind.skill, .kind.group { color: var(--ai); }
+  .kind.hook { color: var(--hook); }
+  .kind.check, .kind.script { color: var(--check); }
+  .kind.doc { color: var(--muted); }
+  .panel-text { margin: 0; color: var(--muted); max-width: 76ch; }
+  .panel-ren { margin: 0; font-size: 13.5px; color: var(--hook-ink); max-width: 76ch; }
+  .panel-ren b { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--hook); margin-right: 6px; }
+  .panel-ren:empty { display: none; }
+
+  .monitor {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    display: grid; grid-template-rows: auto auto auto 1fr; min-width: 0;
+  }
+  .mon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
+  .mon-head b { font-family: var(--mono); font-size: 13px; }
+  .mon-head span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .mon-pipe { margin: 0; padding: 8px 14px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .mon-pipe em { font-style: normal; color: var(--hook); }
+  .mon-session { padding: 10px 14px 4px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ai-ink); }
+  .mon-body { display: grid; grid-template-rows: auto 1fr; gap: 8px; padding: 0 14px 14px; min-height: 0; }
+  .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 12.5px; }
+  .tasks li { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .tasks li .tid { font-family: var(--mono); font-size: 10.5px; color: var(--muted); min-width: 18px; }
+  .tasks li i { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+  .tasks li[data-s="in_progress"] { color: var(--ink); font-weight: 600; }
+  .tasks li[data-s="in_progress"] i { border-color: var(--ai); background: var(--ai); animation: blink 0.8s ease-in-out infinite alternate; }
+  .tasks li[data-s="completed"] { color: var(--ink); }
+  .tasks li[data-s="completed"] i { border-color: var(--pass); background: var(--pass); }
+  .tasks li[data-s="waiting"] { color: var(--human); font-weight: 600; }
+  .tasks li[data-s="waiting"] i { border-color: var(--human); background: var(--human); }
+  @keyframes blink { to { opacity: 0.35; } }
+  .log {
+    list-style: none; margin: 0; padding: 8px 10px; border-radius: 6px; background: var(--lane);
+    border: 1px solid var(--line); font-family: var(--mono); font-size: 10.5px; line-height: 1.55;
+    display: grid; align-content: end; min-height: 170px; overflow: hidden;
+  }
+  .log li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .log li b { font-weight: 500; color: var(--ink); }
+  .log li em { font-style: normal; color: var(--ai); }
+  .log li.k em, .log li.k { color: var(--hook); }
+  .log li.x em, .log li.x { color: var(--fail); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+  .legend li { display: inline-flex; align-items: center; gap: 8px; }
+  .legend svg { width: 26px; height: 16px; }
+  .note { margin: 0; font-size: 13px; color: var(--muted); max-width: 110ch; }
+  .note b { font-weight: 600; }
+  .note .h { color: var(--human); }
+  .note .k { color: var(--hook); }
+
+  /* SVG */
+  .lane { fill: var(--lane); }
+  .lane.human-lane { fill: var(--human-lane); }
+  .lane.hook-lane { fill: var(--hook-lane); }
+  .lane-sep { stroke: var(--line); stroke-width: 1; }
+  .lane-label { fill: var(--muted); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; }
+  .lane-label.human-l { fill: var(--human); }
+  .lane-label.hook-l { fill: var(--hook); }
+
+  .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; transition: stroke 0.2s, opacity 0.2s; }
+  .edge.is-active { stroke: var(--ink); stroke-width: 2; }
+  .edge.optional { stroke-dasharray: 5 4; }
+  .edge.bus { stroke: var(--hook); stroke-dasharray: 3 4; opacity: 0.5; }
+  .edge.bus.is-active { opacity: 1; animation: dash 0.9s linear infinite; }
+  .edge.deny { stroke: var(--fail); stroke-dasharray: 4 4; opacity: 0.55; }
+  .edge.deny.is-active { opacity: 1; stroke-width: 2; }
+  .edge.hookfb { stroke: var(--hook); stroke-dasharray: 5 4; opacity: 0.55; }
+  .edge.hookfb.is-active { opacity: 1; stroke-width: 2; animation: dash 0.9s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -14; } }
+  .ah { fill: var(--line-strong); }
+  .ah-on { fill: var(--ink); }
+  .ah-x { fill: var(--fail); }
+  .ah-k { fill: var(--hook); }
+  .edge-label { fill: var(--muted); font-family: var(--sans); font-size: 11px; }
+  .edge-label.x { fill: var(--fail); }
+  .edge-label.k { fill: var(--hook); }
+
+  .node { cursor: pointer; outline: none; transition: opacity 0.25s; }
+  .node .shape { transition: stroke-width 0.2s, fill 0.2s, stroke 0.2s; }
+  .node:focus-visible .shape, .node.is-selected .shape { stroke: var(--focus); stroke-width: 3; }
+  .node.optional .shape { stroke-dasharray: 5 3; }
+  .skill .shape { fill: var(--ai-fill); stroke: var(--ai); stroke-width: 1.5; }
+  .skill .label { fill: var(--ai-ink); font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
+  .skill .sub, .orch .sub { font-family: var(--sans); font-size: 11px; }
+  .skill .sub { fill: var(--muted); }
+  .skill.is-active .shape { stroke-width: 2.8; }
+  .orch .shape { fill: var(--orch); stroke: var(--orch); stroke-width: 1.5; }
+  .orch .label { fill: var(--orch-ink); font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
+  .orch .sub { fill: var(--orch-ink); opacity: 0.85; }
+  .orch.is-active .shape { stroke: var(--ink); stroke-width: 2.5; }
+  .human .shape { fill: var(--human); stroke: var(--human); stroke-width: 1.5; }
+  .human .label { fill: var(--human-ink); font-family: var(--sans); font-size: 13px; font-weight: 700; }
+  .human .ring { fill: none; stroke: var(--human); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .human.is-waiting .ring { animation: ring 1.1s ease-out infinite; }
+  @keyframes ring { from { opacity: 0.8; transform: scale(1); } to { opacity: 0; transform: scale(1.3, 1.8); } }
+  .human .wait { fill: var(--human); font-family: var(--mono); font-size: 10.5px; font-weight: 600; opacity: 0; }
+  .human.is-waiting .wait { opacity: 1; }
+  .hook .shape { fill: var(--hook-fill); stroke: var(--hook); stroke-width: 1.5; }
+  .hook .label { fill: var(--hook-ink); font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
+  .hook .sub { fill: var(--hook); font-family: var(--sans); font-size: 10.5px; }
+  .hook.is-active .shape { stroke-width: 2.6; }
+  .hook.deny .shape { fill: var(--fail-fill); stroke: var(--fail); stroke-width: 2.6; }
+  .hook.deny .label, .hook.deny .sub { fill: var(--fail); }
+  .hook.pass .shape { fill: var(--pass-fill); stroke: var(--pass); stroke-width: 2.6; }
+  .hook.pass .label, .hook.pass .sub { fill: var(--pass); }
+  .hook.busy .shape { animation: busy 0.7s ease-in-out infinite alternate; }
+  @keyframes busy { to { stroke-width: 3.5; } }
+  .check .shape, .script .shape { fill: var(--surface); stroke: var(--check); stroke-width: 1.5; }
+  .check .label { fill: var(--ink); font-family: var(--sans); font-size: 11px; font-weight: 600; }
+  .check.pass .shape { fill: var(--pass-fill); stroke: var(--pass); stroke-width: 2.5; }
+  .check.pass .label { fill: var(--pass); }
+  .check.no .shape { fill: var(--fail-fill); stroke: var(--fail); stroke-width: 2.5; }
+  .check.no .label { fill: var(--fail); }
+  .script .label { fill: var(--ink); font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
+  .script .sub { fill: var(--muted); font-family: var(--sans); font-size: 10.5px; }
+  .script.busy .shape { stroke: var(--ai); stroke-width: 2.5; }
+  .doc .shape { fill: var(--doc-fill); stroke: var(--line-strong); stroke-width: 1.5; }
+  .doc .label { fill: var(--ink); font-family: var(--sans); font-size: 11.5px; font-weight: 600; }
+  .doc .sub { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+  .doc.denied .shape { stroke: var(--fail); stroke-dasharray: 4 3; }
+  .doc.denied .label { fill: var(--fail); text-decoration: line-through; }
+  .chip-marker { fill: var(--human); }
+  .chip-check { fill: var(--pass); }
+  .chip-ai { fill: var(--ai); }
+  .group .shape { fill: none; stroke: var(--ai); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .group .label { fill: var(--ai-ink); font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .token { fill: var(--ink); }
+  .token.t-h { fill: var(--human); }
+  .token.t-ai { fill: var(--ai); }
+  .token.t-k { fill: var(--hook); }
+  .token.t-x { fill: var(--fail); }
+  .token.t-faint { fill: var(--muted); opacity: 0.6; }
+  .aside-t { fill: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+  .aside-t.k { fill: var(--hook); }
+
+  .char-pill { fill: var(--surface); stroke: var(--ai); stroke-width: 1.3; transition: fill 0.15s, stroke 0.15s; }
+  .char-pill.on { fill: var(--ai-fill); stroke-width: 2.2; }
+  .char-pill.ok { fill: var(--pass-fill); stroke: var(--pass); stroke-width: 2.2; }
+  .char-t { fill: var(--ai-ink); font-family: var(--sans); font-size: 10.5px; font-weight: 600; }
+  .fixed-t { fill: var(--pass); font-family: var(--sans); font-size: 10.5px; font-weight: 600; opacity: 0.35; transition: opacity 0.2s; }
+  .fixed-t.on { opacity: 1; }
+  .tdd-lab { fill: var(--muted); font-family: var(--sans); font-size: 9.5px; }
+  .tdd-c { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; transition: fill 0.15s, stroke 0.15s; }
+  .tdd-t { fill: var(--muted); font-family: var(--mono); font-size: 9.5px; font-weight: 600; }
+  .tdd-c.red.on { fill: var(--fail-fill); stroke: var(--fail); }
+  .tdd-c.green.on { fill: var(--pass-fill); stroke: var(--pass); }
+  .tdd-c.ref.on { fill: var(--ai-fill); stroke: var(--ai); }
+  .tdd-a { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
+  .tdd-case { fill: var(--ai-ink); font-family: var(--mono); font-size: 10.5px; }
+  .mode-tag { fill: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+  .mode-tag.on { fill: var(--ink); font-weight: 600; }
+
+  svg.running .node.is-idle { opacity: 0.4; }
+  svg.running .edge.is-idle:not(.bus) { opacity: 0.4; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .edge.bus.is-active, .edge.hookfb.is-active, .human.is-waiting .ring, .tasks li i, .hook.busy .shape { animation: none !important; }
+  }
+  @media (max-width: 560px) {
+    .panel { grid-template-columns: 1fr; padding: 14px 16px 16px; }
+    .panel-num { grid-row: auto; font-size: 15px; }
+  }
+</style>
+
+<article class="case" id="p2j">
+  <div class="phases" role="tablist" id="phase-tabs"></div>
+
+  <div class="bar">
+    <div class="controls">
+      <button type="button" class="primary" id="btn-play">일시정지</button>
+      <button type="button" id="btn-prev" aria-label="이전 단계">이전</button>
+      <button type="button" id="btn-next" aria-label="다음 단계">다음</button>
+    </div>
+    <span class="counter" id="counter"></span>
+  </div>
+
+  <div class="stage-grid">
+    <figure class="stage">
+      <div class="scroll" id="svgs"></div>
+      <figcaption class="panel" aria-live="polite">
+        <span class="panel-num" id="panel-num"></span>
+        <span class="panel-title" id="panel-title"></span>
+        <p class="panel-text" id="panel-text"></p>
+        <p class="panel-ren" id="panel-ren"></p>
+      </figcaption>
+    </figure>
+
+    <aside class="monitor" aria-label="p2j-monitor 재생 예시">
+      <div class="mon-head"><b>p2j-monitor</b><span id="mon-clock">+00:00</span></div>
+      <p class="mon-pipe">Task · 도구 호출 → <em>p2j_hook.py</em> → events.jsonl → monitor</p>
+      <div class="mon-session" id="mon-session"></div>
+      <div class="mon-body">
+        <ul class="tasks" id="mon-tasks"></ul>
+        <ul class="log" id="mon-log"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <ul class="legend">
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><rect x="1" y="2" width="24" height="12" rx="3" fill="var(--human)"/></svg>사람 판단</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><rect x="1" y="2" width="24" height="12" rx="3" fill="var(--orch)"/></svg>오케스트레이터</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><rect x="1" y="2" width="24" height="12" rx="2" fill="var(--ai-fill)" stroke="var(--ai)" stroke-width="1.5"/></svg>스킬 · 에이전트</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><polygon points="5,2 21,2 25,6 25,10 21,14 5,14 1,10 1,6" fill="var(--hook-fill)" stroke="var(--hook)" stroke-width="1.5"/></svg>훅 (자동 강제)</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><polygon points="13,1 24,8 13,15 2,8" fill="var(--surface)" stroke="var(--check)" stroke-width="1.5"/></svg>결정적 검사 · 도구</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><path d="M2,2 H18 L24,8 V14 H2 Z" fill="var(--doc-fill)" stroke="var(--line-strong)" stroke-width="1.5"/></svg>문서 · 산출물</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><line x1="1" y1="8" x2="25" y2="8" stroke="var(--fail)" stroke-width="1.5" stroke-dasharray="4 4"/></svg>훅이 거부</li>
+    <li><svg viewBox="0 0 26 16" aria-hidden="true"><line x1="1" y1="8" x2="25" y2="8" stroke="var(--hook)" stroke-width="1.5" stroke-dasharray="5 4"/></svg>훅 피드백 · 차단 후 되돌림</li>
+  </ul>
+  <p class="note"><b class="h">주황색</b> 노드는 사람이 판단하는 지점이고, 흐름은 이 지점에서만 멈춥니다. <b class="k">보라색</b> 로그 줄은 훅이 Claude에게 돌려준 응답(차단 사유, 린트 피드백, 게이트 결과)입니다. 모니터는 스킬이 등록한 Task, 도구 호출, 알림을 실행한 세션 기준으로 보여줍니다. 도메인과 파일 이름은 예시입니다.</p>
+</article>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const KIND = { human: '사람 판단', orch: '오케스트레이터', skill: '스킬 · 에이전트', group: '스킬 · 에이전트', hook: '훅', check: '결정적 검사', script: '결정적 도구', doc: '문서' };
+  const W = 1180, H = 560;
+  const LANES = [
+    { name: '사람 · 판단', y: 0, h: 100, cls: 'human' },
+    { name: '오케스트레이터', y: 100, h: 100 },
+    { name: '스킬 · 에이전트', y: 200, h: 120 },
+    { name: '훅 · 자동 강제', y: 320, h: 100, cls: 'hook' },
+    { name: '검사 · 산출물', y: 420, h: 140 },
+  ];
+
+  const TASKS = {
+    'p2j-discovery': [['scope-confirmation', 'Scope Confirmation'], ['scan-result-reading', '스캔 결과 읽기'], ['php-source-verification', 'PHP 소스 검증'], ['flow-mapping', 'Flow Mapping'], ['cross-verification', 'Cross-Verification'], ['output-generation', 'Output Generation'], ['post-verification', 'Post-Discovery 역검증']],
+    'p2j-scaffold': [['gate-check', 'Gate Check'], ['scope-confirmation', 'Scope Confirmation'], ['source-reading', '소스 읽기'], ['entity-generation', 'Entity 생성'], ['enum-generation', 'Enum + Converter'], ['repository-generation', 'Repository 생성'], ['stub-generation', 'Controller/Job stub'], ['dto-generation', 'DTO stub'], ['service-generation', 'Service stub'], ['compile-verification', '컴파일 확인'], ['map-update', 'map 기입']],
+    'p2j-port': [['gate-check', 'Gate Check'], ['stub-reading', 'Stub 확인'], ['php-source-reading', 'PHP 소스 읽기'], ['literal-port', 'Literal Port'], ['compile-verification', '컴파일 검증']],
+    'p2j-migrate': [['gate-check', 'Gate Check'], ['target-reading', '대상 확인'], ['php-source-reading', 'PHP 소스 읽기'], ['test-design', '테스트 설계'], ['tdd-cycle', 'TDD 사이클'], ['final-verification', '최종 검증']],
+  };
+
+  /* ---------- helpers ---------- */
+  const make = (tag, attrs = {}, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+  const text = (parent, str, attrs) => { const t = make('text', attrs, parent); t.textContent = str; return t; };
+  const pad = (n) => String(n).padStart(2, '0');
+  const showSvg = (el, on) => (on ? el.removeAttribute('hidden') : el.setAttribute('hidden', ''));
+
+  let runId = 0;
+  class Cancelled extends Error {}
+  const sleep = (ms, rid) => new Promise((res, rej) => setTimeout(() => (rid === runId ? res() : rej(new Cancelled())), ms));
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const tween = (dur, rid, fn) => new Promise((res, rej) => {
+    const t0 = performance.now();
+    const frame = (now) => {
+      if (rid !== runId) { rej(new Cancelled()); return; }
+      const t = Math.min(1, (now - t0) / dur);
+      fn(t);
+      if (t < 1) requestAnimationFrame(frame); else res();
+    };
+    requestAnimationFrame(frame);
+  });
+  const move = (ctx, edgeId, dur, rid, cls = '', upto = 1) => {
+    const path = ctx.edgeEls[edgeId];
+    const len = path.getTotalLength();
+    const dot = make('circle', { class: 'token ' + cls, r: 6 }, ctx.tokens);
+    return tween(dur, rid, (t) => {
+      const pt = path.getPointAtLength(ease(t) * len * upto);
+      dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+    }).then(() => dot.remove(), (e) => { dot.remove(); throw e; });
+  };
+  const waitHuman = async (ctx, id, ms, rid) => {
+    ctx.nodeEls[id].classList.add('is-waiting');
+    try { await sleep(ms, rid); } finally { ctx.nodeEls[id].classList.remove('is-waiting'); }
+  };
+  const flag = (ctx, id, cls, on = true) => ctx.nodeEls[id].classList.toggle(cls, on);
+  const setChips = (ctx, id, count) => (ctx.chips[id] || []).forEach((c, k) => c.setAttribute('opacity', k < count ? 1 : 0));
+  const clearStates = (ctx) => Object.values(ctx.nodeEls).forEach((g) => g.classList.remove('deny', 'pass', 'busy', 'no', 'denied'));
+
+  /* ---------- monitor ---------- */
+  const monSession = document.getElementById('mon-session');
+  const monTasks = document.getElementById('mon-tasks');
+  const monLog = document.getElementById('mon-log');
+  const monClock = document.getElementById('mon-clock');
+  let mon = { key: null, items: [], prefix: '' };
+  let clockStart = null;
+  const clockText = () => {
+    if (clockStart === null) return '+00:00';
+    const s = Math.floor((performance.now() - clockStart) / 1000);
+    return `+${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+  };
+  setInterval(() => { monClock.textContent = clockText(); }, 500);
+
+  function monLoad(key, upto = 0, label, prefix = '', empty = '') {
+    monSession.textContent = label || key || '대기 중';
+    mon = key ? { key, prefix, items: TASKS[key].map(([id, name], k) => ({ id, name, s: k < upto ? 'completed' : 'pending' })) } : { key: null, prefix: '', items: [], empty };
+    renderMon();
+  }
+  async function monBegin(key, label, per, rid, prefix = '') {
+    monSession.textContent = label;
+    mon = { key, prefix, items: [] };
+    renderMon();
+    for (const [id, name] of TASKS[key]) {
+      mon.items.push({ id, name, s: 'pending' });
+      renderMon();
+      log('TaskCreate', `${id}: ${name} → task_id ${prefix}${mon.items.length}`);
+      await sleep(per, rid);
+    }
+  }
+  function monSet(idx, s) { if (mon.items[idx]) { mon.items[idx].s = s; renderMon(); } }
+  function renderMon() {
+    if (!mon.items.length) {
+      const li = document.createElement('li');
+      li.textContent = mon.empty || '등록된 Task가 없습니다.';
+      monTasks.replaceChildren(li);
+      return;
+    }
+    monTasks.replaceChildren(...mon.items.map((t, k) => {
+      const li = document.createElement('li');
+      li.dataset.s = t.s;
+      const tid = document.createElement('span'); tid.className = 'tid'; tid.textContent = mon.prefix + (k + 1);
+      li.append(document.createElement('i'), tid, t.name);
+      return li;
+    }));
+  }
+  function log(type, msg, cls = '') {
+    const li = document.createElement('li');
+    if (cls) li.className = cls;
+    const time = document.createElement('b'); time.textContent = clockText() + ' ';
+    const t = document.createElement('em'); t.textContent = type + ' ';
+    li.append(time, t, msg);
+    monLog.appendChild(li);
+    while (monLog.children.length > 10) monLog.firstChild.remove();
+  }
+  const notify = (msg) => log('notification', msg);
+  const hook = (ev, msg) => log(`hook·${ev}`, msg, 'k');
+  const deny = (ev, msg) => log(`hook·${ev}`, msg, 'x');
+  async function monRun(from, to, per, rid) {
+    for (let k = from; k < to; k++) {
+      monSet(k, 'in_progress');
+      log('TaskUpdate', `${mon.prefix}${k + 1} ${mon.items[k].id} in_progress`);
+      await sleep(per, rid);
+      monSet(k, 'completed');
+      log('TaskUpdate', `${mon.prefix}${k + 1} ${mon.items[k].id} completed`);
+    }
+  }
+  const SESSION = {
+    port: 'p2j-port · gift.php × user-api',
+    disc: 'p2j-discovery · auction',
+    scaf: 'p2j-scaffold · auction × admin-api',
+    migrate: 'p2j-migrate · auction/bid × user-api',
+  };
+
+  /* ---------- phases ---------- */
+  const PHASES = [
+    /* ============ 01 도메인 분석 ============ */
+    {
+      key: 'disc', name: '도메인 분석', sub: '도메인 하나 · 분석 문서와 map 작성',
+      aria: '도메인 분석. 담당자가 p2j-discovery를 요청하면 스킬이 단계 7개를 Task로 등록한다. 스캔 결과가 없으면 run-scans.sh가 필수 스캔 6개를 파일로 만들고, 있으면 그대로 재사용한다. Claude는 결과 파일을 읽고 PHP 원본으로 검증한다. 스캔 폴더를 Write로 직접 고치려 하면 보호 경로 훅이 거부한다. 마지막으로 discovery 문서와, 다음 단계의 입력이 되는 진입점 map을 작성한다.',
+      nodes: {
+        ask:    { type: 'human', x: 110, y: 50, label: '분석 요청', step: 0, desc: '파이프라인의 첫 단계입니다. 도메인 하나 단위로 요청하고, 대상 프로젝트는 고르지 않습니다. map이 없으면 뒤 단계(scaffold·port·migrate)가 모두 멈추기 때문에, 도메인마다 가장 먼저 돌립니다.' },
+        disc:   { type: 'skill', x: 330, y: 260, label: 'p2j-discovery', sub: '스캔 해석 · 원본 검증', step: 1, desc: '스캔 결과를 해석하고 PHP 원본으로 검증해 discovery 문서를 만듭니다. 근거 수준은 [S]·[V]·[P]로 표시합니다. site와 siteadmin을 양쪽 비교하는 게 정상 작업이라 _lib 가드는 적용되지 않습니다.' },
+        has:    { type: 'check', x: 330, y: 490, lines: ['스캔', '있음?'], step: 2, desc: 'discovery/scans/{domain}/에 필수 6개가 있으면 그대로 재사용합니다.' },
+        runs:   { type: 'script', x: 560, y: 490, label: 'run-scans.sh', sub: '필수 6개 × 소스', step: 3, desc: 'p2j.env의 경로로 scan 스크립트를 한 번에 돌려 결과를 파일로 저장합니다. 이미 있는 파일은 건너뛰고, --force를 주면 다시 만듭니다. Claude는 스크립트 출력이 아니라 결과 파일을 읽습니다.' },
+        scans:  { type: 'doc', x: 790, y: 490, label: 'discovery/scans/', sub: '{domain}/*.md', step: 3, chips: 6, chipClass: 'chip-ai', desc: 'entry-points, db-tables, functions, domain-schema, cross-domain, source-map. 권장·선택 스캔은 필요할 때 개별로 실행합니다.' },
+        protect:{ type: 'hook', x: 790, y: 370, label: '보호 경로', sub: 'PreToolUse · Write', step: 4, desc: '스캔 결과 폴더는 스크립트로만 만듭니다. Write나 Edit로 직접 쓰려고 하면 거부하고 run-scans.sh를 쓰라고 알려줍니다. PHP 레거시 쓰기도 같은 방식으로 항상 막습니다.' },
+        out:    { type: 'doc', x: 1060, y: 490, label: '{domain}-map.md', sub: '+ discovery.md · 다음 단계 입력', step: 5, desc: '두 파일을 씁니다. discovery.md는 분석 보고서입니다. map은 PHP 진입점 파일 하나가 한 행이고, discovery가 왼쪽 6칸(id, PHP, 유형, 프로젝트, 테이블, _lib 호출)을 채웁니다. Java 진입과 Java service 칸은 비워 두고 scaffold가 채웁니다. 상태 칸은 없고, Java 칸이 비어 있으면 그 행은 scaffold 전입니다. 같은 파일 아래 cross-domain 경계 표에는 이 도메인이 부르는 다른 도메인 함수와 직접 SQL을 적습니다(cross-domain 스캔 근거, 나가는 방향만). 처리 칸은 비워 두고 port가 채웁니다.' },
+      },
+      edges: [
+        { id: 'ad', d: 'M168,50 H330 V233', steps: [1], label: '/p2j-discovery auction', lx: 249, ly: 42, anchor: 'middle' },
+        { id: 'dh', d: 'M330,286 V454', steps: [2], label: '재사용 확인', lx: 338, ly: 340 },
+        { id: 'hr', d: 'M366,490 H500', steps: [3], label: '없으면', lx: 433, ly: 482, anchor: 'middle' },
+        { id: 'rs', d: 'M620,490 H730', steps: [3], label: 'Bash로 생성', lx: 675, ly: 482, anchor: 'middle' },
+        { id: 'hs', d: 'M330,526 V548 H790 V520', steps: [], kind: 'optional', label: '있으면 그대로', lx: 560, ly: 542, anchor: 'middle' },
+        { id: 'sd', d: 'M760,460 V432 H700 V262 H382', steps: [4], label: '결과 파일 읽기', lx: 540, ly: 254, anchor: 'middle' },
+        { id: 'dw', d: 'M382,284 H762 V347', steps: [4], kind: 'deny', label: 'Write 시도', lx: 560, ly: 300, anchor: 'middle' },
+        { id: 'do', d: 'M382,238 H1060 V460', steps: [5], label: 'PHP 원본 검증 후 작성', lx: 720, ly: 230, anchor: 'middle' },
+      ],
+      reset(ctx, si) {
+        clearStates(ctx);
+        setChips(ctx, 'scans', si < 3 ? 0 : 6);
+        if (si >= 2) flag(ctx, 'has', 'no');
+      },
+      steps: [
+        { node: 'ask', title: '분석 요청', mon: [null, 0, '대기 중'],
+          async scene(ctx, rid) { await waitHuman(ctx, 'ask', 1500, rid); } },
+        { node: 'disc', title: '스킬 로드 · Task 등록', mon: ['p2j-discovery', 0, SESSION.disc],
+          async scene(ctx, rid) {
+            await move(ctx, 'ad', 1000, rid, 't-h');
+            notify('[p2j-discovery] 세션 시작 (project: 미정)');
+            await monBegin('p2j-discovery', SESSION.disc, 200, rid);
+            monSet(0, 'completed'); log('TaskUpdate', '1 scope-confirmation completed');
+            await sleep(400, rid);
+          } },
+        { node: 'has', title: '스캔 결과 확인', mon: ['p2j-discovery', 1, SESSION.disc],
+          async scene(ctx, rid) {
+            monSet(1, 'in_progress'); log('TaskUpdate', '2 scan-result-reading in_progress');
+            await move(ctx, 'dh', 900, rid, 't-ai');
+            flag(ctx, 'has', 'no');
+            log('Glob', 'discovery/scans/auction/* → 없음');
+            await sleep(800, rid);
+          } },
+        { node: 'runs', title: 'run-scans.sh 실행', mon: ['p2j-discovery', 1, SESSION.disc],
+          async scene(ctx, rid) {
+            monSet(1, 'in_progress');
+            setChips(ctx, 'scans', 0);
+            await move(ctx, 'hr', 700, rid, 't-ai');
+            flag(ctx, 'runs', 'busy');
+            for (let k = 0; k < 6; k++) { await move(ctx, 'rs', 420, rid, 't-ai'); setChips(ctx, 'scans', k + 1); }
+            flag(ctx, 'runs', 'busy', false);
+            log('Bash', 'run-scans.sh auction both → ok 11 / skip 0 / fail 0');
+            await sleep(600, rid);
+          } },
+        { node: 'protect', title: '결과 읽기 · 직접 쓰기 차단', mon: ['p2j-discovery', 1, SESSION.disc],
+          async scene(ctx, rid) {
+            monSet(1, 'in_progress');
+            for (const s of ['entry-points', 'db-tables', 'functions']) {
+              await move(ctx, 'sd', 600, rid, 't-ai');
+              log('TaskCreate', `scan-result-reading/${s} → completed`);
+            }
+            await move(ctx, 'dw', 900, rid, 't-x');
+            flag(ctx, 'protect', 'deny');
+            deny('PreToolUse', 'Write discovery/scans/ 거부 — run-scans.sh로만 생성');
+            await sleep(1000, rid);
+            flag(ctx, 'protect', 'deny', false);
+            for (const s of ['domain-schema', 'cross-domain', 'source-map']) {
+              await move(ctx, 'sd', 450, rid, 't-ai');
+              log('TaskCreate', `scan-result-reading/${s} → completed`);
+            }
+            monSet(1, 'completed'); log('TaskUpdate', '2 scan-result-reading completed');
+            await sleep(300, rid);
+          } },
+        { node: 'out', title: '검증 · 문서와 map 작성', mon: ['p2j-discovery', 2, SESSION.disc],
+          async scene(ctx, rid) {
+            await monRun(2, 5, 380, rid);
+            monSet(5, 'in_progress'); log('TaskUpdate', '6 output-generation in_progress');
+            await move(ctx, 'do', 1200, rid, 't-ai');
+            log('Write', 'discovery/auction-discovery.md');
+            log('Write', 'discovery/auction-map.md · 행 14개 · Java 칸 비움');
+            log('Write', 'auction-map.md 경계 표 · 9줄 (wallet·point·song) · 처리 칸 비움');
+            monSet(5, 'completed'); log('TaskUpdate', '6 output-generation completed');
+            monSet(6, 'completed'); log('TaskUpdate', '7 post-verification completed · 조건 충족 시만');
+            await sleep(1400, rid);
+          } },
+      ],
+    },
+
+    /* ============ 02 뼈대 생성 ============ */
+    {
+      key: 'scaf', name: '뼈대 생성', sub: '도메인 × 프로젝트 · stub 생성, map에 Java 칸 기입',
+      aria: '뼈대 생성. 담당자가 도메인과 대상 프로젝트를 정해 p2j-scaffold를 요청하면 스킬이 단계 11개를 Task로 등록한다. Gate에서 map에 이 프로젝트 행이 있는지 확인하고, 없으면 discovery 먼저로 멈춘다. discovery 문서, DB 스키마, PHP 시그니처를 읽어 entity, repository, enum, controller 또는 job stub, DTO, service stub을 만든다. 린트 훅이 setter와 다른 도메인 entity 참조를 피드백하고, 컴파일 확인과 종료 게이트를 통과하면 map의 이 프로젝트 행에 Java 진입과 Java service 칸을 채운다. 다음 단계인 port는 사람이 넘긴다.',
+      nodes: {
+        ask:    { type: 'human', x: 110, y: 50, label: '도메인 × 프로젝트', step: 0, desc: '담당자가 도메인 하나와 대상 프로젝트 하나를 정해 /p2j-scaffold auction admin-api처럼 요청합니다. 한 세션은 한 도메인 × 한 프로젝트이고, 범위는 map에서 이 프로젝트이면서 Java 칸이 빈 행들입니다.' },
+        scaf:   { type: 'skill', x: 330, y: 260, label: 'p2j-scaffold', sub: 'entity · stub 생성', step: 1, desc: '로직 없이 뼈대만 만듭니다. JPA entity와 repository, status·type enum과 converter, controller(user-api, admin-api) 또는 JobConfig(batch) stub, DTO, service stub입니다. stub 메서드마다 PHP 소스 경로, 기능, 호출하는 _lib 함수를 주석으로 남기고, 이 주석이 port의 입력이 됩니다. 시작할 때 단계 11개를 TaskCreate로 등록합니다.' },
+        mapin:  { type: 'doc', x: 110, y: 490, label: '{domain}-map.md', sub: 'discovery가 쓴 입력', step: 2, desc: 'discovery가 왼쪽 6칸을 채운 map입니다. scaffold는 이 프로젝트 행 가운데 Java 칸이 빈 행만 범위로 잡습니다.' },
+        gchk:   { type: 'check', x: 330, y: 490, lines: ['프로젝트', '행 있음?'], step: 2, desc: 'map이나 discovery.md가 없으면 "❌ discovery/{domain}-map.md가 없습니다. p2j-discovery를 먼저 실행하세요." 한 줄로 멈춥니다. map에 이 프로젝트 행이 없으면 그 사실을 알리고 멈추고, Java 칸이 모두 차 있으면 할 일이 없다고 알리고 끝냅니다.' },
+        src:    { type: 'doc', x: 560, y: 490, label: 'discovery · DDL', sub: 'tables.sql · PHP 시그니처', step: 3, desc: 'unified-domains.md, tables.sql의 도메인 테이블, discovery.md의 진입점과 enum 후보, map 범위 행의 PHP 파일과 _lib 함수 시그니처를 읽습니다. 내부 로직은 깊이 보지 않습니다. 그건 port의 일입니다.' },
+        lint:   { type: 'hook', x: 790, y: 370, label: '컨벤션 린트', sub: 'PostToolUse · Write/Edit', step: 4, desc: '만든 Java 파일마다 scaffold 단계에 켜진 규칙으로 바로 피드백합니다: @Entity와 @Setter를 함께 쓴 경우, 다른 도메인 entity와의 @ManyToOne 같은 연관관계, // PHP: 매핑 주석 삭제. 다른 도메인 테이블은 Long xxxIdx 필드로만 매핑합니다. stub의 "Not yet migrated" 예외는 port의 몫이라 지적하지 않습니다.' },
+        out:    { type: 'doc', x: 790, y: 490, label: 'entity · stub', sub: 'Controller · Service · DTO', step: 4, chips: 6, chipClass: 'chip-ai', desc: 'Entity, Enum+Converter, Repository, Controller/Job stub, DTO, Service stub 여섯 종류입니다. 이미 있는 파일은 덮어쓰지 않습니다.' },
+        compile:{ type: 'check', x: 960, y: 490, lines: ['compile', 'Java'], step: 5, desc: '스킬의 컴파일 확인 단계입니다. import 누락이나 기존 entity 충돌을 여기서 고칩니다.' },
+        gate:   { type: 'hook', x: 960, y: 370, label: '컴파일 게이트', sub: 'Stop · 세션 소유 파일', step: 5, desc: '종료하려 하면 이 세션이 쓴 .java가 속한 프로젝트를 다시 컴파일하고 린트를 적용합니다. 초벌 이관 단계의 게이트와 같은 훅입니다.' },
+        mapout: { type: 'doc', x: 1090, y: 260, label: '{domain}-map.md', sub: 'Java 칸 기입', step: 6, desc: '컴파일이 통과하면 이번 범위 행의 Java 진입(Controller 경로+메서드 또는 JobConfig)과 Java service(Service#메서드) 칸을 채웁니다. 다른 프로젝트 행과 왼쪽 6칸은 건드리지 않습니다. port는 이 칸으로 대상을 찾습니다.' },
+        next:   { type: 'human', x: 1090, y: 50, label: 'p2j-port로', step: 7, desc: '다음 단계를 돌리는 건 사람입니다. scaffold는 port를 부르지 않고, Output Summary에 가장 단순한 행부터 port하라고 추천만 남깁니다.' },
+      },
+      edges: [
+        { id: 'as', d: 'M168,50 H330 V233', steps: [1], label: '/p2j-scaffold auction admin-api', lx: 249, ly: 42, anchor: 'middle' },
+        { id: 'sm', d: 'M300,286 V430 H110 V460', steps: [2], label: 'map 읽기', lx: 190, ly: 424, anchor: 'middle' },
+        { id: 'mg', d: 'M170,490 H294', steps: [2], label: '행 확인', lx: 232, ly: 482, anchor: 'middle' },
+        { id: 'gp', d: 'M348,472 V286', steps: [2], label: '통과', lx: 356, ly: 440 },
+        { id: 'gx', d: 'M330,526 V548 H200', steps: [], kind: 'deny', label: '없으면 ❌ p2j-discovery 먼저', lx: 340, ly: 542 },
+        { id: 'sr', d: 'M382,270 H560 V460', steps: [3], label: '읽기', lx: 470, ly: 262, anchor: 'middle' },
+        { id: 'so', d: 'M382,248 H790 V347', steps: [4], label: 'Write', lx: 690, ly: 240, anchor: 'middle' },
+        { id: 'lo', d: 'M790,393 V460', steps: [4] },
+        { id: 'lf', d: 'M732,378 H620 V296 H382', steps: [4], kind: 'hookfb', label: '피드백', lx: 676, ly: 404, anchor: 'middle' },
+        { id: 'oc', d: 'M850,490 H924', steps: [5], label: '빌드', lx: 887, ly: 482, anchor: 'middle' },
+        { id: 'cg', d: 'M960,454 V393', steps: [5], label: '종료 시', lx: 968, ly: 430 },
+        { id: 'mu', d: 'M330,234 V214 H1090 V230', steps: [6], label: 'map-update · 이 프로젝트 행만', lx: 710, ly: 208, anchor: 'middle' },
+        { id: 'mn', d: 'M1090,230 V73', steps: [7], label: '다음 단계', lx: 1098, ly: 150 },
+      ],
+      reset(ctx, si) {
+        clearStates(ctx);
+        setChips(ctx, 'out', si < 4 ? 0 : 6);
+        if (si >= 2) flag(ctx, 'gchk', 'pass');
+        if (si >= 5) { flag(ctx, 'compile', 'pass'); flag(ctx, 'gate', 'pass'); }
+      },
+      steps: [
+        { node: 'ask', title: '도메인 × 프로젝트 선택', mon: [null, 0, '대기 중'],
+          async scene(ctx, rid) { await waitHuman(ctx, 'ask', 1500, rid); } },
+        { node: 'scaf', title: '스킬 로드 · Task 등록', mon: ['p2j-scaffold', 0, SESSION.scaf],
+          async scene(ctx, rid) {
+            await move(ctx, 'as', 1000, rid, 't-h');
+            hook('UserPromptSubmit', '/p2j-scaffold 감지 → project=admin-api');
+            notify('[p2j-scaffold] 세션 시작 (project: admin-api)');
+            await monBegin('p2j-scaffold', SESSION.scaf, 130, rid);
+            await sleep(400, rid);
+          } },
+        { node: 'gchk', title: 'Gate · map에 이 프로젝트 행?', mon: ['p2j-scaffold', 0, SESSION.scaf],
+          async scene(ctx, rid) {
+            flag(ctx, 'gchk', 'pass', false);
+            monSet(0, 'in_progress'); log('TaskUpdate', '1 gate-check in_progress');
+            await move(ctx, 'sm', 900, rid, 't-ai');
+            await move(ctx, 'mg', 600, rid, 't-ai');
+            log('Read', 'discovery/auction-map.md · admin-api 행 6개 · Java 칸 빈 행 4개');
+            flag(ctx, 'gchk', 'pass');
+            await move(ctx, 'gp', 700, rid, 't-ai');
+            monSet(0, 'completed'); log('TaskUpdate', '1 gate-check completed');
+            monSet(1, 'completed'); log('TaskUpdate', '2 scope-confirmation completed · A3~A6');
+            await sleep(500, rid);
+          } },
+        { node: 'src', title: '스키마 · discovery · 시그니처 읽기', mon: ['p2j-scaffold', 2, SESSION.scaf],
+          async scene(ctx, rid) {
+            monSet(2, 'in_progress'); log('TaskUpdate', '3 source-reading in_progress');
+            for (const f of ['tables.sql · auction 테이블', 'auction-discovery.md', 'siteadmin/auction/part.*.php 시그니처']) {
+              await move(ctx, 'sr', 650, rid, 't-ai');
+              log('Read', f);
+            }
+            monSet(2, 'completed'); log('TaskUpdate', '3 source-reading completed');
+            await sleep(300, rid);
+          } },
+        { node: 'out', title: '뼈대 생성 · 린트 피드백', mon: ['p2j-scaffold', 3, SESSION.scaf],
+          async scene(ctx, rid) {
+            setChips(ctx, 'out', 0);
+            for (let k = 0; k < 6; k++) {
+              monSet(3 + k, 'in_progress');
+              await move(ctx, 'so', 500, rid, 't-ai');
+              await move(ctx, 'lo', 250, rid, 't-ai');
+              setChips(ctx, 'out', k + 1);
+              if (k === 0) {
+                await move(ctx, 'lf', 700, rid, 't-k');
+                hook('PostToolUse', 'lint: AuctionUser @ManyToOne User → 다른 도메인 · Long userIdx로');
+                await sleep(400, rid);
+              }
+              monSet(3 + k, 'completed'); log('TaskUpdate', `${4 + k} ${mon.items[3 + k].id} completed`);
+            }
+            await sleep(300, rid);
+          } },
+        { node: 'compile', title: '컴파일 확인 · 종료 게이트', mon: ['p2j-scaffold', 9, SESSION.scaf],
+          async scene(ctx, rid) {
+            monSet(9, 'in_progress'); log('TaskUpdate', '10 compile-verification in_progress');
+            await move(ctx, 'oc', 700, rid, 't-ai');
+            flag(ctx, 'compile', 'pass');
+            log('Bash', './gradlew compileJava → BUILD SUCCESSFUL');
+            monSet(9, 'completed'); log('TaskUpdate', '10 compile-verification completed');
+            await move(ctx, 'cg', 700, rid, 't-ai');
+            flag(ctx, 'gate', 'busy'); await sleep(900, rid);
+            flag(ctx, 'gate', 'busy', false); flag(ctx, 'gate', 'pass');
+            hook('Stop', 'gate: 이 세션이 쓴 .java 17개 → admin-api compile PASS · 린트 OK');
+            await sleep(600, rid);
+          } },
+        { node: 'mapout', title: 'map의 Java 칸 기입', mon: ['p2j-scaffold', 10, SESSION.scaf],
+          async scene(ctx, rid) {
+            monSet(10, 'in_progress'); log('TaskUpdate', '11 map-update in_progress');
+            await move(ctx, 'mu', 1300, rid, 't-ai');
+            log('Edit', 'auction-map.md · admin-api A3~A6 · Java 진입 · Java service');
+            monSet(10, 'completed'); log('TaskUpdate', '11 map-update completed');
+            await sleep(800, rid);
+          } },
+        { node: 'next', title: '다음은 사람이 port로', mon: ['p2j-scaffold', 11, SESSION.scaf],
+          async scene(ctx, rid) {
+            await move(ctx, 'mn', 900, rid, 't-h');
+            await waitHuman(ctx, 'next', 1800, rid);
+          } },
+      ],
+    },
+
+    /* ============ 03 초벌 이관 ============ */
+    {
+      key: 'port', name: '초벌 이관', sub: 'PHP 파일 하나 · 로직을 옮겨 컴파일 통과',
+      aria: '초벌 이관. 담당자가 /p2j-port로 항목을 넘기면 세션 시작 훅이 p2j.env 경로를 주입하고 스킬 세션을 기록한다. p2j-port는 단계를 Task로 등록하고 PHP 원본을 읽는데, 반대편 _lib 접근은 가드 훅이 거부한다. Write나 Edit로 Java를 수정하면 린트 훅이 바로 피드백하고, Bash로 쓴 파일도 실행 전후 변화로 이 세션 소유로 기록된다. 컴파일 검증 뒤 종료하려 하면 게이트 훅이 이 세션이 쓴 Java 파일의 프로젝트를 다시 컴파일하고 린트를 돌린다. 통과하면 work 목록을 체크하고 다음 항목으로 돌아간다.',
+      nodes: {
+        pick:   { type: 'human', x: 110, y: 50, label: '항목 선택', step: 0, desc: '담당자가 모니터에서 도메인 · port · 프로젝트 · map 행을 고르고 실행합니다. 한 항목은 PHP 파일 하나이고 map의 한 행과 같습니다. 모니터는 /p2j-port site/main_api/gift.php × user-api (gift-map G1) 같은 명령으로 새 세션을 띄웁니다.' },
+        env:    { type: 'doc', x: 110, y: 490, label: 'p2j.env', sub: 'PC별 경로 7개', step: 1, desc: 'PHP 레포 2개, Java 레포 4개, Obsidian vault 경로를 담은 PC별 설정 파일입니다. 공유용 p2j.env.example을 복사해 채웁니다.' },
+        start:  { type: 'hook', x: 110, y: 370, label: '세션 시작 훅', sub: 'SessionStart · Prompt', step: 1, desc: '세션이 열리면 p2j.env를 읽어 Claude 컨텍스트와 Bash 환경변수($P2J_*)에 넣습니다. /p2j-port 입력을 감지하면 스킬 세션 상태를 만들고, 프롬프트의 site/main_api에서 대상 프로젝트를 user-api로 추정합니다.' },
+        port:   { type: 'skill', x: 330, y: 260, label: 'p2j-port', sub: 'stub에 로직 이식', step: 2, desc: '먼저 Gate에서 PHP 파일의 map 행을 찾습니다. 행이 없으면 "p2j-discovery를 먼저", Java 칸이 비어 있으면 "p2j-scaffold를 먼저" 한 줄을 남기고 멈춥니다. 통과하면 Java 칸이 가리키는 stub을 PHP 흐름 그대로 채웁니다. 다른 도메인 함수를 만나면 map 경계 표대로 처리합니다: 이 프로젝트에 구현이 있으면 직접 호출, 없으면 {X}Port + Unsupported{X}Port로 끊습니다. 스킬 본문의 경로 섹션은 로드될 때 p2j.env 값으로 바뀝니다. 시작할 때 단계 5개를 TaskCreate로 등록하고 단계마다 TaskUpdate합니다.' },
+        guard:  { type: 'hook', x: 330, y: 370, label: '_lib 가드', sub: 'PreToolUse', step: 3, desc: 'Read, Grep, Glob, Bash 호출을 검사합니다. 대상이 user-api면 siteadmin/_lib를, admin-api나 batch면 site/_lib를 거부하고 사유를 Claude에게 돌려줍니다. 반대편을 포함하는 재귀 검색도 거부합니다. Bash는 cd $P2J_SITE_DIR/_lib나 S=$P2J_SITE_DIR/_lib처럼 변수로 쓴 경로도 펼쳐서 검사합니다.' },
+        src:    { type: 'doc', x: 250, y: 490, label: 'site/_lib', sub: '허용 · 자기 스트림', step: 3, desc: 'site-business 스트림이 읽는 쪽입니다. 모든 판단의 기준은 PHP 원본입니다.' },
+        other:  { type: 'doc', x: 410, y: 490, label: 'siteadmin/_lib', sub: '거부 · 반대편', step: 3, desc: '이름이 같은 함수라도 내용이 다를 수 있어서 읽지 않습니다. 가드가 도구 호출 단계에서 막습니다.' },
+        lint:   { type: 'hook', x: 600, y: 370, label: '컨벤션 린트', sub: 'PostToolUse · Write/Edit', step: 4, desc: 'Write나 Edit로 Java를 수정하면 바로 네 가지를 봅니다: @Entity와 @Setter를 함께 쓴 경우, 다른 도메인 entity와의 연관관계, TODO(p2j) 없는 UnsupportedOperationException, // PHP: 매핑 주석 삭제. 막지는 않고 Claude에게 피드백합니다. Bash heredoc으로 쓴 파일은 이 시점에 보이지 않아서, 종료 게이트가 한 번 더 확인합니다. 같은 파일에 남은 다른 행의 scaffold stub은 지적하지 않습니다.' },
+        code:   { type: 'doc', x: 600, y: 490, label: 'Java 코드', sub: 'TODO(p2j) 마커', step: 4, chips: 5, chipClass: 'chip-marker', desc: '막힌 지점은 TODO(p2j), 원본 버그는 TODO(p2j-bug), 옮겨 둔 안티패턴은 TODO(p2j-refactor)로 남깁니다. 아직 없는 다른 도메인 기능은 상대 도메인 패키지의 port/{X}Port 인터페이스와, "활성화 금지"로 throw하는 Unsupported{X}Port로 끊습니다.' },
+        compile:{ type: 'check', x: 800, y: 490, lines: ['compile', 'Java'], step: 5, desc: '스킬의 컴파일 검증 단계입니다. Claude가 ./gradlew compileJava를 직접 돌리고, 실제 출력을 확인한 뒤에만 완료를 선언합니다.' },
+        gate:   { type: 'hook', x: 940, y: 370, label: '컴파일 게이트', sub: 'Stop · 세션 소유 파일', step: 6, desc: '이 세션이 쓴 .java만 검사합니다. Write·Edit는 경로로, Bash는 그 명령이 도는 동안 바뀐 파일로 기록해 두기 때문에, 같은 프로젝트를 다른 세션이 고쳐도 섞이지 않습니다. 그 프로젝트마다 compileJava를 돌리고, 테스트 폴더가 있으면 compileTestJava까지 돌립니다. 컴파일이 실패하면 종료를 막고 한 턴에 3번까지 되돌립니다. 린트만 걸리면 같은 지적으로는 한 번만 막습니다.' },
+
+        work:   { type: 'doc', x: 1090, y: 490, label: 'work/{stream}.md', sub: '단일 진실 공급원', step: 7, chips: 6, chipClass: 'chip-check', desc: '컴파일을 통과한 항목만 체크합니다.' },
+        bmap:   { type: 'doc', x: 1090, y: 260, label: '{domain}-map.md', sub: '경계 표 · 처리 칸', step: 7, desc: '컴파일이 통과하면 이번 행이 쓰는 경계 줄의 처리 칸을 채웁니다. 한 줄을 여러 행이 공유하므로 항목은 항상 {프로젝트} {행}:으로 시작합니다. 예: user-api G1: Port — BrokerReqPort#reqGift (Unsupported, 활성화 금지). Port로 끊긴 진입점은 켜면 안 된다는 뜻이고, Output Summary에도 ⛔로 표시합니다.' },
+      },
+      edges: [
+        { id: 'ps', d: 'M110,73 V347', steps: [1, 7], label: '/p2j-port …', lx: 118, ly: 210 },
+        { id: 'es', d: 'M110,460 V393', steps: [1], label: '경로', lx: 118, ly: 434 },
+        { id: 'sp', d: 'M168,362 H240 V260 H278', steps: [2], label: '스킬 세션', lx: 248, ly: 300 },
+        { id: 'pg', d: 'M330,286 V347', steps: [3], label: '읽기', lx: 338, ly: 336 },
+        { id: 'gs', d: 'M305,393 V428 H250 V460', steps: [3], label: '허용', lx: 258, ly: 446 },
+        { id: 'gd', d: 'M355,393 V428 H410 V460', steps: [3], kind: 'deny', label: '거부', lx: 418, ly: 446 },
+        { id: 'pl', d: 'M382,252 H600 V347', steps: [4], label: 'Write · Edit · Bash', lx: 490, ly: 244, anchor: 'middle' },
+        { id: 'lc', d: 'M600,393 V460', steps: [4] },
+        { id: 'lf', d: 'M542,378 H362 V286', steps: [4], kind: 'hookfb', label: '피드백', lx: 452, ly: 404, anchor: 'middle' },
+        { id: 'cc', d: 'M660,490 H764', steps: [5], label: '빌드', lx: 712, ly: 482, anchor: 'middle' },
+        { id: 'cg', d: 'M836,490 H940 V393', steps: [6], label: '종료 시 재확인', lx: 948, ly: 446 },
+        { id: 'gw', d: 'M998,370 H1090 V460', steps: [7], label: '통과하면 체크', lx: 1044, ly: 362, anchor: 'middle' },
+        { id: 'gm', d: 'M940,347 V260 H1030', steps: [7], label: '경계 처리 칸', lx: 948, ly: 300 },
+        { id: 'wn', d: 'M1090,520 V548 H40 V50 H52', steps: [7], label: '다음 항목', lx: 48, ly: 290 },
+      ],
+      reset(ctx, si) {
+        clearStates(ctx);
+        setChips(ctx, 'code', si < 4 ? 0 : 5);
+        setChips(ctx, 'work', si < 7 ? 0 : 1);
+        if (si >= 3) flag(ctx, 'other', 'denied');
+        if (si >= 5) flag(ctx, 'compile', 'pass');
+        if (si >= 6) flag(ctx, 'gate', 'pass');
+      },
+      steps: [
+        { node: 'pick', title: '항목 선택', mon: [null, 0, '대기 중'],
+          async scene(ctx, rid) { await waitHuman(ctx, 'pick', 1600, rid); } },
+        { node: 'start', title: '세션 시작 · 경로 주입', mon: [null, 0, 'p2j-port 세션 인식'],
+          async scene(ctx, rid) {
+            await Promise.all([move(ctx, 'ps', 1100, rid, 't-h'), move(ctx, 'es', 700, rid, 't-faint')]);
+            flag(ctx, 'start', 'pass');
+            hook('SessionStart', 'P2J_* 7개 → 컨텍스트 · Bash env');
+            hook('UserPromptSubmit', '/p2j-port 감지 → project=user-api');
+            notify('[p2j-port] 세션 시작 (project: user-api)');
+            await sleep(1200, rid);
+          } },
+        { node: 'port', title: '스킬 로드 · Task 등록', mon: ['p2j-port', 0, SESSION.port],
+          async scene(ctx, rid) {
+            await move(ctx, 'sp', 900, rid, 't-k');
+            await monBegin('p2j-port', SESSION.port, 260, rid);
+            await sleep(500, rid);
+          } },
+        { node: 'guard', title: '원본 읽기 · 반대편 차단', mon: ['p2j-port', 0, SESSION.port],
+          async scene(ctx, rid) {
+            flag(ctx, 'other', 'denied', false);
+            monSet(0, 'in_progress'); log('TaskUpdate', '1 gate-check in_progress');
+            log('Grep', 'site/main_api/gift.php → discovery/gift-map.md G1 · Java 칸 있음');
+            await sleep(400, rid); monSet(0, 'completed'); log('TaskUpdate', '1 gate-check completed');
+            monSet(1, 'in_progress'); monSet(1, 'completed'); log('TaskUpdate', '2 stub-reading completed · GiftService#gift');
+            monSet(2, 'in_progress'); log('TaskUpdate', '3 php-source-reading in_progress');
+            await move(ctx, 'pg', 500, rid, 't-ai');
+            await move(ctx, 'gs', 700, rid, 't-ai');
+            await move(ctx, 'pg', 500, rid, 't-x');
+            flag(ctx, 'guard', 'deny');
+            await move(ctx, 'gd', 900, rid, 't-x', 0.35);
+            flag(ctx, 'other', 'denied');
+            deny('PreToolUse', 'Read siteadmin/_lib 거부 — site/_lib의 같은 함수를 읽으세요');
+            await sleep(900, rid);
+            flag(ctx, 'guard', 'deny', false);
+            await move(ctx, 'pg', 500, rid, 't-ai');
+            await move(ctx, 'gs', 700, rid, 't-ai');
+            monSet(2, 'completed'); log('TaskUpdate', '3 php-source-reading completed');
+            await sleep(400, rid);
+          } },
+        { node: 'lint', title: 'literal port · 린트 피드백', mon: ['p2j-port', 3, SESSION.port],
+          async scene(ctx, rid) {
+            setChips(ctx, 'code', 0);
+            monSet(3, 'in_progress'); log('TaskUpdate', '4 literal-port in_progress');
+            for (let k = 0; k < 3; k++) {
+              await move(ctx, 'pl', 700, rid, 't-ai');
+              await move(ctx, 'lc', 350, rid, 't-ai');
+              setChips(ctx, 'code', k + 1);
+              if (k === 0) log('Bash', 'cat > GiftService.java <<EOF · 린트는 못 봄 → 게이트가 확인');
+              if (k === 2) {
+                log('Grep', 'wallet_lock → wallet.WalletLockService#walletLock 있음 → 직접 호출');
+                log('Write', 'broker_req_gift 구현 없음 → domain/broker/port/BrokerReqPort + Unsupported');
+              }
+              if (k === 1) {
+                await move(ctx, 'lf', 800, rid, 't-k');
+                hook('PostToolUse', 'lint: // PHP: 매핑 주석 1개 사라짐 → 되살릴 것');
+                await sleep(500, rid);
+              }
+            }
+            setChips(ctx, 'code', 5);
+            monSet(3, 'completed'); log('TaskUpdate', '4 literal-port completed');
+            await sleep(400, rid);
+          } },
+        { node: 'compile', title: '컴파일 검증 (스킬 단계)', mon: ['p2j-port', 4, SESSION.port],
+          async scene(ctx, rid) {
+            monSet(4, 'in_progress'); log('TaskUpdate', '5 compile-verification in_progress');
+            await move(ctx, 'cc', 800, rid, 't-ai');
+            flag(ctx, 'compile', 'pass');
+            log('Bash', './gradlew compileJava → BUILD SUCCESSFUL');
+            monSet(4, 'completed'); log('TaskUpdate', '5 compile-verification completed');
+            await sleep(700, rid);
+          } },
+        { node: 'gate', title: '종료 시 컴파일 게이트', mon: ['p2j-port', 5, SESSION.port],
+          async scene(ctx, rid) {
+            await move(ctx, 'cg', 900, rid, 't-ai');
+            flag(ctx, 'gate', 'busy');
+            await sleep(1200, rid);
+            flag(ctx, 'gate', 'busy', false); flag(ctx, 'gate', 'pass');
+            hook('Stop', 'gate: 이 세션이 쓴 .java 3개 → user-api compile PASS · 린트 OK');
+            notify('[p2j-port] compileJava 통과 (user-api) — 변경 .java 3개');
+            await sleep(900, rid);
+          } },
+        { node: 'work', title: '체크 후 다음 항목', mon: ['p2j-port', 5, SESSION.port],
+          async scene(ctx, rid) {
+            setChips(ctx, 'work', 0);
+            await Promise.all([move(ctx, 'gw', 900, rid, 't-ai'), move(ctx, 'gm', 900, rid, 't-ai')]);
+            log('Edit', 'gift-map.md 처리 칸 · user-api G1: 직접 호출 1 · ⛔ Port 1');
+            setChips(ctx, 'work', 1);
+            await move(ctx, 'wn', 1500, rid, 't-h');
+            await waitHuman(ctx, 'pick', 1200, rid);
+          } },
+      ],
+    },
+
+    /* ============ 04 TDD 검증·개선 ============ */
+    {
+      key: 'migrate', name: 'TDD 검증·개선', sub: 'endpoint 하나 · PHP 동작을 테스트로 고정',
+      aria: 'TDD 검증·개선. p2j-migrator가 p2j-migrate를 실행하면 Gate가 map의 Java 칸이 가리키는 메서드에 port된 로직과 PHP 매핑 주석이 있는지 확인하고, stub이면 p2j-port를 먼저 하라며 멈춘다. PHP 원본으로 테스트를 설계해 사람에게 확인받으면 케이스마다 하위 Task를 등록한다. 바로 통과하는 characterization은 묶어서 돌리고, 실패하거나 TODO 마커가 있는 케이스만 하나씩 RED, GREEN, REFACTOR를 거친다. Java를 수정할 때마다 린트 훅이 피드백한다. 전체 테스트 뒤 종료하려 하면 게이트 훅이 compileJava와 compileTestJava를 확인하고, 통과하면 work 목록에 ✓2차를 남긴다. 잔존 TODO와, PHP 원본을 그대로 따르지 않고 고칠 지점은 사람이 판단한다.',
+      nodes: {
+        input:   { type: 'doc', x: 110, y: 490, label: '초벌 완료 코드', sub: '매핑 주석 · TODO(p2j)', step: 0, desc: '2차의 입력은 p2j-port가 끝난 코드입니다. map 행의 Java 칸으로 대상을 찾고, 코드에 남은 PHP 매핑 주석과 TODO(p2j) 마커 목록을 함께 모읍니다.' },
+        orch:    { type: 'orch', x: 300, y: 150, label: 'p2j-migrator', sub: '2차 → migrate', step: 0, desc: '모니터에서 migrate와 map 행 하나를 고르면 endpoint 하나 단위로 p2j-migrate를 실행합니다. 이미 ✓2차인 행은 모니터가 고를 수 없게 막습니다.' },
+        mode:    { type: 'check', x: 300, y: 490, lines: ['port', '완료?'], step: 1, desc: 'map에 행이 없으면 "discovery 먼저", Java 칸이 비어 있으면 "scaffold → port 먼저", 메서드가 stub이면 "p2j-port를 먼저" 한 줄을 남기고 멈춥니다. 로직은 있는데 매핑 주석이 없으면 출처를 알 수 없어서 멈추고 사람에게 알립니다. work 항목에 ✓2차가 있으면 중복 작업이라 사람에게 확인합니다.' },
+        read:    { type: 'skill', x: 460, y: 260, label: '원본 읽기', sub: '매핑 주석 추적', step: 2, desc: '매핑 주석에서 원본 경로를 찾아 입력, 사전 조건, 에러 분기, 트랜잭션, side effect를 뽑습니다. 이 세션에서도 _lib 가드가 반대편 접근을 막습니다.' },
+        design:  { type: 'skill', x: 600, y: 260, label: '테스트 설계', sub: 'happy · error · edge', step: 3, desc: '기대값은 Java 구현이 아니라 PHP 원본에서 도출합니다. happy · error · edge로 케이스를 나눠 목록을 만듭니다.' },
+        approve: { type: 'human', x: 600, y: 50, label: '케이스 확인', step: 4, desc: '테스트 케이스 목록은 구현 전에 사람이 확인합니다. 확인이 끝나면 케이스마다 tdd-cycle: {케이스명} 하위 Task를 한 번에 등록해, 모니터에서 케이스 단위로 진행이 보입니다.' },
+        tdd:     { type: 'group', x: 800, y: 260, w: 230, label: '케이스 하나씩', step: 5, desc: 'PHP 기준 테스트가 바로 통과하는 케이스는 같은 그룹끼리 묶어 돌리고 동작을 고정합니다. 실패하면 테스트가 아니라 코드를 고치고, 이런 RED 케이스와 TODO 마커 지점은 한 번에 하나씩만 다룹니다.' },
+        lint:    { type: 'hook', x: 800, y: 370, label: '컨벤션 린트', sub: 'Java 수정마다', step: 5, desc: 'GREEN이나 REFACTOR에서 Write나 Edit로 Java를 고칠 때마다 entity setter, cross-domain 연관관계, 매핑 주석 삭제를 확인해 피드백합니다. Bash로 고친 파일은 종료 게이트가 다시 확인합니다.' },
+        final:   { type: 'check', x: 960, y: 490, lines: ['전체', '테스트'], step: 6, desc: './gradlew test와 compileJava를 Claude가 직접 실행하고, 출력을 확인한 뒤에만 완료를 선언합니다.' },
+        sgate:   { type: 'hook', x: 1080, y: 370, label: '컴파일 게이트', sub: 'Stop · test 포함', step: 7, desc: '종료할 때 이 세션이 쓴 .java(테스트 코드 포함)의 프로젝트를 compileJava로 돌리고, src/test/java가 있으면 compileTestJava까지 확인합니다. 쓴 파일에는 린트도 다시 적용합니다. 실패하면 종료를 막습니다.' },
+        resolve: { type: 'human', x: 1080, y: 50, label: 'TODO · 개선 판단', step: 8, desc: '검증이 끝나면 work 항목 줄 끝에 ✓2차가 붙습니다. 2차 완료의 유일한 기록이라 Gate와 모니터가 이것을 읽습니다. 해소하지 못한 TODO(p2j)는 이유와 함께 보고되고, 사람이 하나씩 확인해 결정합니다. 초벌에서 그대로 옮긴 PHP 버그 의심 지점(TODO(p2j-bug))이나 원본 동작 자체가 맞지 않는 곳도 여기서 사람이 판단합니다. 고치기로 한 지점은 테스트 기대값을 먼저 바꾼 뒤 같은 사이클로 코드에 반영합니다.' },
+      },
+      edges: [
+        { id: 'io', d: 'M110,460 V150 H248', steps: [0], label: '입력', lx: 118, ly: 300 },
+        { id: 'og', d: 'M300,177 V454', steps: [1], label: 'migrate 실행', lx: 308, ly: 300 },
+        { id: 'gr', d: 'M336,490 H460 V286', steps: [2], label: 'port 완료', lx: 398, ly: 482, anchor: 'middle' },
+        { id: 'rd', d: 'M512,260 H546', steps: [3] },
+        { id: 'da', d: 'M600,233 V73', steps: [4], label: '케이스 목록', lx: 608, ly: 150 },
+        { id: 'at', d: 'M658,50 H720 V215', steps: [5], label: '확인', lx: 689, ly: 42, anchor: 'middle' },
+        { id: 'tl', d: 'M800,311 V347', steps: [5], kind: 'bus' },
+        { id: 'lf', d: 'M742,378 H700 V300 H715', steps: [5], kind: 'hookfb', label: '피드백', lx: 694, ly: 396, anchor: 'end' },
+        { id: 'tf', d: 'M915,300 H960 V454', steps: [6], label: '모든 케이스', lx: 968, ly: 420 },
+        { id: 'fg', d: 'M996,490 H1080 V393', steps: [7], label: '종료 시 재확인', lx: 1088, ly: 446 },
+        { id: 'gre', d: 'M1080,347 V73', steps: [8], label: '통과', lx: 1088, ly: 200 },
+      ],
+      extras(ctx) {
+        const g = make('g', {}, ctx.nodesLayer);
+        ctx.modeTags = [
+          text(g, 'stub → 멈춤', { class: 'mode-tag', x: 258, y: 547, 'text-anchor': 'middle' }),
+          text(g, '로직 + 주석', { class: 'mode-tag', x: 342, y: 547, 'text-anchor': 'middle' }),
+        ];
+        const arrow = (d) => make('path', { class: 'tdd-a', d, 'marker-end': `url(#${ctx.key}-ah)` }, g);
+        ctx.charEl = make('rect', { class: 'char-pill', x: 696, y: 247, width: 96, height: 26, rx: 13 }, g);
+        text(g, 'PHP 기준 테스트', { class: 'char-t', x: 744, y: 264, 'text-anchor': 'middle' });
+        ctx.fixedEl = text(g, '통과 → 동작 고정', { class: 'fixed-t', x: 744, y: 293, 'text-anchor': 'middle' });
+        arrow('M792,260 H812');
+        text(g, '실패·TODO', { class: 'tdd-lab', x: 802, y: 242, 'text-anchor': 'middle' });
+        const c = { red: [830, 260], green: [888, 260], ref: [859, 293] };
+        arrow('M845,260 H871');
+        arrow('M880,273 L869,281');
+        arrow('M848,281 L838,273');
+        ctx.tdd = {};
+        for (const [k, [x, y]] of Object.entries(c)) {
+          ctx.tdd[k] = make('circle', { class: `tdd-c ${k}`, cx: x, cy: y, r: 14 }, g);
+          text(g, k === 'ref' ? 'REF' : k.toUpperCase(), { class: 'tdd-t', x, y: y + 3.5, 'text-anchor': 'middle' });
+        }
+        ctx.tddCase = text(g, '', { class: 'tdd-case', x: 800, y: 306, 'text-anchor': 'middle' });
+      },
+      reset(ctx, si) {
+        clearStates(ctx);
+        ctx.modeTags[0].classList.remove('on');
+        ctx.modeTags[1].classList.toggle('on', si > 1);
+        Object.values(ctx.tdd).forEach((c) => c.classList.remove('on'));
+        ctx.charEl.classList.remove('on', 'ok');
+        ctx.fixedEl.classList.remove('on');
+        ctx.tddCase.textContent = '';
+        if (si > 1) flag(ctx, 'mode', 'pass');
+        if (si > 6) flag(ctx, 'final', 'pass');
+        if (si > 7) flag(ctx, 'sgate', 'pass');
+      },
+      steps: [
+        { node: 'orch', title: '2차 실행', mon: ['p2j-migrate', 0, SESSION.migrate],
+          async scene(ctx, rid) {
+            await move(ctx, 'io', 1100, rid);
+            notify('[p2j-migrate] 세션 시작 (project: user-api)');
+            await monBegin('p2j-migrate', SESSION.migrate, 180, rid);
+            await sleep(300, rid);
+          } },
+        { node: 'mode', title: 'port 완료 확인',
+          async scene(ctx, rid) {
+            monSet(0, 'in_progress'); log('TaskUpdate', '1 gate-check in_progress');
+            await move(ctx, 'og', 900, rid, 't-ai');
+            ctx.modeTags[0].classList.add('on'); await sleep(450, rid);
+            ctx.modeTags[0].classList.remove('on'); ctx.modeTags[1].classList.add('on');
+            flag(ctx, 'mode', 'pass');
+            log('Grep', 'discovery/auction-map.md A3 → AuctionService#bid · 로직 + // PHP: 주석');
+            monSet(0, 'completed'); log('TaskUpdate', '1 gate-check completed · TODO(p2j) 2개');
+            await sleep(800, rid);
+          } },
+        { node: 'read', title: '원본 읽기', mon: ['p2j-migrate', 1, SESSION.migrate],
+          async scene(ctx, rid) { await move(ctx, 'gr', 800, rid, 't-ai'); await monRun(1, 3, 500, rid); } },
+        { node: 'design', title: '테스트 설계', mon: ['p2j-migrate', 3, SESSION.migrate],
+          async scene(ctx, rid) {
+            await move(ctx, 'rd', 500, rid, 't-ai');
+            monSet(3, 'in_progress'); log('TaskUpdate', '4 test-design in_progress');
+            for (const s of ['happy 2', 'error 3', 'edge 2']) { await sleep(380, rid); log('Write', `케이스 목록 · ${s}`); }
+            await sleep(400, rid);
+          } },
+        { node: 'approve', title: '케이스 확인', mon: ['p2j-migrate', 3, SESSION.migrate],
+          async scene(ctx, rid) {
+            monSet(3, 'waiting');
+            await move(ctx, 'da', 900, rid, 't-ai');
+            await waitHuman(ctx, 'approve', 1900, rid);
+            monSet(3, 'completed'); log('TaskUpdate', '4 test-design completed');
+            for (const c of ['B3_경매없음', 'B6_시작가_미만', 'C9_잔액부족', '… 7개']) log('TaskCreate', `tdd-cycle: ${c}`);
+          } },
+        { node: 'tdd', title: '케이스별 사이클 · 린트', mon: ['p2j-migrate', 4, SESSION.migrate],
+          async scene(ctx, rid) {
+            await move(ctx, 'at', 900, rid, 't-h');
+            monSet(4, 'in_progress'); log('TaskUpdate', '5 tdd-cycle in_progress');
+            const cases = [['B3·B6 묶음', 'pass'], ['C9_잔액부족', 'fail'], ['Z1_zero_date', 'todo']];
+            for (const [id, kind] of cases) {
+              ctx.tddCase.textContent = kind === 'todo' ? `${id} · TODO(p2j) 지점` : id;
+              ctx.fixedEl.classList.remove('on');
+              if (kind !== 'todo') {
+                ctx.charEl.classList.add('on');
+                await sleep(500, rid);
+                ctx.charEl.classList.remove('on');
+                if (kind === 'pass') {
+                  ctx.charEl.classList.add('ok'); ctx.fixedEl.classList.add('on');
+                  log('TaskUpdate', `tdd-cycle: ${id} characterization completed`);
+                  await sleep(600, rid);
+                  ctx.charEl.classList.remove('ok');
+                  continue;
+                }
+              }
+              for (const ph of ['red', 'green', 'ref']) {
+                ctx.tdd[ph].classList.add('on');
+                log('TaskUpdate', `tdd-cycle: ${id} ${ph === 'ref' ? 'refactor' : ph} completed`);
+                if (ph === 'green' && kind === 'fail') {
+                  await sleep(300, rid);
+                  await move(ctx, 'lf', 700, rid, 't-k');
+                  hook('PostToolUse', 'lint: Bid.java @Entity에 @Setter → 비즈니스 메서드로');
+                }
+                await sleep(420, rid);
+                ctx.tdd[ph].classList.remove('on');
+              }
+            }
+            ctx.tddCase.textContent = '';
+            monSet(4, 'completed'); log('TaskUpdate', '5 tdd-cycle completed');
+            await sleep(300, rid);
+          } },
+        { node: 'final', title: '최종 검증', mon: ['p2j-migrate', 5, SESSION.migrate],
+          async scene(ctx, rid) {
+            monSet(5, 'in_progress'); log('TaskUpdate', '6 final-verification in_progress');
+            await move(ctx, 'tf', 800, rid, 't-ai');
+            flag(ctx, 'final', 'pass');
+            log('Bash', './gradlew test → 7 tests PASS');
+            log('Edit', 'work/site-business.md · auction/bid.php ✓2차');
+            monSet(5, 'completed'); log('TaskUpdate', '6 final-verification completed');
+            await sleep(800, rid);
+          } },
+        { node: 'sgate', title: '종료 시 컴파일 게이트', mon: ['p2j-migrate', 6, SESSION.migrate],
+          async scene(ctx, rid) {
+            await move(ctx, 'fg', 900, rid, 't-ai');
+            flag(ctx, 'sgate', 'busy');
+            await sleep(1100, rid);
+            flag(ctx, 'sgate', 'busy', false); flag(ctx, 'sgate', 'pass');
+            hook('Stop', 'gate: user-api compileJava · compileTestJava PASS');
+            notify('[p2j-migrate] compileJava 통과 (user-api)');
+            await sleep(800, rid);
+          } },
+        { node: 'resolve', title: 'TODO · 개선 판단', mon: ['p2j-migrate', 6, SESSION.migrate],
+          async scene(ctx, rid) {
+            await move(ctx, 'gre', 1000, rid, 't-ai');
+            await waitHuman(ctx, 'resolve', 2000, rid);
+            await sleep(900, rid);
+          } },
+      ],
+    },
+  ];
+
+  /* ---------- render ---------- */
+  const svgsHost = document.getElementById('svgs');
+  const ctxs = PHASES.map((p) => {
+    const svg = make('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': p.aria });
+    const defs = make('defs', {}, svg);
+    for (const id of ['ah', 'ah-on', 'ah-x', 'ah-k']) {
+      const m = make('marker', { id: `${p.key}-${id}`, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+      make('path', { class: id, d: 'M0,0 L10,5 L0,10 z' }, m);
+    }
+    const lanes = make('g', {}, svg);
+    for (const l of LANES) {
+      make('rect', { class: 'lane' + (l.cls ? ` ${l.cls}-lane` : ''), x: 0, y: l.y, width: W, height: l.h }, lanes);
+      if (l.y) make('line', { class: 'lane-sep', x1: 0, y1: l.y, x2: W, y2: l.y }, lanes);
+      text(lanes, l.name, { class: 'lane-label' + (l.cls ? ` ${l.cls}-l` : ''), x: 14, y: l.y + 18 });
+    }
+    const ctx = { key: p.key, svg, nodeEls: {}, edgeEls: {}, chips: {} };
+    const edgeLayer = make('g', {}, svg);
+    ctx.nodesLayer = make('g', {}, svg);
+    ctx.tokens = make('g', {}, svg);
+
+    for (const e of p.edges) {
+      const attrs = { class: 'edge' + (e.kind ? ` ${e.kind}` : ''), d: e.d };
+      if (e.kind === 'deny') attrs['marker-end'] = `url(#${p.key}-ah-x)`;
+      else if (e.kind === 'hookfb') attrs['marker-end'] = `url(#${p.key}-ah-k)`;
+      else if (e.kind !== 'bus') attrs['marker-end'] = `url(#${p.key}-ah)`;
+      ctx.edgeEls[e.id] = make('path', attrs, edgeLayer);
+      if (e.label) {
+        const lc = e.kind === 'deny' ? ' x' : (e.kind === 'hookfb' || e.kind === 'bus') ? ' k' : '';
+        text(edgeLayer, e.label, { class: 'edge-label' + lc, x: e.lx, y: e.ly, 'text-anchor': e.anchor || 'start' });
+      }
+    }
+
+    for (const [id, n] of Object.entries(p.nodes)) {
+      const name = n.label || n.lines.join(' ');
+      const g = make('g', { class: `node ${n.type}${n.optional ? ' optional' : ''}`, tabindex: 0, role: 'button', 'aria-label': `${name}: ${n.desc}` }, ctx.nodesLayer);
+      if (n.type === 'human') {
+        make('rect', { class: 'ring', x: n.x - 58, y: n.y - 23, width: 116, height: 46, rx: 8 }, g);
+        make('rect', { class: 'shape', x: n.x - 58, y: n.y - 23, width: 116, height: 46, rx: 8 }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: n.y + 5, 'text-anchor': 'middle' });
+        text(g, '사람 확인 대기', { class: 'wait', x: n.x, y: n.y - 30, 'text-anchor': 'middle' });
+      } else if (n.type === 'skill' || n.type === 'orch') {
+        make('rect', { class: 'shape', x: n.x - 52, y: n.y - 26, width: 104, height: 52, rx: 6 }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: n.y - 3, 'text-anchor': 'middle' });
+        text(g, n.sub, { class: 'sub', x: n.x, y: n.y + 15, 'text-anchor': 'middle' });
+      } else if (n.type === 'hook') {
+        const w = 58, h = 23, c = 8;
+        const pts = [[n.x - w + c, n.y - h], [n.x + w - c, n.y - h], [n.x + w, n.y - h + c], [n.x + w, n.y + h - c], [n.x + w - c, n.y + h], [n.x - w + c, n.y + h], [n.x - w, n.y + h - c], [n.x - w, n.y - h + c]];
+        make('polygon', { class: 'shape', points: pts.map((q) => q.join(',')).join(' ') }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: n.y - 2, 'text-anchor': 'middle' });
+        text(g, n.sub, { class: 'sub', x: n.x, y: n.y + 13, 'text-anchor': 'middle' });
+      } else if (n.type === 'script') {
+        make('rect', { class: 'shape', x: n.x - 60, y: n.y - 24, width: 120, height: 48, rx: 3 }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: n.y - 2, 'text-anchor': 'middle' });
+        text(g, n.sub, { class: 'sub', x: n.x, y: n.y + 14, 'text-anchor': 'middle' });
+      } else if (n.type === 'check') {
+        make('polygon', { class: 'shape', points: `${n.x},${n.y - 36} ${n.x + 36},${n.y} ${n.x},${n.y + 36} ${n.x - 36},${n.y}` }, g);
+        n.lines.forEach((ln, k) => text(g, ln, { class: 'label', x: n.x, y: n.y - 3 + k * 14, 'text-anchor': 'middle' }));
+      } else if (n.type === 'doc') {
+        const x0 = n.x - 60, y0 = n.y - 30;
+        make('path', { class: 'shape', d: `M${x0},${y0} H${x0 + 108} L${x0 + 120},${y0 + 12} V${y0 + 60} H${x0} Z` }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: y0 + 19, 'text-anchor': 'middle' });
+        text(g, n.sub, { class: 'sub', x: n.x, y: y0 + 34, 'text-anchor': 'middle' });
+        if (n.chips) {
+          const span = n.chips * 11 - 3;
+          ctx.chips[id] = Array.from({ length: n.chips }, (_, k) => make('rect', { class: n.chipClass, x: n.x - span / 2 + k * 11, y: y0 + 43, width: 8, height: 8, rx: 1.5, opacity: 0 }, g));
+        }
+      } else if (n.type === 'group') {
+        const gw = n.w || 170;
+        make('rect', { class: 'shape', x: n.x - gw / 2, y: n.y - 45, width: gw, height: 96, rx: 6 }, g);
+        text(g, n.label, { class: 'label', x: n.x, y: n.y - 29, 'text-anchor': 'middle' });
+      }
+      ctx.nodeEls[id] = g;
+      g.addEventListener('click', () => selectNode(p, id));
+      g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectNode(p, id); } });
+    }
+    if (p.extras) p.extras(ctx);
+    showSvg(svg, false);
+    svgsHost.appendChild(svg);
+    return ctx;
+  });
+
+  /* ---------- tabs ---------- */
+  const tabsHost = document.getElementById('phase-tabs');
+  const tabs = PHASES.map((p, pi) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'phase-tab';
+    b.setAttribute('role', 'tab');
+    b.innerHTML = '<span class="pn"></span><span class="pt"></span><span class="ps"></span>';
+    b.querySelector('.pn').textContent = p.num || pad(pi + 1);
+    b.querySelector('.pt').textContent = p.name;
+    b.querySelector('.ps').textContent = p.sub;
+    b.addEventListener('click', () => goTo(flat.findIndex((f) => f.pi === pi)));
+    tabsHost.appendChild(b);
+    return b;
+  });
+
+  /* ---------- state ---------- */
+  const flat = [];
+  PHASES.forEach((p, pi) => p.steps.forEach((s, si) => flat.push({ pi, si })));
+  let cur = 0;
+  let playing = !reduced;
+  const btnPlay = document.getElementById('btn-play');
+  const counter = document.getElementById('counter');
+  const panelNum = document.getElementById('panel-num');
+  const panelTitle = document.getElementById('panel-title');
+  const panelText = document.getElementById('panel-text');
+  const panelRen = document.getElementById('panel-ren');
+  let shownPhase = -1;
+
+  function showPanel(num, n, title) {
+    panelNum.textContent = num;
+    const kind = document.createElement('span');
+    kind.className = 'kind ' + n.type;
+    kind.textContent = KIND[n.type];
+    const t = document.createElement('span');
+    t.textContent = title || n.label || n.lines.join(' ');
+    panelTitle.replaceChildren(t, kind);
+    panelText.textContent = n.desc;
+    panelRen.replaceChildren();
+  }
+
+  function lastMon(pi, si) {
+    const steps = PHASES[pi].steps;
+    for (let k = si; k >= 0; k--) if (steps[k].mon) return steps[k].mon;
+    return null;
+  }
+
+  function applyState(pi, si) {
+    const p = PHASES[pi], ctx = ctxs[pi];
+    if (shownPhase !== pi) {
+      ctxs.forEach((c, k) => showSvg(c.svg, k === pi));
+      tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === pi)));
+      shownPhase = pi;
+    }
+    ctx.svg.classList.add('running');
+    for (const [id, n] of Object.entries(p.nodes)) {
+      const g = ctx.nodeEls[id];
+      g.classList.toggle('is-active', n.step === si || p.steps[si].node === id);
+      g.classList.toggle('is-idle', n.step > si && p.steps[si].node !== id);
+      g.classList.remove('is-waiting', 'is-selected');
+    }
+    for (const e of p.edges) {
+      const on = e.steps.includes(si);
+      const el = ctx.edgeEls[e.id];
+      el.classList.toggle('is-active', on);
+      el.classList.toggle('is-idle', !on);
+      if (!e.kind || e.kind === 'optional') el.setAttribute('marker-end', `url(#${p.key}-${on ? 'ah-on' : 'ah'})`);
+    }
+    p.reset(ctx, si);
+    const m = lastMon(pi, si);
+    if (m) monLoad(m[0], m[1], m[2], m[3], m[4]);
+    const step = p.steps[si];
+    counter.textContent = `${p.num || pad(pi + 1)} ${p.name} · ${si + 1} / ${p.steps.length}`;
+    showPanel(`${p.num || pi + 1}-${si + 1}`, p.nodes[step.node], step.title);
+  }
+
+  async function goTo(k) {
+    const rid = ++runId;
+    ctxs.forEach((c) => c.tokens.replaceChildren());
+    cur = (k + flat.length) % flat.length;
+    const { pi, si } = flat[cur];
+    applyState(pi, si);
+    if (!playing || reduced) return;
+    if (clockStart === null) clockStart = performance.now();
+    try {
+      await PHASES[pi].steps[si].scene(ctxs[pi], rid);
+      if (rid !== runId) return;
+      goTo(cur + 1);
+    } catch (err) {
+      if (!(err instanceof Cancelled)) throw err;
+    }
+  }
+
+  function setPlaying(on) {
+    playing = on;
+    btnPlay.textContent = on ? '일시정지' : '재생';
+    if (on) goTo(cur);
+    else {
+      runId++;
+      ctxs.forEach((c) => { c.tokens.replaceChildren(); Object.values(c.nodeEls).forEach((g) => g.classList.remove('is-waiting', 'busy')); });
+    }
+  }
+
+  function selectNode(p, id) {
+    if (playing) setPlaying(false);
+    const ctx = ctxs[PHASES.indexOf(p)];
+    Object.values(ctx.nodeEls).forEach((g) => g.classList.remove('is-selected'));
+    ctx.nodeEls[id].classList.add('is-selected');
+    showPanel(`${p.num || PHASES.indexOf(p) + 1}-${p.nodes[id].step + 1}`, p.nodes[id]);
+  }
+
+  btnPlay.addEventListener('click', () => setPlaying(!playing));
+  document.getElementById('btn-next').addEventListener('click', () => goTo(cur + 1));
+  document.getElementById('btn-prev').addEventListener('click', () => goTo(cur - 1));
+
+  /* at rest: phase 1 fully drawn, first step described */
+  showSvg(ctxs[0].svg, true);
+  tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === 0)));
+  shownPhase = 0;
+  monLoad(null, 0, '대기 중');
+  counter.textContent = `01 ${PHASES[0].name} · 1 / ${PHASES[0].steps.length}`;
+  showPanel('1-1', PHASES[0].nodes[PHASES[0].steps[0].node], PHASES[0].steps[0].title);
+  if (reduced) btnPlay.textContent = '재생';
+  else setTimeout(() => { if (playing) goTo(0); }, 900);
+})();
+</script>
+
+</body></html>
