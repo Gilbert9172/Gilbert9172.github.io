@@ -78,19 +78,7 @@ class Theme {
       return;
     }
 
-    this.#darkMedia.addEventListener('change', () => {
-      const lastMode = this.#mode;
-      this.#clearMode();
-
-      if (lastMode !== this.visualState) {
-        this.#notify();
-      }
-    });
-
-    if (!this.#hasMode) {
-      return;
-    }
-
+    // First visit starts in light mode regardless of the system preference
     if (this.#isDarkMode) {
       this.#setDark();
     } else {
@@ -102,11 +90,7 @@ class Theme {
    * Flips the current theme mode
    */
   static flip() {
-    if (this.#hasMode) {
-      this.#clearMode();
-    } else {
-      this.#sysDark ? this.#setLight() : this.#setDark();
-    }
+    this.#isDarkMode ? this.#setLight() : this.#setDark();
     this.#notify();
   }
 
@@ -118,11 +102,6 @@ class Theme {
   static #setLight() {
     document.documentElement.setAttribute(this.#modeAttr, this.LIGHT);
     sessionStorage.setItem(this.#modeKey, this.LIGHT);
-  }
-
-  static #clearMode() {
-    document.documentElement.removeAttribute(this.#modeAttr);
-    sessionStorage.removeItem(this.#modeKey);
   }
 
   /**
